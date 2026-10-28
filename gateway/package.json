@@ -1,0 +1,12 @@
+{
+  "name": "@umkm/gateway",
+  "version": "0.1.0",
+  "private": true,
+  "main": "gateway.js",
+  "scripts": { "start": "node gateway.js", "test:rate-limit": "node test-rate-limit.js" },
+  "dependencies": {
+    "express": "^5.3.0",
+    "express-rate-limit": "^8.7.1",
+    "http-proxy-middleware": "^3.0.7"
+  }
+}

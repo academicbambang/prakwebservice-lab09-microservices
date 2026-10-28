@@ -1,0 +1,131 @@
+Waktu eksekusi: 2026-10-28T09:32:19.961Z
+
+POST pesanan saat katalog mati
+catalog-service dihentikan; order-service dan gateway tetap berjalan.
+POST http://127.0.0.1:55880/order-service/orders
+Request: {"customerName":"Bambang Uji Kegagalan","items":[{"productId":"prod-001","quantity":2}]}
+HTTP 503 (10 ms)
+{
+  "error": "Catalog service is unavailable or timed out"
+}
+
+GET pesanan saat katalog mati
+Pesanan dari smoke test tetap dapat ditampilkan tanpa menghubungi katalog.
+GET http://127.0.0.1:55880/order-service/orders
+HTTP 200 (7 ms)
+{
+  "service": "order-service",
+  "data": [
+    {
+      "id": "ord-ca5ac52c-cb12-4198-8385-d8d60cdea0f6",
+      "customerName": "Bambang Lab 09",
+      "items": [
+        {
+          "productId": "prod-001",
+          "name": "Kopi Arabika Gayo",
+          "quantity": 2,
+          "unitPrice": 85000,
+          "subtotal": 170000
+        }
+      ],
+      "total": 170000,
+      "status": "pending",
+      "createdAt": "2026-10-28T09:32:20.061Z"
+    }
+  ]
+}
+
+POST pesanan sesudah katalog pulih
+Hanya catalog-service dinyalakan kembali. Stok kembali ke 40 karena data tersimpan di memori.
+POST http://127.0.0.1:55880/order-service/orders
+Request: {"customerName":"Bambang Uji Kegagalan","items":[{"productId":"prod-001","quantity":2}]}
+HTTP 201 (26 ms)
+{
+  "data": {
+    "id": "ord-8852ea42-50d5-4be4-a05b-eb3d86bc28b8",
+    "customerName": "Bambang Uji Kegagalan",
+    "items": [
+      {
+        "productId": "prod-001",
+        "name": "Kopi Arabika Gayo",
+        "quantity": 2,
+        "unitPrice": 85000,
+        "subtotal": 170000
+      }
+    ],
+    "total": 170000,
+    "status": "pending",
+    "createdAt": "2026-10-28T09:32:20.616Z"
+  }
+}
+
+Verifikasi reset
+GET http://127.0.0.1:55880/product-service/products/prod-001
+HTTP 200 (6 ms)
+{
+  "data": {
+    "id": "prod-001",
+    "name": "Kopi Arabika Gayo",
+    "category": "kuliner",
+    "price": 85000,
+    "stock": 40,
+    "seller": "Koperasi Kopi Gayo"
+  }
+}
+
+Verifikasi finalProduct
+GET http://127.0.0.1:55880/product-service/products/prod-001
+HTTP 200 (4 ms)
+{
+  "data": {
+    "id": "prod-001",
+    "name": "Kopi Arabika Gayo",
+    "category": "kuliner",
+    "price": 85000,
+    "stock": 38,
+    "seller": "Koperasi Kopi Gayo"
+  }
+}
+
+Verifikasi finalOrders
+GET http://127.0.0.1:55880/order-service/orders
+HTTP 200 (5 ms)
+{
+  "service": "order-service",
+  "data": [
+    {
+      "id": "ord-ca5ac52c-cb12-4198-8385-d8d60cdea0f6",
+      "customerName": "Bambang Lab 09",
+      "items": [
+        {
+          "productId": "prod-001",
+          "name": "Kopi Arabika Gayo",
+          "quantity": 2,
+          "unitPrice": 85000,
+          "subtotal": 170000
+        }
+      ],
+      "total": 170000,
+      "status": "pending",
+      "createdAt": "2026-10-28T09:32:20.061Z"
+    },
+    {
+      "id": "ord-8852ea42-50d5-4be4-a05b-eb3d86bc28b8",
+      "customerName": "Bambang Uji Kegagalan",
+      "items": [
+        {
+          "productId": "prod-001",
+          "name": "Kopi Arabika Gayo",
+          "quantity": 2,
+          "unitPrice": 85000,
+          "subtotal": 170000
+        }
+      ],
+      "total": 170000,
+      "status": "pending",
+      "createdAt": "2026-10-28T09:32:20.616Z"
+    }
+  ]
+}
+
+LULUS: 503 -> 200 -> 201; pesanan lama tetap tersedia; stok katalog direset saat restart.

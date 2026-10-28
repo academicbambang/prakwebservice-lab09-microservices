@@ -1,0 +1,114 @@
+{
+  "executedAt": "2026-10-28T09:32:19.961Z",
+  "passed": true,
+  "summary": {
+    "productId": "prod-001",
+    "productCount": 3,
+    "orderId": "ord-ca5ac52c-cb12-4198-8385-d8d60cdea0f6",
+    "orderStatus": 201,
+    "stockBefore": 40,
+    "stockAfter": 38,
+    "total": 170000
+  },
+  "exchanges": [
+    {
+      "startedAt": "2026-10-28T09:32:19.963Z",
+      "durationMs": 17,
+      "request": {
+        "method": "GET",
+        "url": "http://127.0.0.1:55880/product-service/products"
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "service": "catalog-service",
+          "data": [
+            {
+              "id": "prod-001",
+              "name": "Kopi Arabika Gayo",
+              "category": "kuliner",
+              "price": 85000,
+              "stock": 40,
+              "seller": "Koperasi Kopi Gayo"
+            },
+            {
+              "id": "prod-002",
+              "name": "Tas Anyaman Pandan",
+              "category": "kerajinan",
+              "price": 120000,
+              "stock": 15,
+              "seller": "Rumah Anyaman Nusantara"
+            },
+            {
+              "id": "prod-003",
+              "name": "Kaos Batik UMKM",
+              "category": "fashion",
+              "price": 95000,
+              "stock": 30,
+              "seller": "Batik Lokal Mandiri"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "startedAt": "2026-10-28T09:32:19.981Z",
+      "durationMs": 84,
+      "request": {
+        "method": "POST",
+        "url": "http://127.0.0.1:55880/order-service/orders",
+        "body": {
+          "customerName": "Bambang Lab 09",
+          "items": [
+            {
+              "productId": "prod-001",
+              "quantity": 2
+            }
+          ]
+        }
+      },
+      "response": {
+        "status": 201,
+        "body": {
+          "data": {
+            "id": "ord-ca5ac52c-cb12-4198-8385-d8d60cdea0f6",
+            "customerName": "Bambang Lab 09",
+            "items": [
+              {
+                "productId": "prod-001",
+                "name": "Kopi Arabika Gayo",
+                "quantity": 2,
+                "unitPrice": 85000,
+                "subtotal": 170000
+              }
+            ],
+            "total": 170000,
+            "status": "pending",
+            "createdAt": "2026-10-28T09:32:20.061Z"
+          }
+        }
+      }
+    },
+    {
+      "startedAt": "2026-10-28T09:32:20.065Z",
+      "durationMs": 6,
+      "request": {
+        "method": "GET",
+        "url": "http://127.0.0.1:55880/product-service/products/prod-001"
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "data": {
+            "id": "prod-001",
+            "name": "Kopi Arabika Gayo",
+            "category": "kuliner",
+            "price": 85000,
+            "stock": 38,
+            "seller": "Koperasi Kopi Gayo"
+          }
+        }
+      }
+    }
+  ]
+}

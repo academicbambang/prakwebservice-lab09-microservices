@@ -1,0 +1,490 @@
+{
+  "info": {
+    "name": "Lab 09 Microservices - Bambang Herlambang",
+    "description": "Praktikum individu Lab 09, Bambang Herlambang, NRP 5803024019. Collection untuk repository khusus Lab 09 https://github.com/academicbambang/prakwebservice-lab09-microservices, terpisah dari repository Lab 08. Gateway dipakai ulang dari https://github.com/academicbambang/prakwebservice-lab08-api-gateway. Catalog Service berperan sebagai product-service; nama folder catalog-service dipertahankan dari kode sumber. Jalankan alur normal pada data awal, lalu input negatif. Kelompok kegagalan WAJIB dijalankan manual: hentikan hanya katalog sebelum POST 503, biarkan Order Service dan gateway aktif, lalu hidupkan kembali katalog sebelum POST 201. Jangan jalankan seluruh collection tanpa intervensi tersebut. Semua URL memakai gateway lokal; isi apiKey di environment lokal. Rate limit 20 request/10 detik/IP tetap berlaku. Screenshot harus menampilkan method, URL, status, body tanpa key.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8080"
+    },
+    {
+      "key": "productId",
+      "value": "prod-001"
+    },
+    {
+      "key": "orderId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "01 Alur normal - katalog aktif",
+      "description": "Mulai dengan stok katalog awal; pesanan yang diterima harus mengurangi stok tepat dua unit.",
+      "item": [
+        {
+          "name": "01 Daftar tiga produk",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/product-service/products"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Response JSON', () => pm.response.to.be.json);",
+                  "pm.test('Tiga produk demo', () => pm.expect(pm.response.json().data.length).to.eql(3));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02 Simpan stok sebelum pesanan",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/product-service/products/{{productId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Response JSON', () => pm.response.to.be.json);",
+                  "pm.collectionVariables.set('stockBefore', pm.response.json().data.stock);",
+                  "pm.collectionVariables.set('priceBefore', pm.response.json().data.price);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03 Buat pesanan dua kopi",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/order-service/orders",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Bambang\",\n  \"items\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": 2\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Response JSON', () => pm.response.to.be.json);",
+                  "const o = pm.response.json().data;",
+                  "pm.collectionVariables.set('orderId', o.id);",
+                  "pm.test('Total dari katalog', () => pm.expect(o.total).to.eql(Number(pm.collectionVariables.get('priceBefore')) * 2));",
+                  "pm.test('Quantity benar', () => pm.expect(o.items[0].quantity).to.eql(2));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04 Stok berkurang tepat dua",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/product-service/products/{{productId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Response JSON', () => pm.response.to.be.json);",
+                  "pm.test('Stok berkurang dua', () => pm.expect(pm.response.json().data.stock).to.eql(Number(pm.collectionVariables.get('stockBefore')) - 2));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "05 Daftar menyimpan pesanan sukses",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/order-service/orders"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Response JSON', () => pm.response.to.be.json);",
+                  "pm.test('Pesanan sukses ada', () => pm.expect(pm.response.json().data.some(o => o.id === pm.collectionVariables.get('orderId'))).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 Input negatif - katalog aktif",
+      "description": "Request ditolak tanpa membuat pesanan atau mengurangi stok.",
+      "item": [
+        {
+          "name": "06 Quantity nol ditolak",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/order-service/orders",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Bambang\",\n  \"items\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": 0\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('Response JSON', () => pm.response.to.be.json);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "07 Produk tidak dikenal",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/order-service/orders",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Bambang\",\n  \"items\": [\n    {\n      \"productId\": \"prod-tidak-ada\",\n      \"quantity\": 1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+                  "pm.test('Response JSON', () => pm.response.to.be.json);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "08 Jumlah melebihi stok",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/order-service/orders",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Bambang\",\n  \"items\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": 100\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 409', () => pm.response.to.have.status(409));",
+                  "pm.test('Response JSON', () => pm.response.to.be.json);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "09 Reservasi quantity nol ditolak",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/product-service/products/{{productId}}/reserve",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"qty\": 0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('Response JSON', () => pm.response.to.be.json);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "10 Stok tidak berubah karena penolakan",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/product-service/products/{{productId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Response JSON', () => pm.response.to.be.json);",
+                  "pm.test('Tidak ada pemotongan dari request ditolak', () => pm.expect(pm.response.json().data.stock).to.eql(Number(pm.collectionVariables.get('stockBefore')) - 2));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 Kegagalan dan pemulihan - jalankan manual",
+      "description": "Hentikan hanya proses catalog-service sebelum request 11 dan 12. Jangan restart order-service atau gateway. Hidupkan kembali catalog-service sebelum request 13. Screenshot tiga request tersebut sebagai bukti utama langkah 06 materi.",
+      "item": [
+        {
+          "name": "11 Katalog MATI - POST pesanan 503",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/order-service/orders",
+            "description": "Jalankan setelah Ctrl+C hanya di terminal catalog-service. Gateway dan Order Service harus tetap aktif.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Bambang\",\n  \"items\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": 2\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 503', () => pm.response.to.have.status(503));",
+                  "pm.test('Response JSON', () => pm.response.to.be.json);",
+                  "pm.test('Pesan gangguan jelas', () => pm.expect(pm.response.json().error).to.be.a('string').and.not.empty);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "12 Katalog tetap MATI - GET pesanan 200",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/order-service/orders",
+            "description": "Katalog masih berhenti. Riwayat yang dibuat sebelum gangguan harus tetap ada."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Response JSON', () => pm.response.to.be.json);",
+                  "pm.test('Pesanan lama tetap terbaca', () => pm.expect(pm.response.json().data.some(o => o.id === pm.collectionVariables.get('orderId'))).to.eql(true));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "13 Katalog HIDUP KEMBALI - POST pesanan 201",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/order-service/orders",
+            "description": "Jalankan kembali node catalog-service/server.js di terminal katalog, tanpa restart Order Service atau gateway.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Bambang\",\n  \"items\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": 2\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Response JSON', () => pm.response.to.be.json);",
+                  "pm.test('Pesanan baru diterima', () => pm.expect(pm.response.json().data.id).to.be.a('string').and.not.empty);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "14 Stok setelah katalog restart dan pesanan baru",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/product-service/products/{{productId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Response JSON', () => pm.response.to.be.json);",
+                  "pm.test('Fixture baru 40 dikurangi dua', () => pm.expect(pm.response.json().data.stock).to.eql(38));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

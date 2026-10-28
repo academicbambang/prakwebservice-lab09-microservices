@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="660" viewBox="0 0 1200 660" role="img" aria-labelledby="title desc">
+  <title id="title">Arsitektur Lab 09 Marketplace UMKM</title>
+  <desc id="desc">Gateway menghubungkan klien dengan Catalog Service dan Order Service. Order Service mereservasi stok lewat HTTP ke Catalog Service dengan timeout dua detik. Setiap service memiliki data sendiri.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"/></marker>
+    <style>text{font-family:Segoe UI,Arial,sans-serif;fill:#0f172a}.title{font-size:28px;font-weight:700}.label{font-size:20px;font-weight:600}.body{font-size:17px}.small{font-size:15px;fill:#475569}.wire{fill:none;stroke:#475569;stroke-width:2.4;marker-end:url(#arrow)}.box{stroke:#cbd5e1;stroke-width:1.5;rx:16}</style>
+  </defs>
+  <rect width="1200" height="660" fill="#f8fafc"/>
+  <text x="48" y="55" class="title">Lab 09 · Marketplace UMKM</text>
+  <text x="48" y="87" class="body">Dua service bisnis, masing-masing memiliki data sendiri</text>
+  <rect x="48" y="260" width="195" height="115" class="box" fill="#fff"/>
+  <text x="145" y="303" text-anchor="middle" class="label">Klien / Postman</text>
+  <text x="145" y="334" text-anchor="middle" class="body">HTTP :8080</text>
+  <rect x="300" y="250" width="245" height="135" class="box" fill="#e0f2fe"/>
+  <text x="422" y="291" text-anchor="middle" class="label">API Gateway</text>
+  <text x="422" y="322" text-anchor="middle" class="body">Routing, API key</text>
+  <text x="422" y="351" text-anchor="middle" class="body">20 request / 10 detik / IP</text>
+  <path d="M243 317 H294" class="wire"/>
+  <rect x="745" y="140" width="365" height="120" class="box" fill="#dcfce7"/>
+  <text x="927" y="179" text-anchor="middle" class="label">Catalog Service :3000</text>
+  <text x="927" y="210" text-anchor="middle" class="body">Peran product-service</text>
+  <text x="927" y="239" text-anchor="middle" class="body">Pemilik produk, harga, dan stok</text>
+  <rect x="745" y="430" width="365" height="120" class="box" fill="#fef3c7"/>
+  <text x="927" y="469" text-anchor="middle" class="label">Order Service :3001</text>
+  <text x="927" y="500" text-anchor="middle" class="body">Pemilik riwayat pesanan</text>
+  <text x="927" y="529" text-anchor="middle" class="body">Snapshot nama dan harga saat beli</text>
+  <path d="M545 288 H627 V200 H737" class="wire"/>
+  <text x="560" y="153" class="small">/product-service/*</text>
+  <text x="560" y="178" class="small">alias: /catalog/*</text>
+  <path d="M545 347 H627 V490 H737" class="wire"/>
+  <text x="455" y="438" class="small">/order-service/*</text>
+  <text x="455" y="463" class="small">alias: /orders/*</text>
+  <text x="556" y="516" class="small">X-API-Key</text>
+  <path d="M927 423 V268" class="wire"/>
+  <rect x="751" y="300" width="355" height="86" rx="10" fill="#fff" stroke="#cbd5e1"/>
+  <text x="928" y="325" text-anchor="middle" class="small">HTTP POST /products/:id/reserve</text>
+  <text x="928" y="349" text-anchor="middle" class="small">atau POST /reservations (batch)</text>
+  <text x="928" y="373" text-anchor="middle" class="small">Timeout 2 detik · tidak tersedia → 503</text>
+  <path d="M48 590 H1150" stroke="#cbd5e1"/>
+  <text x="48" y="622" class="small">Saat katalog mati: POST pesanan → 503 · GET pesanan tetap → 200 · katalog pulih: POST → 201</text>
+</svg>

@@ -1,0 +1,7 @@
+flowchart LR
+    C["Klien / Postman"] -->|"HTTP :8080"| G["API Gateway\nAPI key + rate limit"]
+    G -->|"/product-service/*\natau /catalog/*"| P["Catalog Service :3000\nperan product-service"]
+    G -->|"/order-service/*\natau /orders/*\nX-API-Key"| O["Order Service :3001"]
+    O -->|"HTTP POST /products/:id/reserve\natau POST /reservations\ntimeout 2 detik"| P
+    P --- D1[("Memori produk\nharga dan stok")]
+    O --- D2[("Memori pesanan\nsalinan nama dan harga")]

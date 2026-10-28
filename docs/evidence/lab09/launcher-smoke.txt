@@ -1,0 +1,69 @@
+
+> prakwebservice-lab09-microservices@0.1.0 test:smoke
+> node smoke-test.js
+
+GET http://127.0.0.1:8080/product-service/products
+HTTP 200 (64 ms)
+{
+  "service": "catalog-service",
+  "data": [
+    {
+      "id": "prod-001",
+      "name": "Kopi Arabika Gayo",
+      "category": "kuliner",
+      "price": 85000,
+      "stock": 40,
+      "seller": "Koperasi Kopi Gayo"
+    },
+    {
+      "id": "prod-002",
+      "name": "Tas Anyaman Pandan",
+      "category": "kerajinan",
+      "price": 120000,
+      "stock": 15,
+      "seller": "Rumah Anyaman Nusantara"
+    },
+    {
+      "id": "prod-003",
+      "name": "Kaos Batik UMKM",
+      "category": "fashion",
+      "price": 95000,
+      "stock": 30,
+      "seller": "Batik Lokal Mandiri"
+    }
+  ]
+}
+POST http://127.0.0.1:8080/order-service/orders
+Request: {"customerName":"Bambang Lab 09","items":[{"productId":"prod-001","quantity":2}]}
+HTTP 201 (106 ms)
+{
+  "data": {
+    "id": "ord-a77ceb05-c345-4510-b183-c1574e57e4cd",
+    "customerName": "Bambang Lab 09",
+    "items": [
+      {
+        "productId": "prod-001",
+        "name": "Kopi Arabika Gayo",
+        "quantity": 2,
+        "unitPrice": 85000,
+        "subtotal": 170000
+      }
+    ],
+    "total": 170000,
+    "status": "pending",
+    "createdAt": "2026-10-28T09:33:40.627Z"
+  }
+}
+GET http://127.0.0.1:8080/product-service/products/prod-001
+HTTP 200 (12 ms)
+{
+  "data": {
+    "id": "prod-001",
+    "name": "Kopi Arabika Gayo",
+    "category": "kuliner",
+    "price": 85000,
+    "stock": 38,
+    "seller": "Koperasi Kopi Gayo"
+  }
+}
+LULUS: 3 produk, order 201, stok 40 -> 38, total Rp170000.

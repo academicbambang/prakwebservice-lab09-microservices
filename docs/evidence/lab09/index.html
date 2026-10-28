@@ -1,0 +1,142 @@
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bukti aktual Lab 09 - Microservices</title><style>
+    *{box-sizing:border-box}body{margin:0;background:#f3f5f7;color:#182b39;font:16px/1.5 "Segoe UI",sans-serif}
+    main{width:min(1180px,calc(100% - 48px));margin:32px auto}header{margin-bottom:28px}h1{font-size:30px;margin:0 0 8px}h2{font-size:23px;margin:0}p{margin:8px 0}
+    .muted{color:#536675}.card{background:white;border:1px solid #d4dfe7;border-radius:14px;padding:28px;margin:24px 0;break-inside:avoid}.badge{display:inline-block;background:#dff3e9;color:#166443;padding:4px 12px;border-radius:30px;font-size:13px;font-weight:700;margin-bottom:12px}
+    .identity{color:#536675;font-size:14px}.request{font:14px/1.5 Consolas,monospace;overflow-wrap:anywhere;background:#e9f0f5;padding:12px;border-radius:6px}.request b{color:#126049}
+    .exchange{margin-top:22px}.label{font-size:13px;font-weight:700;color:#405a6c;margin:12px 0 4px}pre{white-space:pre-wrap;overflow-wrap:anywhere;margin:0;background:#f6f8fa;padding:14px;border-radius:6px;font:13px/1.5 Consolas,monospace}
+    .foot{font-size:13px;color:#536675;margin-top:18px}nav a{margin-right:16px;color:#126049}@media print{body{background:white}main{width:100%;margin:0}.card{break-before:page;border:0}}
+    </style></head><body><main><header><p class="muted">PRAKTIKUM WEB SERVICE / LAB 09</p><h1>Reservasi stok &amp; isolasi kegagalan</h1>
+    <p>Bambang Herlambang &middot; 5803024019 &middot; Tugas individu</p><p class="muted">Rekaman respons HTTP aktual dari tiga proses lokal terpisah. 2026-10-28T09:32:19.961Z</p>
+    <nav><a href="#smoke-test">01</a><a href="#product-down-post">02</a><a href="#product-down-get">03</a><a href="#product-recovered-post">04</a></nav></header>
+    <section class="card" id="smoke-test"><span class="badge">LULUS</span><h2>01 / Smoke test melalui gateway</h2><p class="identity">Bambang Herlambang &middot; 5803024019 &middot; Lab 09</p><p>Tiga produk; pesanan HTTP 201; stok 40 menjadi 38; total Rp170000.</p><p class="muted">Eksekusi: 2026-10-28T09:32:19.961Z</p><div class="exchange"><div class="request"><b>GET</b> http://127.0.0.1:55880/product-service/products</div>
+
+      <p class="label">HTTP 200 &middot; 17 ms</p><pre>{
+  &quot;service&quot;: &quot;catalog-service&quot;,
+  &quot;data&quot;: [
+    {
+      &quot;id&quot;: &quot;prod-001&quot;,
+      &quot;name&quot;: &quot;Kopi Arabika Gayo&quot;,
+      &quot;category&quot;: &quot;kuliner&quot;,
+      &quot;price&quot;: 85000,
+      &quot;stock&quot;: 40,
+      &quot;seller&quot;: &quot;Koperasi Kopi Gayo&quot;
+    },
+    {
+      &quot;id&quot;: &quot;prod-002&quot;,
+      &quot;name&quot;: &quot;Tas Anyaman Pandan&quot;,
+      &quot;category&quot;: &quot;kerajinan&quot;,
+      &quot;price&quot;: 120000,
+      &quot;stock&quot;: 15,
+      &quot;seller&quot;: &quot;Rumah Anyaman Nusantara&quot;
+    },
+    {
+      &quot;id&quot;: &quot;prod-003&quot;,
+      &quot;name&quot;: &quot;Kaos Batik UMKM&quot;,
+      &quot;category&quot;: &quot;fashion&quot;,
+      &quot;price&quot;: 95000,
+      &quot;stock&quot;: 30,
+      &quot;seller&quot;: &quot;Batik Lokal Mandiri&quot;
+    }
+  ]
+}</pre></div><div class="exchange"><div class="request"><b>POST</b> http://127.0.0.1:55880/order-service/orders</div>
+      <p class="label">Request body</p><pre>{
+  &quot;customerName&quot;: &quot;Bambang Lab 09&quot;,
+  &quot;items&quot;: [
+    {
+      &quot;productId&quot;: &quot;prod-001&quot;,
+      &quot;quantity&quot;: 2
+    }
+  ]
+}</pre>
+      <p class="label">HTTP 201 &middot; 84 ms</p><pre>{
+  &quot;data&quot;: {
+    &quot;id&quot;: &quot;ord-ca5ac52c-cb12-4198-8385-d8d60cdea0f6&quot;,
+    &quot;customerName&quot;: &quot;Bambang Lab 09&quot;,
+    &quot;items&quot;: [
+      {
+        &quot;productId&quot;: &quot;prod-001&quot;,
+        &quot;name&quot;: &quot;Kopi Arabika Gayo&quot;,
+        &quot;quantity&quot;: 2,
+        &quot;unitPrice&quot;: 85000,
+        &quot;subtotal&quot;: 170000
+      }
+    ],
+    &quot;total&quot;: 170000,
+    &quot;status&quot;: &quot;pending&quot;,
+    &quot;createdAt&quot;: &quot;2026-10-28T09:32:20.061Z&quot;
+  }
+}</pre></div><div class="exchange"><div class="request"><b>GET</b> http://127.0.0.1:55880/product-service/products/prod-001</div>
+
+      <p class="label">HTTP 200 &middot; 6 ms</p><pre>{
+  &quot;data&quot;: {
+    &quot;id&quot;: &quot;prod-001&quot;,
+    &quot;name&quot;: &quot;Kopi Arabika Gayo&quot;,
+    &quot;category&quot;: &quot;kuliner&quot;,
+    &quot;price&quot;: 85000,
+    &quot;stock&quot;: 38,
+    &quot;seller&quot;: &quot;Koperasi Kopi Gayo&quot;
+  }
+}</pre></div><p class="foot">Sumber: npm run test:lab09. Ini halaman bukti pengujian otomatis; bukan tangkapan layar Postman. Header API key tidak disimpan.</p></section><section class="card" id="product-down-post"><span class="badge">LULUS</span><h2>02 / POST pesanan saat katalog mati</h2><p class="identity">Bambang Herlambang &middot; 5803024019 &middot; Lab 09</p><p>catalog-service dihentikan; order-service dan gateway tetap berjalan.</p><p class="muted">Eksekusi: 2026-10-28T09:32:19.961Z</p><div class="exchange"><div class="request"><b>POST</b> http://127.0.0.1:55880/order-service/orders</div>
+      <p class="label">Request body</p><pre>{
+  &quot;customerName&quot;: &quot;Bambang Uji Kegagalan&quot;,
+  &quot;items&quot;: [
+    {
+      &quot;productId&quot;: &quot;prod-001&quot;,
+      &quot;quantity&quot;: 2
+    }
+  ]
+}</pre>
+      <p class="label">HTTP 503 &middot; 10 ms</p><pre>{
+  &quot;error&quot;: &quot;Catalog service is unavailable or timed out&quot;
+}</pre></div><p class="foot">Sumber: npm run test:lab09. Ini halaman bukti pengujian otomatis; bukan tangkapan layar Postman. Header API key tidak disimpan.</p></section><section class="card" id="product-down-get"><span class="badge">LULUS</span><h2>03 / GET pesanan saat katalog mati</h2><p class="identity">Bambang Herlambang &middot; 5803024019 &middot; Lab 09</p><p>Pesanan dari smoke test tetap dapat ditampilkan tanpa menghubungi katalog.</p><p class="muted">Eksekusi: 2026-10-28T09:32:19.961Z</p><div class="exchange"><div class="request"><b>GET</b> http://127.0.0.1:55880/order-service/orders</div>
+
+      <p class="label">HTTP 200 &middot; 7 ms</p><pre>{
+  &quot;service&quot;: &quot;order-service&quot;,
+  &quot;data&quot;: [
+    {
+      &quot;id&quot;: &quot;ord-ca5ac52c-cb12-4198-8385-d8d60cdea0f6&quot;,
+      &quot;customerName&quot;: &quot;Bambang Lab 09&quot;,
+      &quot;items&quot;: [
+        {
+          &quot;productId&quot;: &quot;prod-001&quot;,
+          &quot;name&quot;: &quot;Kopi Arabika Gayo&quot;,
+          &quot;quantity&quot;: 2,
+          &quot;unitPrice&quot;: 85000,
+          &quot;subtotal&quot;: 170000
+        }
+      ],
+      &quot;total&quot;: 170000,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;createdAt&quot;: &quot;2026-10-28T09:32:20.061Z&quot;
+    }
+  ]
+}</pre></div><p class="foot">Sumber: npm run test:lab09. Ini halaman bukti pengujian otomatis; bukan tangkapan layar Postman. Header API key tidak disimpan.</p></section><section class="card" id="product-recovered-post"><span class="badge">LULUS</span><h2>04 / POST pesanan sesudah katalog pulih</h2><p class="identity">Bambang Herlambang &middot; 5803024019 &middot; Lab 09</p><p>Hanya catalog-service dinyalakan kembali. Stok kembali ke 40 karena data tersimpan di memori.</p><p class="muted">Eksekusi: 2026-10-28T09:32:19.961Z</p><div class="exchange"><div class="request"><b>POST</b> http://127.0.0.1:55880/order-service/orders</div>
+      <p class="label">Request body</p><pre>{
+  &quot;customerName&quot;: &quot;Bambang Uji Kegagalan&quot;,
+  &quot;items&quot;: [
+    {
+      &quot;productId&quot;: &quot;prod-001&quot;,
+      &quot;quantity&quot;: 2
+    }
+  ]
+}</pre>
+      <p class="label">HTTP 201 &middot; 26 ms</p><pre>{
+  &quot;data&quot;: {
+    &quot;id&quot;: &quot;ord-8852ea42-50d5-4be4-a05b-eb3d86bc28b8&quot;,
+    &quot;customerName&quot;: &quot;Bambang Uji Kegagalan&quot;,
+    &quot;items&quot;: [
+      {
+        &quot;productId&quot;: &quot;prod-001&quot;,
+        &quot;name&quot;: &quot;Kopi Arabika Gayo&quot;,
+        &quot;quantity&quot;: 2,
+        &quot;unitPrice&quot;: 85000,
+        &quot;subtotal&quot;: 170000
+      }
+    ],
+    &quot;total&quot;: 170000,
+    &quot;status&quot;: &quot;pending&quot;,
+    &quot;createdAt&quot;: &quot;2026-10-28T09:32:20.616Z&quot;
+  }
+}</pre></div><p class="foot">Sumber: npm run test:lab09. Ini halaman bukti pengujian otomatis; bukan tangkapan layar Postman. Header API key tidak disimpan.</p></section>
+    </main></body></html>

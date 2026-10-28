@@ -1,0 +1,14 @@
+"Produk UMKM contoh. Harga dan stok menggunakan bilangan bulat."
+type Product {
+  id: ID!
+  name: String!
+  category: String!
+  price: Int!
+  stock: Int!
+  seller: String!
+}
+
+type Query {
+  products(category: String, search: String): [Product!]!
+  product(id: ID!): Product
+}

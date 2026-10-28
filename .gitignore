@@ -1,0 +1,16 @@
+node_modules/
+.env
+.env.*
+!.env.example
+*.log
+coverage/
+tmp/
+docs/evidence/*.local.json
+*.aux
+*.out
+*.toc
+*.xdv
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+docs/latex/main.pdf

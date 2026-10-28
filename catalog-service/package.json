@@ -1,0 +1,18 @@
+{
+  "name": "catalog-service",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Layanan produk dan reservasi stok untuk praktikum microservices Lab 09",
+  "main": "app.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "express": "^5.3.0",
+    "graphql": "^16.11.0",
+    "graphql-http": "^1.23.1"
+  }
+}
