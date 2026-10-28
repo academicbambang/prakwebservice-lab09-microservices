@@ -24,6 +24,8 @@ def update_sources() -> None:
         sources[f"{name}.png"] = REPO / f"docs/evidence/lab09/{name}.png"
     for source in (REPO / "docs/evidence/ui").glob("*.png"):
         sources[source.name] = source
+    for source in (REPO / "docs/evidence/deployment").glob("*.png"):
+        sources[f"public-{source.name}"] = source
     for name, source in sources.items():
         shutil.copy2(source, images / name)
     if not (images / "logo-ukwms.png").exists():

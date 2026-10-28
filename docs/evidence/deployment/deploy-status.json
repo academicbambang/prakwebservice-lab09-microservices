@@ -1,0 +1,20 @@
+{
+  "checkedAt": "2026-10-28T10:02:53.133Z",
+  "serviceId": "srv-dbgsfp6gekts738pdq4g",
+  "deploys": [
+    {
+      "commit": {
+        "createdAt": "2026-10-28T10:00:35Z",
+        "id": "0e40b71e730bb091bbb1cedd56c4596d2249a87f",
+        "message": "Add functional frontend, interactive API docs, and LaTeX report"
+      },
+      "createdAt": "2026-10-28T10:01:10.937991Z",
+      "finishedAt": "2026-10-28T10:02:02.182395Z",
+      "id": "dep-dbgsfpmgekts738pdrg0",
+      "startedAt": "2026-10-28T10:01:10.933416Z",
+      "status": "live",
+      "trigger": "manual",
+      "updatedAt": "2026-10-28T10:02:35.851933Z"
+    }
+  ]
+}

@@ -105,7 +105,7 @@ bersifat baca; kredensial pesanan tidak dibutuhkan untuk query tersebut.
 
 \clearpage
 \subsection{Konfigurasi deployment Render Free}
-Deployment disiapkan pada \textbf{service Render terpisah khusus Lab 09},
+Deployment berjalan pada \textbf{service Render terpisah khusus Lab 09},
 menggunakan repository dan branch \code{main} Lab 09. Blueprint
 \code{render.yaml} mendefinisikan satu instance Free yang menjalankan tiga
 proses terpisah: gateway, katalog, dan pesanan. Hanya gateway yang
@@ -131,13 +131,135 @@ Key server & Digest SHA-256 melalui \code{API_KEY_SHA256} \\
 \caption{Konfigurasi deployment pada blueprint Lab 09.}
 \end{table}
 
-\textbf{Status verifikasi publik.} Konfigurasi deployment Render Free
-pada service terpisah telah disiapkan; verifikasi URL HTTPS, health,
-frontend, Swagger, Apollo Sandbox, dan pesanan publik diperbarui setelah
-layanan aktif. Bagian ini mencatat konfigurasi dan tidak menyatakan
-deployment telah berhasil.
+\textbf{Status live.} Rekaman CLI Render pada
+\path{docs/evidence/deployment/deploy-status.json} menyatakan deployment
+awal \code{0e40b71} berstatus \code{live}, selesai pada 28 Oktober 2026
+pukul \textbf{17:02:02 UTC+7}. Identitas service adalah
+\path{srv-dbgsfp6gekts738pdq4g}. Bukti ini adalah rekaman deployment awal,
+bukan klaim bahwa hash tersebut selalu menjadi commit terbaru.
 
-Collection Postman JSON dan environment lokal tersedia dalam
-\path{docs/postman/}. Environment publik menggunakan base URL gateway
-deployment, sementara nilai API key tetap diisi secara lokal oleh klien.
-Data demo tetap bersifat in-memory pada deployment ini.
+Alamat gateway publik:
+\url{https://prakwebservice-lab09-microservices.onrender.com}.
+
+\begin{table}[H]
+\small
+\begin{tabularx}{\linewidth}{@{}L{3.7cm}Y@{}}
+\toprule
+Akses publik & Tautan melalui gateway HTTPS \\
+\midrule
+Frontend & \href{https://prakwebservice-lab09-microservices.onrender.com/}{Dashboard Ruang UMKM} \\
+Swagger UI & \href{https://prakwebservice-lab09-microservices.onrender.com/docs/}{/docs/} \\
+Apollo Sandbox & \href{https://prakwebservice-lab09-microservices.onrender.com/sandbox}{/sandbox} \\
+GraphQL & \href{https://prakwebservice-lab09-microservices.onrender.com/product-service/graphql}{/product-service/graphql} \\
+Laporan PDF & \href{https://prakwebservice-lab09-microservices.onrender.com/laporan.pdf}{/laporan.pdf} \\
+Sumber Overleaf & \href{https://prakwebservice-lab09-microservices.onrender.com/laporan-latex.zip}{/laporan-latex.zip} \\
+\bottomrule
+\end{tabularx}
+\caption{Tautan publik aplikasi dan berkas pengumpulan Lab 09.}
+\end{table}
+
+\clearpage
+\subsection{Hasil verifikasi HTTPS publik}
+Perintah \code{npm run verify:deployment} selesai pada 28 Oktober 2026
+pukul \textbf{17:02:52 UTC+7}. Sumbernya adalah
+\path{docs/evidence/deployment/verification.json} dan
+\path{verification.txt}. Pemeriksaan dilakukan terhadap service Lab 09,
+terpisah dari deployment Lab 08.
+
+\begin{table}[H]
+\small
+\begin{tabularx}{\linewidth}{@{}Y L{5.6cm}@{}}
+\toprule
+Skenario publik & Hasil aktual \\
+\midrule
+Readiness gateway dan kedua service & \code{/readyz}: HTTP 200 \\
+Frontend, JavaScript, CSS & HTTP 200 \\
+Swagger UI dan Apollo Sandbox & HTTP 200 \\
+Unduh PDF dan ZIP LaTeX & HTTP 200; signature PDF/ZIP valid \\
+Query GraphQL katalog & HTTP 200; 3 produk \\
+Pesanan tanpa key & HTTP 401 \\
+POST pesanan dengan key sah & HTTP 201; total Rp170.000 \\
+Stok kopi pada smoke test publik & 40 menjadi 38 \\
+GET riwayat pesanan dengan key & HTTP 200; pesanan sukses tersimpan \\
+\bottomrule
+\end{tabularx}
+\caption{Hasil verifier HTTP terhadap gateway Render yang aktif.}
+\end{table}
+
+Verifikasi browser publik berikutnya dicatat pada pukul
+\textbf{17:03:29 UTC+7} dalam
+\path{docs/evidence/deployment/ui-verification.json}. Checkout frontend
+berhasil mengurangi stok dari 38 menjadi 36 dan menampilkan dua pesanan.
+Key salah ditolak; viewport 390 piksel tidak overflow horizontal;
+Swagger Try it out dan query Apollo menghasilkan HTTP 200. Rekaman
+browser tidak memuat page error dan key tidak disimpan dalam browser storage.
+
+Empat screenshot publik pada halaman berikut berasal dari browser yang
+membuka URL Render tersebut. Screenshot Swagger menunjukkan respons
+server aktual, dan screenshot Apollo menunjukkan hasil operasi yang
+dijalankan melalui tombol Run. Sumber lengkap disimpan pada
+\path{docs/evidence/deployment/}; tidak ada screenshot dashboard Render
+yang direkayasa. Status live bersumber dari JSON CLI resmi Render.
+
+Collection dan environment Postman tersedia dalam \path{docs/postman/}.
+Environment publik memakai base URL gateway deployment, sedangkan nilai
+key diisi lokal oleh klien. Data tetap in-memory; service yang dimulai
+ulang mengembalikan fixture produk dan menghapus pesanan di memorinya.
+
+\clearpage
+\subsection{Frontend pada deployment publik}
+Halaman Ruang UMKM berikut dibuka melalui gateway HTTPS Render.
+Katalog menampilkan stok yang berasal dari API publik, dan navigasi
+mengarah ke dokumentasi serta laporan pada deployment yang sama.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth,height=.73\textheight,keepaspectratio]{public-frontend.png}
+\caption{Frontend Ruang UMKM pada service Render Lab 09. Sumber tangkapan
+browser tercatat pada ui-verification.json dengan base URL HTTPS publik.}
+\end{figure}
+
+\clearpage
+\subsection{Checkout frontend pada deployment publik}
+Transaksi melalui frontend menambahkan pesanan dua kopi senilai
+Rp170.000. Riwayat menampilkan pesanan dari verifier HTTP dan pesanan
+frontend berikutnya; stok berubah dari 38 menjadi 36 pada transaksi UI.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth,height=.73\textheight,keepaspectratio]{public-frontend-orders.png}
+\caption{Riwayat pesanan publik sesudah checkout frontend berhasil.
+Nilai API key disembunyikan dan hanya digunakan dalam sesi halaman.}
+\end{figure}
+
+\clearpage
+\subsection{Swagger Try it out pada deployment publik}
+Swagger yang di-deploy menjalankan \code{GET} ke katalog melalui URL
+HTTPS gateway. Bagian Request URL dan respons server berikut berasal
+dari eksekusi publik, bukan dari example value statis OpenAPI.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth,height=.75\textheight,keepaspectratio,trim=0 1450bp 0 0,clip]{public-swagger-response.png}
+\caption{Swagger UI publik: request HTTPS, respons HTTP 200, JSON katalog,
+dan header server pada service Render Lab 09.}
+\end{figure}
+
+\clearpage
+\subsection{Apollo Sandbox pada deployment publik}
+Operasi \code{KatalogUMKM} dijalankan dari tombol Run pada Sandbox yang
+di-deploy. Endpoint yang terlihat di bagian atas adalah GraphQL HTTPS
+gateway Lab 09. Respons HTTP 200 memuat tiga produk; stok kopi 36 sesuai
+transaksi frontend sebelumnya.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{public-apollo-sandbox.png}
+\caption{Apollo Sandbox publik menampilkan query dan data respons.
+Rekaman HTTP aktual tersedia pada apollo-query.json.}
+\end{figure}
+
+Respons tersebut dicatat pada
+\path{docs/evidence/deployment/apollo-query.json} pada 28 Oktober 2026
+pukul 17:03:29 UTC+7. Dengan demikian, dokumentasi GraphQL publik tidak
+hanya dapat dibuka, tetapi juga berhasil menjalankan query katalog.

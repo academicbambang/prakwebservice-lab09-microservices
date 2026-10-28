@@ -1,0 +1,38 @@
+{
+  "executedAt": "2026-10-28T10:03:29.748Z",
+  "baseUrl": "https://prakwebservice-lab09-microservices.onrender.com",
+  "events": [
+    {
+      "scenario": "Frontend checkout",
+      "passed": true,
+      "stockBefore": 38,
+      "stockAfter": 36,
+      "orderCount": 2,
+      "credentialStored": false
+    },
+    {
+      "scenario": "Frontend invalid API key",
+      "passed": true
+    },
+    {
+      "scenario": "Mobile 390px",
+      "passed": true,
+      "horizontalOverflow": false
+    },
+    {
+      "scenario": "Swagger Try it out",
+      "passed": true,
+      "responseStatus": 200
+    },
+    {
+      "scenario": "Apollo Sandbox catalog query",
+      "passed": true,
+      "responseStatus": 200
+    },
+    {
+      "scenario": "Apollo SDK iframe loaded",
+      "passed": true
+    }
+  ],
+  "pageErrors": []
+}

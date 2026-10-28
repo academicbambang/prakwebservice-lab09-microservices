@@ -1,0 +1,1768 @@
+{
+  "startedAt": "2026-10-28T10:02:48.685Z",
+  "completedAt": "2026-10-28T10:02:52.072Z",
+  "baseUrl": "https://prakwebservice-lab09-microservices.onrender.com",
+  "passed": true,
+  "smoke": {
+    "passed": true,
+    "summary": {
+      "productId": "prod-001",
+      "productCount": 3,
+      "orderId": "ord-b0568f5f-f67c-48bb-b584-3db63a95f27b",
+      "orderStatus": 201,
+      "stockBefore": 40,
+      "stockAfter": 38,
+      "total": 170000
+    },
+    "exchanges": [
+      {
+        "startedAt": "2026-10-28T10:02:51.448Z",
+        "durationMs": 62,
+        "request": {
+          "method": "GET",
+          "url": "https://prakwebservice-lab09-microservices.onrender.com/product-service/products"
+        },
+        "response": {
+          "status": 200,
+          "body": {
+            "service": "catalog-service",
+            "data": [
+              {
+                "id": "prod-001",
+                "name": "Kopi Arabika Gayo",
+                "category": "kuliner",
+                "price": 85000,
+                "stock": 40,
+                "seller": "Koperasi Kopi Gayo"
+              },
+              {
+                "id": "prod-002",
+                "name": "Tas Anyaman Pandan",
+                "category": "kerajinan",
+                "price": 120000,
+                "stock": 15,
+                "seller": "Rumah Anyaman Nusantara"
+              },
+              {
+                "id": "prod-003",
+                "name": "Kaos Batik UMKM",
+                "category": "fashion",
+                "price": 95000,
+                "stock": 30,
+                "seller": "Batik Lokal Mandiri"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "startedAt": "2026-10-28T10:02:51.510Z",
+        "durationMs": 374,
+        "request": {
+          "method": "POST",
+          "url": "https://prakwebservice-lab09-microservices.onrender.com/order-service/orders",
+          "body": {
+            "customerName": "Bambang Lab 09",
+            "items": [
+              {
+                "productId": "prod-001",
+                "quantity": 2
+              }
+            ]
+          }
+        },
+        "response": {
+          "status": 201,
+          "body": {
+            "data": {
+              "id": "ord-b0568f5f-f67c-48bb-b584-3db63a95f27b",
+              "customerName": "Bambang Lab 09",
+              "items": [
+                {
+                  "productId": "prod-001",
+                  "name": "Kopi Arabika Gayo",
+                  "quantity": 2,
+                  "unitPrice": 85000,
+                  "subtotal": 170000
+                }
+              ],
+              "total": 170000,
+              "status": "pending",
+              "createdAt": "2026-10-28T10:02:50.977Z"
+            }
+          }
+        }
+      },
+      {
+        "startedAt": "2026-10-28T10:02:51.884Z",
+        "durationMs": 97,
+        "request": {
+          "method": "GET",
+          "url": "https://prakwebservice-lab09-microservices.onrender.com/product-service/products/prod-001"
+        },
+        "response": {
+          "status": 200,
+          "body": {
+            "data": {
+              "id": "prod-001",
+              "name": "Kopi Arabika Gayo",
+              "category": "kuliner",
+              "price": 85000,
+              "stock": 38,
+              "seller": "Koperasi Kopi Gayo"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "exchanges": [
+    {
+      "startedAt": "2026-10-28T10:02:48.686Z",
+      "durationMs": 295,
+      "request": {
+        "method": "GET",
+        "url": "https://prakwebservice-lab09-microservices.onrender.com/readyz"
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "status": "ok",
+          "service": "gateway"
+        }
+      }
+    },
+    {
+      "startedAt": "2026-10-28T10:02:51.014Z",
+      "durationMs": 138,
+      "request": {
+        "method": "GET",
+        "url": "https://prakwebservice-lab09-microservices.onrender.com/openapi.json"
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "openapi": "3.0.3",
+          "info": {
+            "title": "Lab 09 - Microservices Marketplace UMKM",
+            "version": "1.0.0",
+            "description": "Praktikum individu Bambang Herlambang (5803024019). Gateway menghubungkan Catalog Service (layanan produk) dan Order Service dengan kepemilikan data terpisah. Semua URL relatif ke origin gateway yang sedang dibuka. Prefix utama Lab 09 adalah /product-service dan /order-service; alias Lab 08 /catalog dan /orders memiliki kontrak yang sama (contoh /catalog/products dan /orders/orders). Kuota API bersama: 20 request per 10 detik per IP; respons 429 berisi Retry-After. /readyz, /docs/, /openapi.json, dan /sandbox tidak mengurangi kuota, tetapi panggilan API dari UI tetap dihitung. Data demo disimpan dalam memori dan kembali ke seed ketika masing-masing service restart. API key diisi sendiri melalui Authorize dan tidak disertakan pada dokumentasi."
+          },
+          "servers": [
+            {
+              "url": "/",
+              "description": "Origin gateway saat ini, lokal atau deployment."
+            }
+          ],
+          "tags": [
+            {
+              "name": "Kesehatan",
+              "description": "Health proses dan kesiapan backend."
+            },
+            {
+              "name": "Produk",
+              "description": "Data produk, harga, dan stok milik Catalog Service."
+            },
+            {
+              "name": "Reservasi",
+              "description": "Pengurangan stok oleh pemilik data produk."
+            },
+            {
+              "name": "Pesanan",
+              "description": "Snapshot transaksi milik Order Service."
+            },
+            {
+              "name": "GraphQL",
+              "description": "Query katalog melalui REST gateway yang sama; UI tersedia di /sandbox."
+            }
+          ],
+          "paths": {
+            "/health": {
+              "get": {
+                "operationId": "gatewayHealth",
+                "summary": "Kesehatan proses gateway",
+                "tags": [
+                  "Kesehatan"
+                ],
+                "security": [],
+                "responses": {
+                  "200": {
+                    "description": "Gateway masih berjalan; tidak memeriksa backend.",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "$ref": "#/components/schemas/Health"
+                        },
+                        "example": {
+                          "status": "ok",
+                          "service": "gateway"
+                        }
+                      }
+                    }
+                  },
+                  "429": {
+                    "$ref": "#/components/responses/RateLimited"
+                  }
+                }
+              }
+            },
+            "/readyz": {
+              "get": {
+                "operationId": "gatewayReadiness",
+                "summary": "Kesiapan kedua service",
+                "tags": [
+                  "Kesehatan"
+                ],
+                "security": [],
+                "responses": {
+                  "200": {
+                    "description": "Kedua backend sehat.",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "$ref": "#/components/schemas/Health"
+                        },
+                        "example": {
+                          "status": "ok",
+                          "service": "gateway"
+                        }
+                      }
+                    }
+                  },
+                  "503": {
+                    "description": "Minimal satu backend tidak sehat/tidak merespons health check dalam 1 detik.",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "$ref": "#/components/schemas/Health"
+                        },
+                        "example": {
+                          "status": "unavailable",
+                          "service": "gateway"
+                        }
+                      }
+                    }
+                  }
+                },
+                "description": "Probe ini tidak memakai kuota API dan tidak membutuhkan API key."
+              }
+            },
+            "/product-service/health": {
+              "get": {
+                "operationId": "productHealth",
+                "summary": "Kesehatan proses layanan produk",
+                "tags": [
+                  "Kesehatan"
+                ],
+                "security": [],
+                "responses": {
+                  "200": {
+                    "description": "Layanan produk masih berjalan.",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "$ref": "#/components/schemas/Health"
+                        },
+                        "example": {
+                          "status": "ok",
+                          "service": "catalog-service"
+                        }
+                      }
+                    }
+                  },
+                  "429": {
+                    "$ref": "#/components/responses/RateLimited"
+                  },
+                  "500": {
+                    "$ref": "#/components/responses/InternalError"
+                  },
+                  "502": {
+                    "$ref": "#/components/responses/BadGateway"
+                  }
+                }
+              }
+            },
+            "/order-service/health": {
+              "get": {
+                "operationId": "orderHealth",
+                "summary": "Kesehatan proses layanan pesanan",
+                "tags": [
+                  "Kesehatan"
+                ],
+                "security": [
+                  {
+                    "ApiKeyAuth": []
+                  }
+                ],
+                "responses": {
+                  "200": {
+                    "description": "Layanan pesanan masih berjalan.",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "$ref": "#/components/schemas/Health"
+                        },
+                        "example": {
+                          "status": "ok",
+                          "service": "order-service"
+                        }
+                      }
+                    }
+                  },
+                  "401": {
+                    "$ref": "#/components/responses/Unauthorized"
+                  },
+                  "429": {
+                    "$ref": "#/components/responses/RateLimited"
+                  },
+                  "500": {
+                    "$ref": "#/components/responses/InternalError"
+                  },
+                  "502": {
+                    "$ref": "#/components/responses/BadGateway"
+                  }
+                }
+              }
+            },
+            "/product-service/products": {
+              "get": {
+                "operationId": "listProducts",
+                "summary": "Daftar dan cari produk",
+                "tags": [
+                  "Produk"
+                ],
+                "security": [],
+                "responses": {
+                  "200": {
+                    "description": "Daftar produk yang cocok.",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "$ref": "#/components/schemas/ProductList"
+                        },
+                        "example": {
+                          "service": "catalog-service",
+                          "data": [
+                            {
+                              "id": "prod-001",
+                              "name": "Kopi Arabika Gayo",
+                              "category": "kuliner",
+                              "price": 85000,
+                              "stock": 40,
+                              "seller": "Koperasi Kopi Gayo"
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  "400": {
+                    "$ref": "#/components/responses/BadRequest"
+                  },
+                  "429": {
+                    "$ref": "#/components/responses/RateLimited"
+                  },
+                  "500": {
+                    "$ref": "#/components/responses/InternalError"
+                  },
+                  "502": {
+                    "$ref": "#/components/responses/BadGateway"
+                  }
+                },
+                "parameters": [
+                  {
+                    "name": "category",
+                    "in": "query",
+                    "description": "Filter kategori tanpa membedakan huruf besar/kecil; satu nilai saja.",
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "kuliner"
+                  },
+                  {
+                    "name": "search",
+                    "in": "query",
+                    "description": "Pencarian sebagian nama produk tanpa membedakan huruf besar/kecil; satu nilai saja.",
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "kopi"
+                  }
+                ]
+              }
+            },
+            "/product-service/products/{id}": {
+              "get": {
+                "operationId": "getProduct",
+                "summary": "Detail produk dan stok terbaru",
+                "tags": [
+                  "Produk"
+                ],
+                "security": [],
+                "responses": {
+                  "200": {
+                    "description": "Produk ditemukan.",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "$ref": "#/components/schemas/ProductResponse"
+                        },
+                        "example": {
+                          "data": {
+                            "id": "prod-001",
+                            "name": "Kopi Arabika Gayo",
+                            "category": "kuliner",
+                            "price": 85000,
+                            "stock": 40,
+                            "seller": "Koperasi Kopi Gayo"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "400": {
+                    "$ref": "#/components/responses/BadRequest"
+                  },
+                  "404": {
+                    "$ref": "#/components/responses/NotFound"
+                  },
+                  "429": {
+                    "$ref": "#/components/responses/RateLimited"
+                  },
+                  "500": {
+                    "$ref": "#/components/responses/InternalError"
+                  },
+                  "502": {
+                    "$ref": "#/components/responses/BadGateway"
+                  }
+                },
+                "parameters": [
+                  {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "description": "ID produk katalog; contoh prod-001.",
+                    "schema": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 100
+                    },
+                    "example": "prod-001"
+                  }
+                ]
+              }
+            },
+            "/product-service/products/{id}/reserve": {
+              "post": {
+                "operationId": "reserveProduct",
+                "summary": "Kurangi stok satu produk",
+                "tags": [
+                  "Reservasi"
+                ],
+                "security": [
+                  {
+                    "ApiKeyAuth": []
+                  }
+                ],
+                "responses": {
+                  "200": {
+                    "description": "Reservasi berhasil; produk berisi stok sesudah pengurangan.",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "$ref": "#/components/schemas/ProductResponse"
+                        },
+                        "example": {
+                          "data": {
+                            "id": "prod-001",
+                            "name": "Kopi Arabika Gayo",
+                            "category": "kuliner",
+                            "price": 85000,
+                            "stock": 38,
+                            "seller": "Koperasi Kopi Gayo"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "400": {
+                    "$ref": "#/components/responses/BadRequest"
+                  },
+                  "401": {
+                    "$ref": "#/components/responses/Unauthorized"
+                  },
+                  "404": {
+                    "$ref": "#/components/responses/NotFound"
+                  },
+                  "409": {
+                    "$ref": "#/components/responses/Conflict"
+                  },
+                  "413": {
+                    "$ref": "#/components/responses/PayloadTooLarge"
+                  },
+                  "429": {
+                    "$ref": "#/components/responses/RateLimited"
+                  },
+                  "500": {
+                    "$ref": "#/components/responses/InternalError"
+                  },
+                  "502": {
+                    "$ref": "#/components/responses/BadGateway"
+                  }
+                },
+                "description": "Order Service memanggil endpoint ini melalui HTTP internal untuk pesanan satu produk unik. Melalui gateway, perubahan stok memerlukan API key. Operasi ini mengurangi stok dan tidak idempotent; jangan mengulang otomatis sesudah timeout.",
+                "parameters": [
+                  {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "description": "ID produk katalog; contoh prod-001.",
+                    "schema": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 100
+                    },
+                    "example": "prod-001"
+                  }
+                ],
+                "requestBody": {
+                  "required": true,
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/ReserveInput"
+                      },
+                      "example": {
+                        "qty": 2
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "/product-service/reservations": {
+              "post": {
+                "operationId": "reserveProductBatch",
+                "summary": "Reservasi atomik beberapa produk",
+                "tags": [
+                  "Reservasi"
+                ],
+                "security": [
+                  {
+                    "ApiKeyAuth": []
+                  }
+                ],
+                "responses": {
+                  "200": {
+                    "description": "Satu produk per ID unik, berisi stok sesudah pengurangan.",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "$ref": "#/components/schemas/BatchReservationResponse"
+                        }
+                      }
+                    }
+                  },
+                  "400": {
+                    "$ref": "#/components/responses/BadRequest"
+                  },
+                  "401": {
+                    "$ref": "#/components/responses/Unauthorized"
+                  },
+                  "404": {
+                    "$ref": "#/components/responses/NotFound"
+                  },
+                  "409": {
+                    "$ref": "#/components/responses/Conflict"
+                  },
+                  "413": {
+                    "$ref": "#/components/responses/PayloadTooLarge"
+                  },
+                  "429": {
+                    "$ref": "#/components/responses/RateLimited"
+                  },
+                  "500": {
+                    "$ref": "#/components/responses/InternalError"
+                  },
+                  "502": {
+                    "$ref": "#/components/responses/BadGateway"
+                  }
+                },
+                "description": "Validasi seluruh batch sebelum mutasi, gabungkan jumlah produk duplikat, lalu kurangi semua stok dalam satu proses katalog. Atomic di katalog; belum merupakan transaksi terdistribusi dengan penyimpanan pesanan.",
+                "requestBody": {
+                  "required": true,
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/BatchReservationInput"
+                      },
+                      "example": {
+                        "items": [
+                          {
+                            "productId": "prod-001",
+                            "quantity": 2
+                          },
+                          {
+                            "productId": "prod-002",
+                            "quantity": 1
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "/order-service/orders": {
+              "get": {
+                "operationId": "listOrders",
+                "summary": "Riwayat pesanan",
+                "tags": [
+                  "Pesanan"
+                ],
+                "security": [
+                  {
+                    "ApiKeyAuth": []
+                  }
+                ],
+                "responses": {
+                  "200": {
+                    "description": "Riwayat lokal tetap dapat dibaca saat layanan produk mati.",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "$ref": "#/components/schemas/OrderList"
+                        },
+                        "example": {
+                          "service": "order-service",
+                          "data": []
+                        }
+                      }
+                    }
+                  },
+                  "401": {
+                    "$ref": "#/components/responses/Unauthorized"
+                  },
+                  "429": {
+                    "$ref": "#/components/responses/RateLimited"
+                  },
+                  "500": {
+                    "$ref": "#/components/responses/InternalError"
+                  },
+                  "502": {
+                    "$ref": "#/components/responses/BadGateway"
+                  }
+                }
+              },
+              "post": {
+                "operationId": "createOrder",
+                "summary": "Buat pesanan dan reservasi stok",
+                "tags": [
+                  "Pesanan"
+                ],
+                "security": [
+                  {
+                    "ApiKeyAuth": []
+                  }
+                ],
+                "responses": {
+                  "201": {
+                    "description": "Pesanan disimpan dengan snapshot nama dan harga dari katalog.",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "$ref": "#/components/schemas/OrderResponse"
+                        },
+                        "example": {
+                          "data": {
+                            "id": "ord-00000000-0000-4000-8000-000000000001",
+                            "customerName": "Bambang",
+                            "items": [
+                              {
+                                "productId": "prod-001",
+                                "name": "Kopi Arabika Gayo",
+                                "quantity": 2,
+                                "unitPrice": 85000,
+                                "subtotal": 170000
+                              }
+                            ],
+                            "total": 170000,
+                            "status": "pending",
+                            "createdAt": "2026-10-28T09:00:00.000Z"
+                          }
+                        }
+                      }
+                    },
+                    "headers": {
+                      "Location": {
+                        "description": "URL relatif detail pesanan melalui gateway.",
+                        "schema": {
+                          "type": "string",
+                          "example": "/order-service/orders/ord-00000000-0000-4000-8000-000000000001"
+                        }
+                      }
+                    }
+                  },
+                  "400": {
+                    "$ref": "#/components/responses/BadRequest"
+                  },
+                  "401": {
+                    "$ref": "#/components/responses/Unauthorized"
+                  },
+                  "404": {
+                    "$ref": "#/components/responses/NotFound"
+                  },
+                  "409": {
+                    "$ref": "#/components/responses/Conflict"
+                  },
+                  "413": {
+                    "$ref": "#/components/responses/PayloadTooLarge"
+                  },
+                  "429": {
+                    "$ref": "#/components/responses/RateLimited"
+                  },
+                  "500": {
+                    "$ref": "#/components/responses/InternalError"
+                  },
+                  "502": {
+                    "$ref": "#/components/responses/BadGateway"
+                  },
+                  "503": {
+                    "$ref": "#/components/responses/ServiceUnavailable"
+                  }
+                },
+                "description": "Order Service hanya memiliki data pesanan. Stok dimiliki Catalog Service dan diminta lewat HTTP dengan deadline 2 detik. Beberapa produk unik memakai reservasi batch. Belum ada kompensasi otomatis jika reservasi berhasil tetapi penyimpanan pesanan gagal.",
+                "requestBody": {
+                  "required": true,
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/OrderInput"
+                      },
+                      "example": {
+                        "customerName": "Bambang",
+                        "items": [
+                          {
+                            "productId": "prod-001",
+                            "quantity": 2
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "/order-service/orders/{id}": {
+              "get": {
+                "operationId": "getOrder",
+                "summary": "Detail pesanan yang tersimpan",
+                "tags": [
+                  "Pesanan"
+                ],
+                "security": [
+                  {
+                    "ApiKeyAuth": []
+                  }
+                ],
+                "responses": {
+                  "200": {
+                    "description": "Snapshot pesanan saat transaksi.",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "$ref": "#/components/schemas/OrderResponse"
+                        },
+                        "example": {
+                          "data": {
+                            "id": "ord-00000000-0000-4000-8000-000000000001",
+                            "customerName": "Bambang",
+                            "items": [
+                              {
+                                "productId": "prod-001",
+                                "name": "Kopi Arabika Gayo",
+                                "quantity": 2,
+                                "unitPrice": 85000,
+                                "subtotal": 170000
+                              }
+                            ],
+                            "total": 170000,
+                            "status": "pending",
+                            "createdAt": "2026-10-28T09:00:00.000Z"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "400": {
+                    "$ref": "#/components/responses/BadRequest"
+                  },
+                  "401": {
+                    "$ref": "#/components/responses/Unauthorized"
+                  },
+                  "404": {
+                    "$ref": "#/components/responses/NotFound"
+                  },
+                  "429": {
+                    "$ref": "#/components/responses/RateLimited"
+                  },
+                  "500": {
+                    "$ref": "#/components/responses/InternalError"
+                  },
+                  "502": {
+                    "$ref": "#/components/responses/BadGateway"
+                  }
+                },
+                "parameters": [
+                  {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "description": "ID pesanan dari respons pembuatan pesanan.",
+                    "schema": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "example": "ord-00000000-0000-4000-8000-000000000001"
+                  }
+                ]
+              }
+            },
+            "/product-service/graphql": {
+              "get": {
+                "operationId": "queryGraphQLGet",
+                "summary": "Query GraphQL melalui URL",
+                "tags": [
+                  "GraphQL"
+                ],
+                "security": [],
+                "responses": {
+                  "200": {
+                    "description": "Hasil eksekusi query. Periksa errors untuk kesalahan GraphQL.",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "$ref": "#/components/schemas/GraphQLResponse"
+                        },
+                        "example": {
+                          "data": {
+                            "products": [
+                              {
+                                "id": "prod-001",
+                                "name": "Kopi Arabika Gayo",
+                                "stock": 40
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      "application/graphql-response+json": {
+                        "schema": {
+                          "$ref": "#/components/schemas/GraphQLResponse"
+                        },
+                        "example": {
+                          "data": {
+                            "products": [
+                              {
+                                "id": "prod-001",
+                                "name": "Kopi Arabika Gayo",
+                                "stock": 40
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "400": {
+                    "description": "JSON atau parameter tidak valid, query tidak valid, atau kesalahan validasi GraphQL.",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "anyOf": [
+                            {
+                              "$ref": "#/components/schemas/Error"
+                            },
+                            {
+                              "$ref": "#/components/schemas/GraphQLResponse"
+                            }
+                          ]
+                        }
+                      },
+                      "application/graphql-response+json": {
+                        "schema": {
+                          "$ref": "#/components/schemas/GraphQLResponse"
+                        }
+                      }
+                    }
+                  },
+                  "406": {
+                    "description": "Header Accept tidak didukung oleh GraphQL over HTTP.",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "$ref": "#/components/schemas/GraphQLResponse"
+                        }
+                      }
+                    }
+                  },
+                  "413": {
+                    "$ref": "#/components/responses/PayloadTooLarge"
+                  },
+                  "429": {
+                    "$ref": "#/components/responses/RateLimited"
+                  },
+                  "500": {
+                    "$ref": "#/components/responses/InternalError"
+                  },
+                  "502": {
+                    "$ref": "#/components/responses/BadGateway"
+                  }
+                },
+                "description": "Schema publik read-only: products(category, search) dan product(id). Apollo Sandbox tersedia di /sandbox. Schema dan query membaca stok katalog yang sama dengan REST.",
+                "parameters": [
+                  {
+                    "name": "query",
+                    "in": "query",
+                    "required": true,
+                    "schema": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "example": "query KatalogUMKM { products { id name category price stock seller } }"
+                  },
+                  {
+                    "name": "operationName",
+                    "in": "query",
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "KatalogUMKM"
+                  },
+                  {
+                    "name": "variables",
+                    "in": "query",
+                    "description": "Object variabel GraphQL yang diserialisasi sebagai JSON.",
+                    "schema": {
+                      "type": "string"
+                    },
+                    "example": "{}"
+                  }
+                ]
+              },
+              "post": {
+                "operationId": "queryGraphQLPost",
+                "summary": "Query GraphQL melalui JSON",
+                "tags": [
+                  "GraphQL"
+                ],
+                "security": [],
+                "responses": {
+                  "200": {
+                    "description": "Hasil eksekusi query. Periksa errors untuk kesalahan GraphQL.",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "$ref": "#/components/schemas/GraphQLResponse"
+                        },
+                        "example": {
+                          "data": {
+                            "products": [
+                              {
+                                "id": "prod-001",
+                                "name": "Kopi Arabika Gayo",
+                                "stock": 40
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      "application/graphql-response+json": {
+                        "schema": {
+                          "$ref": "#/components/schemas/GraphQLResponse"
+                        },
+                        "example": {
+                          "data": {
+                            "products": [
+                              {
+                                "id": "prod-001",
+                                "name": "Kopi Arabika Gayo",
+                                "stock": 40
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "400": {
+                    "description": "JSON atau parameter tidak valid, query tidak valid, atau kesalahan validasi GraphQL.",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "anyOf": [
+                            {
+                              "$ref": "#/components/schemas/Error"
+                            },
+                            {
+                              "$ref": "#/components/schemas/GraphQLResponse"
+                            }
+                          ]
+                        }
+                      },
+                      "application/graphql-response+json": {
+                        "schema": {
+                          "$ref": "#/components/schemas/GraphQLResponse"
+                        }
+                      }
+                    }
+                  },
+                  "406": {
+                    "description": "Header Accept tidak didukung oleh GraphQL over HTTP.",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "$ref": "#/components/schemas/GraphQLResponse"
+                        }
+                      }
+                    }
+                  },
+                  "413": {
+                    "$ref": "#/components/responses/PayloadTooLarge"
+                  },
+                  "415": {
+                    "description": "Content-Type tidak didukung; gunakan application/json.",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "$ref": "#/components/schemas/GraphQLResponse"
+                        }
+                      }
+                    }
+                  },
+                  "429": {
+                    "$ref": "#/components/responses/RateLimited"
+                  },
+                  "500": {
+                    "$ref": "#/components/responses/InternalError"
+                  },
+                  "502": {
+                    "$ref": "#/components/responses/BadGateway"
+                  }
+                },
+                "description": "Tidak memerlukan API key karena schema hanya menawarkan query katalog. Introspection tersedia untuk Apollo Sandbox. Tetap memakai kuota API gateway.",
+                "requestBody": {
+                  "required": true,
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/GraphQLRequest"
+                      },
+                      "example": {
+                        "query": "query KatalogUMKM { products { id name category price stock seller } }"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "components": {
+            "securitySchemes": {
+              "ApiKeyAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "X-API-Key",
+                "description": "Isi key lokal dari gateway/.env. Nilainya tidak ditanam dalam halaman dan tidak diteruskan ke backend."
+              }
+            },
+            "schemas": {
+              "Error": {
+                "type": "object",
+                "required": [
+                  "error"
+                ],
+                "properties": {
+                  "error": {
+                    "type": "string"
+                  }
+                }
+              },
+              "Health": {
+                "type": "object",
+                "required": [
+                  "status",
+                  "service"
+                ],
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "ok",
+                      "unavailable"
+                    ]
+                  },
+                  "service": {
+                    "type": "string",
+                    "enum": [
+                      "gateway",
+                      "catalog-service",
+                      "order-service"
+                    ]
+                  }
+                }
+              },
+              "Product": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "name",
+                  "category",
+                  "price",
+                  "stock",
+                  "seller"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "example": "prod-001",
+                    "description": "Spasi awal/akhir dihapus; hasilnya harus 1-100 karakter."
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "category": {
+                    "type": "string"
+                  },
+                  "price": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991,
+                    "description": "Harga rupiah bulat."
+                  },
+                  "stock": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991,
+                    "description": "Stok saat ini, kembali ke seed saat service dimulai ulang."
+                  },
+                  "seller": {
+                    "type": "string"
+                  }
+                },
+                "example": {
+                  "id": "prod-001",
+                  "name": "Kopi Arabika Gayo",
+                  "category": "kuliner",
+                  "price": 85000,
+                  "stock": 40,
+                  "seller": "Koperasi Kopi Gayo"
+                }
+              },
+              "ProductResponse": {
+                "type": "object",
+                "required": [
+                  "data"
+                ],
+                "properties": {
+                  "data": {
+                    "$ref": "#/components/schemas/Product"
+                  }
+                }
+              },
+              "ProductList": {
+                "type": "object",
+                "required": [
+                  "service",
+                  "data"
+                ],
+                "properties": {
+                  "service": {
+                    "type": "string",
+                    "enum": [
+                      "catalog-service"
+                    ]
+                  },
+                  "data": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Product"
+                    }
+                  }
+                }
+              },
+              "ReserveInput": {
+                "type": "object",
+                "required": [
+                  "qty"
+                ],
+                "properties": {
+                  "qty": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 9007199254740991,
+                    "example": 2
+                  }
+                }
+              },
+              "ReservationItem": {
+                "type": "object",
+                "required": [
+                  "productId",
+                  "quantity"
+                ],
+                "properties": {
+                  "productId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "example": "prod-001",
+                    "description": "Spasi awal/akhir dihapus; hasilnya harus 1-100 karakter."
+                  },
+                  "quantity": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 9007199254740991
+                  }
+                }
+              },
+              "BatchReservationInput": {
+                "type": "object",
+                "required": [
+                  "items"
+                ],
+                "properties": {
+                  "items": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 50,
+                    "items": {
+                      "$ref": "#/components/schemas/ReservationItem"
+                    }
+                  }
+                },
+                "description": "ID produk duplikat dijumlahkan. Seluruh batch divalidasi sebelum stok apa pun dikurangi."
+              },
+              "BatchReservationResponse": {
+                "type": "object",
+                "required": [
+                  "data"
+                ],
+                "properties": {
+                  "data": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Product"
+                    }
+                  }
+                }
+              },
+              "OrderItemInput": {
+                "type": "object",
+                "required": [
+                  "productId",
+                  "quantity"
+                ],
+                "properties": {
+                  "productId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "example": "prod-001",
+                    "description": "Spasi awal/akhir dihapus; hasilnya harus 1-100 karakter."
+                  },
+                  "quantity": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "example": 2
+                  }
+                }
+              },
+              "OrderInput": {
+                "type": "object",
+                "required": [
+                  "customerName",
+                  "items"
+                ],
+                "properties": {
+                  "customerName": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Spasi awal/akhir dihapus; nama tidak boleh kosong."
+                  },
+                  "items": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 50,
+                    "items": {
+                      "$ref": "#/components/schemas/OrderItemInput"
+                    }
+                  }
+                },
+                "description": "Harga/total dari klien diabaikan. ID produk duplikat dijumlahkan saat reservasi.",
+                "example": {
+                  "customerName": "Bambang",
+                  "items": [
+                    {
+                      "productId": "prod-001",
+                      "quantity": 2
+                    }
+                  ]
+                }
+              },
+              "OrderItem": {
+                "type": "object",
+                "required": [
+                  "productId",
+                  "name",
+                  "quantity",
+                  "unitPrice",
+                  "subtotal"
+                ],
+                "properties": {
+                  "productId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "example": "prod-001",
+                    "description": "Spasi awal/akhir dihapus; hasilnya harus 1-100 karakter."
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "quantity": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100
+                  },
+                  "unitPrice": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "subtotal": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  }
+                }
+              },
+              "Order": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "customerName",
+                  "items",
+                  "total",
+                  "status",
+                  "createdAt"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "^ord-"
+                  },
+                  "customerName": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "items": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 50,
+                    "items": {
+                      "$ref": "#/components/schemas/OrderItem"
+                    }
+                  },
+                  "total": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "pending"
+                    ]
+                  },
+                  "createdAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                },
+                "example": {
+                  "id": "ord-00000000-0000-4000-8000-000000000001",
+                  "customerName": "Bambang",
+                  "items": [
+                    {
+                      "productId": "prod-001",
+                      "name": "Kopi Arabika Gayo",
+                      "quantity": 2,
+                      "unitPrice": 85000,
+                      "subtotal": 170000
+                    }
+                  ],
+                  "total": 170000,
+                  "status": "pending",
+                  "createdAt": "2026-10-28T09:00:00.000Z"
+                }
+              },
+              "OrderResponse": {
+                "type": "object",
+                "required": [
+                  "data"
+                ],
+                "properties": {
+                  "data": {
+                    "$ref": "#/components/schemas/Order"
+                  }
+                }
+              },
+              "OrderList": {
+                "type": "object",
+                "required": [
+                  "service",
+                  "data"
+                ],
+                "properties": {
+                  "service": {
+                    "type": "string",
+                    "enum": [
+                      "order-service"
+                    ]
+                  },
+                  "data": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Order"
+                    }
+                  }
+                }
+              },
+              "GraphQLRequest": {
+                "type": "object",
+                "required": [
+                  "query"
+                ],
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "minLength": 1,
+                    "example": "query KatalogUMKM { products { id name category price stock seller } }"
+                  },
+                  "operationName": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "variables": {
+                    "type": "object",
+                    "nullable": true,
+                    "additionalProperties": true
+                  },
+                  "extensions": {
+                    "type": "object",
+                    "nullable": true,
+                    "additionalProperties": true
+                  }
+                }
+              },
+              "GraphQLResponse": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "type": "object",
+                    "nullable": true,
+                    "additionalProperties": true
+                  },
+                  "errors": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "message"
+                      ],
+                      "properties": {
+                        "message": {
+                          "type": "string"
+                        },
+                        "locations": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "line": {
+                                "type": "integer"
+                              },
+                              "column": {
+                                "type": "integer"
+                              }
+                            }
+                          }
+                        },
+                        "path": {
+                          "type": "array",
+                          "items": {
+                            "oneOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "integer"
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "anyOf": [
+                  {
+                    "required": [
+                      "data"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "errors"
+                    ]
+                  }
+                ]
+              }
+            },
+            "responses": {
+              "BadRequest": {
+                "description": "JSON, parameter, atau nilai input tidak valid.",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    "example": {
+                      "error": "qty must be a positive safe integer"
+                    }
+                  }
+                }
+              },
+              "Unauthorized": {
+                "description": "X-API-Key tidak ada atau salah. Isi key lokal melalui Authorize.",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    "example": {
+                      "error": "Unauthorized"
+                    }
+                  }
+                }
+              },
+              "NotFound": {
+                "description": "Produk atau pesanan tidak ditemukan.",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    "example": {
+                      "error": "Product not found"
+                    }
+                  }
+                }
+              },
+              "Conflict": {
+                "description": "Stok tidak cukup; batch yang ditolak tidak mengubah stok.",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    "example": {
+                      "error": "Insufficient stock for prod-001; available: 0"
+                    }
+                  }
+                }
+              },
+              "PayloadTooLarge": {
+                "description": "Body request melampaui 32 KB.",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    "example": {
+                      "error": "Request body is too large"
+                    }
+                  }
+                }
+              },
+              "RateLimited": {
+                "description": "Batas 20 request per 10 detik per IP terlampaui. Tunggu Retry-After.",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    "example": {
+                      "error": "Terlalu banyak request. Maksimal 20 request per 10 detik per IP."
+                    }
+                  }
+                },
+                "headers": {
+                  "Retry-After": {
+                    "description": "Detik hingga request dapat diulangi.",
+                    "schema": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  },
+                  "RateLimit-Limit": {
+                    "schema": {
+                      "type": "integer",
+                      "example": 20
+                    }
+                  },
+                  "RateLimit-Remaining": {
+                    "schema": {
+                      "type": "integer",
+                      "example": 0
+                    }
+                  }
+                }
+              },
+              "BadGateway": {
+                "description": "Gateway tidak dapat menghubungi service tujuan, atau data katalog tidak valid.",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    "example": {
+                      "error": "Service tujuan tidak tersedia"
+                    }
+                  }
+                }
+              },
+              "ServiceUnavailable": {
+                "description": "Katalog tidak tersedia atau deadline HTTP 2 detik terlampaui; pesanan baru tidak disimpan.",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    "example": {
+                      "error": "Catalog service is unavailable or timed out"
+                    }
+                  }
+                }
+              },
+              "InternalError": {
+                "description": "Kesalahan internal service.",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    "example": {
+                      "error": "Internal server error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "startedAt": "2026-10-28T10:02:51.152Z",
+      "durationMs": 226,
+      "request": {
+        "method": "POST",
+        "url": "https://prakwebservice-lab09-microservices.onrender.com/product-service/graphql",
+        "body": {
+          "query": "{ products { id name price stock } }"
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "data": {
+            "products": [
+              {
+                "id": "prod-001",
+                "name": "Kopi Arabika Gayo",
+                "price": 85000,
+                "stock": 40
+              },
+              {
+                "id": "prod-002",
+                "name": "Tas Anyaman Pandan",
+                "price": 120000,
+                "stock": 15
+              },
+              {
+                "id": "prod-003",
+                "name": "Kaos Batik UMKM",
+                "price": 95000,
+                "stock": 30
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "startedAt": "2026-10-28T10:02:51.377Z",
+      "durationMs": 70,
+      "request": {
+        "method": "GET",
+        "url": "https://prakwebservice-lab09-microservices.onrender.com/order-service/orders"
+      },
+      "response": {
+        "status": 401,
+        "body": {
+          "error": "Unauthorized"
+        }
+      }
+    },
+    {
+      "startedAt": "2026-10-28T10:02:51.982Z",
+      "durationMs": 89,
+      "request": {
+        "method": "GET",
+        "url": "https://prakwebservice-lab09-microservices.onrender.com/order-service/orders"
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "service": "order-service",
+          "data": [
+            {
+              "id": "ord-b0568f5f-f67c-48bb-b584-3db63a95f27b",
+              "customerName": "Bambang Lab 09",
+              "items": [
+                {
+                  "productId": "prod-001",
+                  "name": "Kopi Arabika Gayo",
+                  "quantity": 2,
+                  "unitPrice": 85000,
+                  "subtotal": 170000
+                }
+              ],
+              "total": 170000,
+              "status": "pending",
+              "createdAt": "2026-10-28T10:02:50.977Z"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "id": "srv-dbgsfp6gekts738pdq4g",
+  "name": "prakwebservice-lab09-microservices",
+  "url": "https://prakwebservice-lab09-microservices.onrender.com",
+  "plan": "free",
+  "region": "singapore",
+  "repo": "https://github.com/academicbambang/prakwebservice-lab09-microservices",
+  "branch": "main",
+  "createdAt": "2026-10-28T10:01:09.885508Z",
+  "dashboardUrl": "https://dashboard.render.com/web/srv-dbgsfp6gekts738pdq4g",
+  "initialCommit": "0e40b71e730bb091bbb1cedd56c4596d2249a87f"
+}

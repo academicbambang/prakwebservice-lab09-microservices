@@ -6,6 +6,8 @@ Identitas laporan: **Bambang Herlambang, NRP 5803024019**, praktikum individu ta
 
 PDF pengumpulan: [`output/pdf/laporan-praktikum-sesi-09.pdf`](../../output/pdf/laporan-praktikum-sesi-09.pdf). ZIP mandiri untuk Overleaf: [`output/latex/laporan-praktikum-sesi-09-overleaf.zip`](../../output/latex/laporan-praktikum-sesi-09-overleaf.zip).
 
+Versi yang disajikan aplikasi: [PDF publik](https://prakwebservice-lab09-microservices.onrender.com/laporan.pdf) dan [ZIP LaTeX publik](https://prakwebservice-lab09-microservices.onrender.com/laporan-latex.zip). Route aplikasi tersebut menunjuk file keluaran di atas; nama URL ZIP sengaja lebih pendek daripada nama arsip sumber pada repository.
+
 ## Kompilasi
 
 PDF dihasilkan dari LaTeX menggunakan **Tectonic 0.17.0**. Dari root repository, setelah Tectonic dan Python tersedia:
@@ -26,4 +28,6 @@ Alternatif: jalankan `xelatex main.tex` dua kali. Di Overleaf, unggah ZIP, pilih
 
 ## Bukti dan tata letak
 
-Diagram berasal dari `docs/lab09/arsitektur.png`. Empat screenshot lokal disalin tanpa mengubah isi dari `docs/evidence/lab09/`; screenshot tersebut adalah tangkapan browser halaman hasil HTTP otomatis, bukan screenshot Postman. Screenshot frontend, Swagger, dan Apollo berasal dari `docs/evidence/ui/`. Potongan gambar mobile ditampilkan berurutan, sedangkan gambar Swagger dipotong pada bagian respons aktual; sumber lengkap tetap disertakan dalam `images/`. Header API key tidak tercakup dalam bukti. Halaman cover tanpa nomor; isi memakai nomor halaman di tengah bawah, tanpa header dan garis header.
+Diagram berasal dari `docs/lab09/arsitektur.png`. Empat screenshot lokal disalin tanpa mengubah isi dari `docs/evidence/lab09/`; screenshot tersebut adalah tangkapan browser halaman hasil HTTP otomatis, bukan screenshot Postman. Screenshot frontend, Swagger, dan Apollo lokal berasal dari `docs/evidence/ui/`. Bukti publik berasal dari `docs/evidence/deployment/` dan disalin ke `images/` dengan awalan `public-` agar tidak tertukar dengan bukti lokal. Potongan gambar mobile ditampilkan berurutan, sedangkan gambar Swagger dipotong pada bagian respons aktual; sumber lengkap tetap disertakan dalam `images/`. Header API key tidak tercakup dalam bukti. Halaman cover tanpa nomor; isi memakai nomor halaman di tengah bawah, tanpa header dan garis header.
+
+Status Render live pada laporan mengacu pada rekaman deployment awal commit `0e40b71`, selesai pada 28 Oktober 2026 pukul 17:02:02 UTC+7. Hasil verifier HTTPS dan UI publik dicatat sesudahnya. Rekaman tersebut tidak dimaksudkan sebagai klaim bahwa commit awal selalu merupakan revisi terbaru yang disajikan setelah pembaruan laporan.

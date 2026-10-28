@@ -1,0 +1,147 @@
+GET https://prakwebservice-lab09-microservices.onrender.com/readyz
+HTTP 200 (295 ms)
+{
+  "status": "ok",
+  "service": "gateway"
+}
+
+GET https://prakwebservice-lab09-microservices.onrender.com/ -> HTTP 200 (8350 bytes)
+
+GET https://prakwebservice-lab09-microservices.onrender.com/app.js -> HTTP 200 (23043 bytes)
+
+GET https://prakwebservice-lab09-microservices.onrender.com/styles.css -> HTTP 200 (22656 bytes)
+
+GET https://prakwebservice-lab09-microservices.onrender.com/docs/ -> HTTP 200 (1324 bytes)
+
+GET https://prakwebservice-lab09-microservices.onrender.com/sandbox -> HTTP 200 (3074 bytes)
+
+GET https://prakwebservice-lab09-microservices.onrender.com/laporan.pdf -> HTTP 200 (1100967 bytes)
+
+GET https://prakwebservice-lab09-microservices.onrender.com/laporan-latex.zip -> HTTP 200 (1026125 bytes)
+
+POST https://prakwebservice-lab09-microservices.onrender.com/product-service/graphql
+Request: {"query":"{ products { id name price stock } }"}
+HTTP 200 (226 ms)
+{
+  "data": {
+    "products": [
+      {
+        "id": "prod-001",
+        "name": "Kopi Arabika Gayo",
+        "price": 85000,
+        "stock": 40
+      },
+      {
+        "id": "prod-002",
+        "name": "Tas Anyaman Pandan",
+        "price": 120000,
+        "stock": 15
+      },
+      {
+        "id": "prod-003",
+        "name": "Kaos Batik UMKM",
+        "price": 95000,
+        "stock": 30
+      }
+    ]
+  }
+}
+
+GET https://prakwebservice-lab09-microservices.onrender.com/order-service/orders
+HTTP 401 (70 ms)
+{
+  "error": "Unauthorized"
+}
+
+GET https://prakwebservice-lab09-microservices.onrender.com/product-service/products
+HTTP 200 (62 ms)
+{
+  "service": "catalog-service",
+  "data": [
+    {
+      "id": "prod-001",
+      "name": "Kopi Arabika Gayo",
+      "category": "kuliner",
+      "price": 85000,
+      "stock": 40,
+      "seller": "Koperasi Kopi Gayo"
+    },
+    {
+      "id": "prod-002",
+      "name": "Tas Anyaman Pandan",
+      "category": "kerajinan",
+      "price": 120000,
+      "stock": 15,
+      "seller": "Rumah Anyaman Nusantara"
+    },
+    {
+      "id": "prod-003",
+      "name": "Kaos Batik UMKM",
+      "category": "fashion",
+      "price": 95000,
+      "stock": 30,
+      "seller": "Batik Lokal Mandiri"
+    }
+  ]
+}
+
+POST https://prakwebservice-lab09-microservices.onrender.com/order-service/orders
+Request: {"customerName":"Bambang Lab 09","items":[{"productId":"prod-001","quantity":2}]}
+HTTP 201 (374 ms)
+{
+  "data": {
+    "id": "ord-b0568f5f-f67c-48bb-b584-3db63a95f27b",
+    "customerName": "Bambang Lab 09",
+    "items": [
+      {
+        "productId": "prod-001",
+        "name": "Kopi Arabika Gayo",
+        "quantity": 2,
+        "unitPrice": 85000,
+        "subtotal": 170000
+      }
+    ],
+    "total": 170000,
+    "status": "pending",
+    "createdAt": "2026-10-28T10:02:50.977Z"
+  }
+}
+
+GET https://prakwebservice-lab09-microservices.onrender.com/product-service/products/prod-001
+HTTP 200 (97 ms)
+{
+  "data": {
+    "id": "prod-001",
+    "name": "Kopi Arabika Gayo",
+    "category": "kuliner",
+    "price": 85000,
+    "stock": 38,
+    "seller": "Koperasi Kopi Gayo"
+  }
+}
+
+LULUS: 3 produk, order 201, stok 40 -> 38, total Rp170000.
+
+GET https://prakwebservice-lab09-microservices.onrender.com/order-service/orders
+HTTP 200 (89 ms)
+{
+  "service": "order-service",
+  "data": [
+    {
+      "id": "ord-b0568f5f-f67c-48bb-b584-3db63a95f27b",
+      "customerName": "Bambang Lab 09",
+      "items": [
+        {
+          "productId": "prod-001",
+          "name": "Kopi Arabika Gayo",
+          "quantity": 2,
+          "unitPrice": 85000,
+          "subtotal": 170000
+        }
+      ],
+      "total": 170000,
+      "status": "pending",
+      "createdAt": "2026-10-28T10:02:50.977Z"
+    }
+  ]
+}

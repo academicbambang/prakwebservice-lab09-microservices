@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Lab 09 Microservices - Bambang Herlambang",
-    "description": "Praktikum individu Lab 09, Bambang Herlambang, NRP 5803024019. Collection untuk repository khusus Lab 09 https://github.com/academicbambang/prakwebservice-lab09-microservices, terpisah dari repository Lab 08. Gateway dipakai ulang dari https://github.com/academicbambang/prakwebservice-lab08-api-gateway. Catalog Service berperan sebagai product-service; nama folder catalog-service dipertahankan dari kode sumber. Jalankan alur normal pada data awal, lalu input negatif. Kelompok kegagalan WAJIB dijalankan manual: hentikan hanya katalog sebelum POST 503, biarkan Order Service dan gateway aktif, lalu hidupkan kembali katalog sebelum POST 201. Jangan jalankan seluruh collection tanpa intervensi tersebut. Semua URL memakai gateway lokal; isi apiKey di environment lokal. Rate limit 20 request/10 detik/IP tetap berlaku. Screenshot harus menampilkan method, URL, status, body tanpa key.",
+    "description": "Praktikum individu Lab 09, Bambang Herlambang, NRP 5803024019. Collection untuk repository khusus Lab 09 https://github.com/academicbambang/prakwebservice-lab09-microservices, terpisah dari repository Lab 08. Gateway dipakai ulang dari https://github.com/academicbambang/prakwebservice-lab08-api-gateway. Catalog Service berperan sebagai product-service; nama folder catalog-service dipertahankan dari kode sumber. Jalankan alur normal pada data awal, lalu input negatif. Kelompok kegagalan WAJIB dijalankan manual: hentikan hanya katalog sebelum POST 503, biarkan Order Service dan gateway aktif, lalu hidupkan kembali katalog sebelum POST 201. Jangan jalankan seluruh collection tanpa intervensi tersebut. Semua URL mengikuti baseUrl environment lokal atau deployment; isi apiKey di environment lokal. Rate limit 20 request/10 detik/IP tetap berlaku. Screenshot harus menampilkan method, URL, status, body tanpa key. Swagger UI ada di {{baseUrl}}/docs/, OpenAPI di /openapi.json, dan Apollo Sandbox di /sandbox. Folder alat pengembang dijalankan saat kedua backend aktif. baseUrl dapat diarahkan ke URL deployment HTTPS yang sudah diverifikasi; isi apiKey sesuai lingkungan, tanpa mengekspor nilainya.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -349,7 +349,7 @@
     },
     {
       "name": "03 Kegagalan dan pemulihan - jalankan manual",
-      "description": "Hentikan hanya proses catalog-service sebelum request 11 dan 12. Jangan restart order-service atau gateway. Hidupkan kembali catalog-service sebelum request 13. Screenshot tiga request tersebut sebagai bukti utama langkah 06 materi.",
+      "description": "Hentikan hanya proses catalog-service sebelum request 11 dan 12. Jangan restart order-service atau gateway. Hidupkan kembali catalog-service sebelum request 13. Screenshot tiga request tersebut sebagai bukti utama langkah 06 materi. Jalankan folder kegagalan ini pada stack lokal tiga terminal; launcher deployment menghentikan seluruh stack jika satu child keluar.",
       "item": [
         {
           "name": "11 Katalog MATI - POST pesanan 503",
@@ -479,6 +479,116 @@
                   "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
                   "pm.test('Response JSON', () => pm.response.to.be.json);",
                   "pm.test('Fixture baru 40 dikurangi dua', () => pm.expect(pm.response.json().data.stock).to.eql(38));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04 Alat pengembang - kedua backend aktif",
+      "description": "Opsional: health, readiness, query GraphQL dan OpenAPI. Swagger UI: {{baseUrl}}/docs/. Apollo Sandbox: {{baseUrl}}/sandbox. PDF: /laporan.pdf; sumber LaTeX: /laporan-latex.zip. Request API tetap memakai kuota gateway; readiness dan OpenAPI dikecualikan.",
+      "item": [
+        {
+          "name": "15 Health gateway",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/health"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Response JSON', () => pm.response.to.be.json);",
+                  "pm.test('Gateway sehat', () => pm.expect(pm.response.json()).to.eql({status:'ok',service:'gateway'}));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "16 Readiness kedua service",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/readyz"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Response JSON', () => pm.response.to.be.json);",
+                  "pm.test('Kedua service siap', () => pm.expect(pm.response.json().status).to.eql('ok'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "17 Query katalog GraphQL",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/product-service/graphql",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query KatalogUMKM { products { id name category price stock seller } }\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Query publik tanpa API key. Membaca stok yang sama dengan REST. Gunakan Apollo Sandbox untuk eksplorasi schema."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Response JSON', () => pm.response.to.be.json);",
+                  "const result = pm.response.json();",
+                  "pm.test('Tidak ada GraphQL errors', () => pm.expect(result.errors).to.eql(undefined));",
+                  "pm.test('Tiga produk dengan stok valid', () => { pm.expect(result.data.products).to.have.lengthOf(3); result.data.products.forEach(p => { pm.expect(p.stock).to.be.at.least(0); pm.expect(p.price).to.be.a('number'); }); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "18 Spesifikasi OpenAPI",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/openapi.json",
+            "description": "Dokumentasi interaktif tersedia di {{baseUrl}}/docs/. Gunakan Authorize untuk operasi yang memerlukan X-API-Key."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Response JSON', () => pm.response.to.be.json);",
+                  "pm.test('OpenAPI 3.0.3', () => pm.expect(pm.response.json().openapi).to.eql('3.0.3'));",
+                  "pm.test('Server relatif mengikuti gateway', () => pm.expect(pm.response.json().servers[0].url).to.eql('/'));"
                 ]
               }
             }
