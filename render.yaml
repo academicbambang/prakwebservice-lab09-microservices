@@ -1,0 +1,29 @@
+# Demo in one Free host: three separate processes, only the gateway is public.
+services:
+  - type: web
+    name: prakwebservice-lab09-microservices
+    runtime: node
+    plan: free
+    region: singapore
+    repo: https://github.com/academicbambang/prakwebservice-lab09-microservices
+    branch: main
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    healthCheckPath: /readyz
+    autoDeployTrigger: commit
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NODE_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      - key: TRUST_PROXY
+        value: "1"
+      - key: CATALOG_PORT
+        value: "3000"
+      - key: ORDER_PORT
+        value: "3001"
+      # npm run setup:render creates a private client key and this SHA-256 digest.
+      - key: API_KEY_SHA256
+        sync: false

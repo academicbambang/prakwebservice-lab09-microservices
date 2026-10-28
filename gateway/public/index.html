@@ -3,138 +3,66 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Praktikum Web Service sesi 09: microservices Marketplace UMKM memakai kembali gateway Lab 08. Katalog mengelola stok; pesanan melakukan reservasi lewat HTTP.">
-  <title>Microservices UMKM · Lab 09</title>
+  <meta name="description" content="Marketplace UMKM Lab 09. Jelajahi produk lokal, buat pesanan, dan lihat komunikasi dua microservice melalui satu gateway.">
+  <title>Ruang UMKM · Microservices Lab 09</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230d6557'/%3E%3Cpath d='M18 21h28M18 32h18M18 43h28' stroke='white' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
-  <style>
-    :root { color-scheme: light; --paper: #f6f5f0; --ink: #182e2a; --muted: #5b6d67; --green: #0d6557; --line: #dce3dc; }
-    * { box-sizing: border-box; }
-    body { margin: 0; background: var(--paper); color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.6; }
-    a { color: var(--green); text-underline-offset: 4px; }
-    button, a { -webkit-tap-highlight-color: transparent; }
-    a:focus-visible, button:focus-visible { outline: 3px solid #c18420; outline-offset: 5px; }
-    .wrap { width: min(1080px, calc(100% - 48px)); margin: auto; }
-    nav { min-height: 104px; display: flex; align-items: center; justify-content: space-between; gap: 20px; border-bottom: 1px solid var(--line); }
-    .brand { display: flex; align-items: center; gap: 13px; font-weight: 700; letter-spacing: -.3px; }
-    .mark { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; background: var(--green); color: white; font-size: 15px; letter-spacing: 1px; }
-    .brand small { display: block; color: var(--muted); font-size: 12px; font-weight: 400; letter-spacing: .3px; }
-    .status { display: flex; align-items: center; gap: 9px; font-size: 13px; color: var(--muted); }
-    .dot { width: 8px; height: 8px; border-radius: 50%; background: #929b96; flex-shrink: 0; }
-    .status[data-state="ok"] .dot { background: #24845c; box-shadow: 0 0 0 4px #e1eee3; }
-    .status[data-state="error"] .dot { background: #b87824; }
-    .hero { display: grid; grid-template-columns: 1.25fr 1fr; gap: 64px; align-items: center; padding: 76px 0 64px; }
-    .eyebrow { margin: 0 0 18px; color: var(--green); font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
-    h1 { margin: 0; font-size: clamp(36px, 4.3vw, 54px); line-height: 1.12; letter-spacing: -2px; font-weight: 650; }
-    .intro { max-width: 460px; color: var(--muted); font-size: 17px; margin: 24px 0 28px; }
-    .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
-    .button { display: inline-flex; align-items: center; justify-content: center; gap: 18px; padding: 12px 20px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 600; border: 1px solid var(--green); background: var(--green); color: white; transition: background .15s; }
-    .button:hover { background: #094c42; }
-    .button.secondary { color: var(--green); background: transparent; border-color: #c8d4ca; }
-    .button.secondary:hover { background: #eaf0e8; }
-    .flow { padding: 26px; border: 1px solid var(--line); border-radius: 18px; background: #eeefe7; }
-    .flow-label { font-size: 11px; letter-spacing: 1.5px; color: var(--muted); text-transform: uppercase; margin: 0 0 20px; }
-    .gateway { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 17px 18px; border-radius: 10px; background: var(--ink); color: white; font-weight: 600; }
-    .gateway span { font: 11px ui-monospace, Consolas, monospace; color: #c1d4cb; letter-spacing: 1px; }
-    .branches { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding-top: 28px; position: relative; }
-    .branches::before { content: ""; position: absolute; width: 1px; height: 28px; background: #aabcb0; top: 0; left: 50%; }
-    .service { background: #fcfcf9; border: 1px solid #d3dcd2; border-radius: 10px; padding: 17px 14px; }
-    .service strong { display: block; font-size: 14px; }
-    .service code { color: var(--muted); font-size: 12px; }
-    .tag { display: inline-block; margin-top: 15px; color: var(--green); background: #e6efe4; border-radius: 4px; padding: 2px 7px; font-size: 10px; font-weight: 600; }
-    .tag.key { color: #806025; background: #f3ebd9; }
-    .endpoints { padding-bottom: 30px; }
-    .section-title { display: flex; justify-content: space-between; gap: 20px; align-items: baseline; margin-bottom: 20px; }
-    h2 { font-size: 20px; letter-spacing: -.5px; margin: 0; }
-    .section-title p { margin: 0; color: var(--muted); font-size: 12px; }
-    .endpoint { display: grid; grid-template-columns: 90px 1.1fr 1.15fr 24px; align-items: center; gap: 20px; padding: 22px 24px; background: #fdfdfa; border: 1px solid var(--line); border-bottom: 0; }
-    .endpoint:first-of-type { border-radius: 12px 12px 0 0; }
-    .endpoint:last-of-type { border-bottom: 1px solid var(--line); border-radius: 0 0 12px 12px; }
-    .method { color: var(--green); font: 600 11px ui-monospace, Consolas, monospace; letter-spacing: .3px; }
-    code { font-family: ui-monospace, "SFMono-Regular", Consolas, monospace; }
-    .endpoint code { font-size: 13px; overflow-wrap: anywhere; }
-    .endpoint p { margin: 0; color: var(--muted); font-size: 13px; }
-    .endpoint a { font-size: 20px; text-decoration: none; }
-    .lock { font-size: 12px; color: #87682d; }
-    .note { display: flex; gap: 14px; padding: 20px 0; font-size: 13px; color: var(--muted); }
-    .note strong { color: var(--ink); font-weight: 600; }
-    .note p { margin: 0; }
-    .note code { color: var(--ink); font-size: 12px; }
-    footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 24px 0 30px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
-    footer a { color: inherit; }
-    @media (max-width: 760px) {
-      .wrap { width: min(560px, calc(100% - 36px)); }
-      nav { min-height: 90px; }
-      .brand { font-size: 14px; }
-      .brand small { font-size: 11px; }
-      .status { font-size: 11px; max-width: 130px; line-height: 1.4; }
-      .hero { grid-template-columns: 1fr; gap: 36px; padding: 44px 0; }
-      h1 { letter-spacing: -1.4px; }
-      .intro { font-size: 16px; margin-top: 20px; }
-      .flow { padding: 22px; }
-      .section-title { align-items: flex-start; flex-direction: column; gap: 4px; }
-      .endpoint { grid-template-columns: 68px 1fr 20px; gap: 10px; padding: 20px 16px; }
-      .endpoint p { grid-column: 2; grid-row: 2; font-size: 12px; }
-      .endpoint > a, .endpoint > .lock { grid-column: 3; grid-row: 1; }
-      .endpoint code { font-size: 12px; }
-      .method { font-size: 10px; }
-      .note { font-size: 12px; }
-    }
-  </style>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
 </head>
 <body>
+  <a class="skip-link" href="#main">Lewati ke konten</a>
   <div class="wrap">
-    <nav aria-label="Identitas aplikasi">
-      <div class="brand"><span class="mark" aria-hidden="true">09</span><div>Web Service Lab<small>API Gateway &amp; Microservices</small></div></div>
-      <div class="status" id="status" role="status"><span class="dot" aria-hidden="true"></span><span id="status-text">Memeriksa layanan…</span></div>
-    </nav>
-    <main>
-      <section class="hero" aria-labelledby="title">
-        <div>
-          <p class="eyebrow">Marketplace UMKM</p>
-          <h1 id="title">Satu gateway.<br>Dua layanan.</h1>
-          <p class="intro">Akses katalog produk dan layanan pesanan melalui satu alamat. Setiap pesanan mereservasi stok lewat API katalog; riwayat pesanan tetap tersedia saat katalog berhenti.</p>
-          <div class="actions">
-            <a class="button" href="/catalog/products">Lihat katalog <span aria-hidden="true">↗</span></a>
-            <a class="button secondary" href="/readyz">Cek status</a>
-          </div>
-        </div>
-        <div class="flow" aria-label="Gateway meneruskan request ke Catalog Service dan Order Service">
-          <p class="flow-label">Alur akses layanan</p>
-          <div class="gateway">API Gateway <span>ENTRY POINT</span></div>
-          <div class="branches">
-            <div class="service"><strong>Catalog Service</strong><code>/catalog/*</code><br><span class="tag">Katalog publik</span></div>
-            <div class="service"><strong>Order Service</strong><code>/orders/*</code><br><span class="tag key">Dengan API key</span></div>
-          </div>
-        </div>
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="Ruang UMKM, beranda"><span class="brand-mark" aria-hidden="true">ru.</span><span>Ruang UMKM<small>Produk lokal, terhubung.</small></span></a>
+      <div class="header-right">
+        <div class="header-identity">Bambang Herlambang<small>NRP 5803024019 · Lab 09</small></div>
+        <button class="service-status" id="check-status" type="button" aria-label="Periksa ulang status layanan"><span class="status-dot" aria-hidden="true"></span><span id="status-text" role="status">Memeriksa layanan…</span><span class="status-refresh" aria-hidden="true">↻</span></button>
+      </div>
+    </header>
+    <main id="main">
+      <section class="intro" aria-labelledby="page-title">
+        <div><p class="eyebrow"><span aria-hidden="true"></span> MARKETPLACE UMKM / LAB 09</p><h1 id="page-title">Pilihan lokal.<br><em>Cerita yang berarti.</em></h1><p class="intro-text">Temukan karya dan cita rasa pelaku UMKM. Pilih produk favoritmu, lalu buat pesanan dalam satu tempat.</p></div>
+        <aside class="intro-note" aria-label="Tentang aplikasi"><div class="mini-flow" aria-hidden="true"><span>01</span><i></i><span>02</span><i></i><span>03</span></div><p class="note-title">Satu alur, saling terhubung.</p><p>Katalog → gateway → pesanan.<br>Stok diperbarui setiap transaksi.</p><a href="/docs">Jelajahi dokumentasi API <span aria-hidden="true">↗</span></a></aside>
       </section>
-      <section class="endpoints" aria-labelledby="endpoints-title">
-        <div class="section-title"><h2 id="endpoints-title">Jelajahi endpoint</h2><p>Respons API ditampilkan dalam format JSON.</p></div>
-        <div>
-          <div class="endpoint"><span class="method">GET</span><code>/catalog/products</code><p>Daftar produk UMKM</p><a href="/catalog/products" aria-label="Buka daftar produk">↗</a></div>
-          <div class="endpoint"><span class="method">GET / POST</span><code>/catalog/graphql</code><p>Query katalog dengan GraphQL</p><a href="/catalog/graphql?query=%7B%20products%20%7B%20id%20name%20price%20%7D%20%7D" aria-label="Coba query GraphQL produk">↗</a></div>
-          <div class="endpoint"><span class="method">GET / POST</span><code>/orders/orders</code><p>Gunakan Postman dengan header <code>X-API-Key</code>.</p><span class="lock" aria-label="Memerlukan API key">●</span></div>
-          <div class="endpoint"><span class="method">POST</span><code>/product-service/products/:id/reserve</code><p>Reservasi stok dengan body <code>{"qty": 2}</code> dan <code>X-API-Key</code>.</p><span class="lock" aria-label="Memerlukan API key">●</span></div>
+      <div class="workspace-top">
+        <div class="tabs" role="tablist" aria-label="Tampilan marketplace"><button id="tab-products" class="tab active" type="button" role="tab" aria-selected="true" aria-controls="products-panel">Produk lokal <span id="product-count" class="tab-count">—</span></button><button id="tab-orders" class="tab" type="button" role="tab" aria-selected="false" aria-controls="orders-panel" tabindex="-1">Pesanan</button></div>
+        <span class="workspace-hint"><span aria-hidden="true">◌</span> Demo dengan data sementara</span>
+      </div>
+      <div class="workspace">
+        <div class="main-column">
+          <section id="products-panel" role="tabpanel" aria-labelledby="tab-products">
+            <div class="section-heading"><div><h2>Dari tangan pelaku lokal</h2><p>Produk pilihan dari tiga kategori UMKM.</p></div><button id="refresh-products" class="text-button" type="button"><span aria-hidden="true">↻</span> Perbarui stok</button></div>
+            <div id="catalog-notice" class="notice" role="status" hidden></div>
+            <div id="products" class="product-grid" aria-busy="true"><div class="loading-panel"><span class="spinner" aria-hidden="true"></span><p>Memuat produk lokal…</p></div></div>
+            <p class="catalog-footnote"><span aria-hidden="true">✓</span> Harga dari katalog. Stok dikonfirmasi saat pesanan dibuat.</p>
+          </section>
+          <section id="orders-panel" role="tabpanel" aria-labelledby="tab-orders" hidden>
+            <div class="section-heading"><div><h2>Riwayat pesanan</h2><p>Pesanan tersimpan selama layanan berjalan.</p></div><button id="refresh-orders" class="text-button" type="button"><span aria-hidden="true">↻</span> Muat pesanan</button></div>
+            <div id="orders-notice" class="notice" role="status" hidden></div>
+            <div id="orders" class="order-list" aria-busy="false"><div class="empty-state"><span class="empty-symbol" aria-hidden="true">↗</span><h3>Riwayat ada di sini</h3><p>Aktifkan API key di panel akses, lalu pilih “Muat pesanan”.</p></div></div>
+          </section>
+          <section class="resources" aria-labelledby="resources-title"><div><p class="eyebrow">DI BALIK MARKETPLACE</p><h2 id="resources-title">Lihat cara layanannya bekerja.</h2><p>Dua service bisnis, satu pintu masuk. Dokumentasi dan laporan tersedia di sini.</p></div><div class="resource-links"><a href="/docs">Swagger UI <span aria-hidden="true">↗</span></a><a href="/sandbox">Apollo Sandbox <span aria-hidden="true">↗</span></a><a href="/openapi.json">Spesifikasi OpenAPI <span aria-hidden="true">↗</span></a><a href="/laporan.pdf" target="_blank" rel="noopener noreferrer">Laporan PDF <span aria-hidden="true">↗</span></a><a href="/health">Health gateway <span aria-hidden="true">↗</span></a><a href="/readyz">Readiness layanan <span aria-hidden="true">↗</span></a></div></section>
         </div>
-        <div class="note"><span aria-hidden="true">ⓘ</span><div><p><strong>Batas akses: 20 request per 10 detik per IP.</strong> Request yang melebihi batas mendapat respons <code>429</code>.</p><p>Data pesanan pada demo bersifat sementara dan direset saat layanan dimulai ulang.</p></div></div>
-      </section>
+        <aside class="sidebar" aria-label="Keranjang dan akses pesanan">
+          <section class="cart-panel" aria-labelledby="cart-title">
+            <div class="cart-heading"><h2 id="cart-title">Keranjangmu</h2><span id="cart-count" class="cart-count">0 item</span></div>
+            <div id="cart-items" class="cart-items"><div class="cart-empty"><span aria-hidden="true">+</span><p>Belum ada pilihan.<br>Tambahkan produk yang kamu suka.</p></div></div>
+            <div class="cart-total"><span>Total perkiraan</span><strong id="cart-total">Rp0</strong></div>
+            <form id="checkout-form"><label for="customer-name">Nama pemesan</label><input id="customer-name" name="customerName" type="text" placeholder="Nama lengkapmu" autocomplete="name" maxlength="100" required><button id="checkout" class="button checkout-button" type="submit" disabled><span>Buat pesanan</span><span aria-hidden="true">→</span></button><p id="checkout-help" class="field-help">Tambahkan produk dan aktifkan API key untuk memesan.</p></form>
+            <div id="checkout-notice" class="notice" role="status" hidden></div>
+          </section>
+          <section class="access-panel" aria-labelledby="access-title">
+            <div class="access-heading"><span class="key-icon" aria-hidden="true">⌘</span><h2 id="access-title">Akses pesanan</h2><span id="access-badge" class="access-badge">Belum aktif</span></div><p>Gunakan API key gateway untuk membuat dan melihat pesanan.</p>
+            <form id="key-form"><label for="api-key">API key</label><div class="key-input-row"><input id="api-key" name="apiKey" type="password" placeholder="Masukkan API key" autocomplete="off" spellcheck="false" autocapitalize="none" aria-describedby="key-help" required><button id="use-key" type="submit" class="key-submit">Aktifkan</button></div></form>
+            <div class="key-footer"><p id="key-help">Hanya di memori halaman ini. Hilang saat dimuat ulang.</p><button id="clear-key" type="button" class="text-button" hidden>Hapus key</button></div><p id="key-notice" class="key-notice" role="status"></p>
+          </section>
+          <p class="rate-note"><strong>Akses secukupnya.</strong> Maksimal 20 request per 10 detik per IP. Pembaruan dilakukan saat kamu memilihnya.</p>
+        </aside>
+      </div>
+      <section class="demo-note" aria-label="Batasan demo"><span aria-hidden="true">ⓘ</span><p><strong>Ruang kecil untuk belajar.</strong> Produk dan pesanan disimpan dalam memori layanan. Data kembali ke awal saat layanan dimulai ulang. Jika konfirmasi terputus, periksa riwayat sebelum mengirim ulang pesanan.</p></section>
     </main>
-    <footer><span>Bambang Herlambang · Praktikum Web Service · Sesi 09</span><a href="https://github.com/academicbambang/prakwebservice-lab09-microservices" target="_blank" rel="noopener noreferrer">Repository Lab 09 ↗</a></footer>
+    <footer><span><strong>Bambang Herlambang</strong> · NRP 5803024019<span class="footer-course">Praktikum Web Service · Lab 09 Microservices</span></span><a href="https://github.com/academicbambang/prakwebservice-lab09-microservices" target="_blank" rel="noopener noreferrer">Repository Lab 09 <span aria-hidden="true">↗</span></a></footer>
   </div>
-  <script>
-    (async () => {
-      const status = document.getElementById('status');
-      const text = document.getElementById('status-text');
-      try {
-        const response = await fetch('/readyz', { cache: 'no-store', signal: AbortSignal.timeout(5000) });
-        const result = await response.json();
-        if (!response.ok || result.status !== 'ok') throw new Error('unavailable');
-        status.dataset.state = 'ok';
-        text.textContent = 'Kedua layanan siap';
-      } catch {
-        status.dataset.state = 'error';
-        text.textContent = 'Status belum tersedia';
-      }
-    })();
-  </script>
+  <noscript><p class="noscript">Aktifkan JavaScript untuk memakai katalog dan pesanan. <a href="/docs">Dokumentasi API</a> tetap dapat dibuka.</p></noscript>
 </body>
 </html>

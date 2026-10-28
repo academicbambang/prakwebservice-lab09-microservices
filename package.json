@@ -13,11 +13,13 @@
   },
   "scripts": {
     "setup": "node scripts/setup.js",
+    "setup:render": "node scripts/setup-render.js",
     "start": "node scripts/start.js",
     "test": "node --test tests/*.test.js",
     "start:monolith": "node monolith/monolith.js",
     "test:smoke": "node smoke-test.js",
     "test:lab09": "node scripts/demo-lab09.js",
+    "verify:deployment": "node scripts/verify-deployment.js",
     "test:rate-limit": "node scripts/demo-rate-limit.js"
   }
 }

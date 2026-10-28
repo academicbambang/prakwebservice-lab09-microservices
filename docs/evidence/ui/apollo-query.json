@@ -1,0 +1,35 @@
+{
+  "executedAt": "2026-10-28T09:57:45.883Z",
+  "url": "http://127.0.0.1:8080/product-service/graphql",
+  "status": 200,
+  "response": {
+    "data": {
+      "products": [
+        {
+          "id": "prod-001",
+          "name": "Kopi Arabika Gayo",
+          "category": "kuliner",
+          "price": 85000,
+          "stock": 36,
+          "seller": "Koperasi Kopi Gayo"
+        },
+        {
+          "id": "prod-002",
+          "name": "Tas Anyaman Pandan",
+          "category": "kerajinan",
+          "price": 120000,
+          "stock": 15,
+          "seller": "Rumah Anyaman Nusantara"
+        },
+        {
+          "id": "prod-003",
+          "name": "Kaos Batik UMKM",
+          "category": "fashion",
+          "price": 95000,
+          "stock": 30,
+          "seller": "Batik Lokal Mandiri"
+        }
+      ]
+    }
+  }
+}

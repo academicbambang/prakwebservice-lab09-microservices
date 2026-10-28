@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Apollo Sandbox | Lab 09 Microservices</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: #f5f7f6; color: #20362d; font: 14px/1.5 system-ui, sans-serif; }
+    header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 12px 22px; background: #162b25; color: white; }
+    header strong { font-size: 18px; }
+    nav { display: flex; flex-wrap: wrap; gap: 18px; }
+    a { color: #bfe9d4; }
+    .endpoint { padding: 8px 22px; border-bottom: 1px solid #dce6df; font-size: 13px; overflow-wrap: anywhere; }
+    .endpoint code { color: #1f6546; }
+    #sandbox { height: calc(100vh - 96px); min-height: 580px; }
+    .load-error { margin: 24px; max-width: 800px; padding: 20px; border: 1px solid #c6d7cd; border-radius: 8px; background: white; }
+    .load-error a { color: #1f6546; }
+    @media (max-width: 700px) { #sandbox { height: calc(100vh - 130px); } }
+  </style>
+</head>
+<body>
+  <header>
+    <strong>Lab 09 / Apollo Sandbox</strong>
+    <nav aria-label="Navigasi GraphQL"><a href="/">Dashboard</a><a href="/docs/">Swagger UI</a><a id="studio-link" href="https://studio.apollographql.com/sandbox/explorer" target="_blank" rel="noopener noreferrer">Buka di Apollo Studio</a></nav>
+  </header>
+  <div class="endpoint">GraphQL: <code id="endpoint-label"></code> &middot; Query katalog publik; pilih Run untuk menjalankan contoh.</div>
+  <div id="load-error" class="load-error" role="alert" hidden>
+    Apollo Sandbox belum dapat dimuat. Halaman ini memerlukan koneksi internet untuk memuat SDK Apollo.
+    Anda tetap dapat menguji GraphQL melalui <a href="/docs/">Swagger UI</a> atau Postman.
+  </div>
+  <main id="sandbox" aria-label="Apollo Sandbox GraphQL"></main>
+  <script src="https://embeddable-sandbox.cdn.apollographql.com/_latest/embeddable-sandbox.umd.production.min.js"></script>
+  <script>
+    const endpoint = new URL('/product-service/graphql', window.location.origin).href;
+    const sampleQuery = `query KatalogUMKM {
+  products {
+    id
+    name
+    category
+    price
+    stock
+    seller
+  }
+}`;
+    document.getElementById('endpoint-label').textContent = endpoint;
+    const studioLink = new URL('https://studio.apollographql.com/sandbox/explorer');
+    studioLink.searchParams.set('endpoint', endpoint);
+    studioLink.searchParams.set('document', sampleQuery);
+    document.getElementById('studio-link').href = studioLink.href;
+
+    if (typeof window.EmbeddedSandbox === 'function') {
+      new window.EmbeddedSandbox({
+        target: '#sandbox',
+        initialEndpoint: endpoint,
+        endpointIsEditable: false,
+        hideCookieToggle: true,
+        initialState: {
+          document: sampleQuery,
+          includeCookies: false,
+          pollForSchemaUpdates: false
+        }
+      });
+    } else {
+      document.getElementById('load-error').hidden = false;
+    }
+  </script>
+</body>
+</html>

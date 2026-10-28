@@ -4,6 +4,7 @@ const { createHash, timingSafeEqual } = require('node:crypto');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const { rateLimit, MemoryStore } = require('express-rate-limit');
 const { loadLocalEnv, readConfig } = require('./config');
+const { mountApiDocs } = require('./api-docs');
 
 function createGateway(config = {}) {
   const {
@@ -24,6 +25,26 @@ function createGateway(config = {}) {
   // Direct localhost clients must not be able to spoof X-Forwarded-For.
   // Use TRUST_PROXY=1 only behind a platform with exactly one trusted hop.
   app.set('trust proxy', trustProxy);
+
+  // Frontend and documentation assets do not consume the API request quota.
+  app.use(express.static(path.join(__dirname, 'public'), { index: false, dotfiles: 'deny' }));
+  mountApiDocs(app);
+  app.get('/sandbox', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'sandbox.html')));
+  app.get('/laporan.pdf', (_req, res) => res.sendFile(path.resolve(__dirname, '../output/pdf/laporan-praktikum-sesi-09.pdf')));
+  app.get('/laporan-latex.zip', (_req, res) => res.sendFile(path.resolve(__dirname, '../output/latex/laporan-praktikum-sesi-09-overleaf.zip')));
+
+  // Apollo Studio runs on its own origin. Only the public read-only GraphQL API is shared.
+  app.use(['/catalog/graphql', '/product-service/graphql'], (req, res, next) => {
+    const origin = req.get('Origin');
+    if (origin === 'https://studio.apollographql.com') {
+      res.set('Access-Control-Allow-Origin', origin);
+      res.vary('Origin');
+      res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+      res.set('Access-Control-Allow-Headers', 'Content-Type, Apollo-Require-Preflight, X-Apollo-Operation-Name');
+    }
+    if (req.method === 'OPTIONS') return res.sendStatus(origin === 'https://studio.apollographql.com' ? 204 : 403);
+    return next();
+  });
 
   // Render probes readiness independently of the caller's API request quota.
   app.get('/readyz', async (_req, res) => {
