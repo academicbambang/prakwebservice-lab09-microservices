@@ -243,13 +243,13 @@ def build():
     add("Jika RabbitMQ mati saat order dibuat, order tetap tersimpan dan klien menerima HTTP 201, tetapi event dapat hilang sehingga notifikasi tidak konsisten. Penyimpanan order bersama transactional outbox dan relay dengan retry diperlukan untuk mengurangi celah tersebut. Consumer idempotent perlu messageId unik di penyimpanan tahan restart serta transaksi yang mencatat ID dan side effect database sebelum ack. Email eksternal memerlukan outbox pengiriman dan dukungan idempotency key penyedia karena tabel processed saja tidak menjamin email tepat sekali. Panggilan sinkron tetap tepat untuk stok dan harga saat checkout karena hasilnya dibutuhkan segera, sedangkan notifikasi dapat diproses kemudian.")
     add("Batasan dan sumber", sub_style)
     add("Stok, pesanan, dan Set deduplikasi masih in-memory; belum ada transactional outbox atau SMTP. Lab 10 diuji lokal melalui Docker. Bukti manual, run tambahan, dan arsip otomatis memiliki waktu/ID/vhost tersendiri. Berkas lengkap tersedia pada docs/evidence/lab10/.", caption)
-    add('<link href="https://github.com/academicbambang/prakwebservice-lab09-microservices/tree/lab10-message-queue" color="black">Repository pengumpulan Lab 10</link>.', caption)
+    add('<link href="https://github.com/academicbambang/prakwebservice-lab09-microservices/tree/lab10-message-queue" color="blue">Repository pengumpulan Lab 10</link>.', caption)
     for label, url in [
         ("RabbitMQ Work Queues", "https://www.rabbitmq.com/tutorials/tutorial-two-javascript"),
         ("RabbitMQ Publish Subscribe", "https://www.rabbitmq.com/tutorials/tutorial-three-javascript"),
         ("amqplib Channel API", "https://amqp-node.github.io/amqplib/channel_api.html"),
     ]:
-        add(f'<link href="{url}" color="black">{label}</link>', caption)
+        add(f'<link href="{url}" color="blue">{label}</link>', caption)
     add("Panduan Praktikum Web Service Lab 10, Philipus Suryo Subandoro.", caption)
 
     section("Lampiran screenshot Postman")
