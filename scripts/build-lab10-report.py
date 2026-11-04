@@ -1,4 +1,4 @@
-"""Build a concise Lab 10 report with explained figures in the main sections.
+"""Build a concise Lab 10 report with explained main figures and a Postman appendix.
 
 Requires reportlab and Pillow. Screenshots keep their original colors and bytes.
 """
@@ -28,7 +28,7 @@ ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE = ROOT / "docs/evidence/lab10"
 MANUAL = EVIDENCE / "manual"
 TERMINAL = EVIDENCE / "terminal"
-OUTPUT = ROOT / "output/pdf/Laporan Praktikum Web Service Sesi 10.pdf"
+OUTPUT = ROOT / "output/pdf/Laporan Praktikum Web Service Sesi-10.pdf"
 PAGE_W, PAGE_H = 210 * mm, 297 * mm
 LEFT = RIGHT = TOP = BOTTOM = 25 * mm
 WIDTH, HEIGHT = PAGE_W - LEFT - RIGHT, PAGE_H - TOP - BOTTOM
@@ -195,22 +195,18 @@ def build():
     add("Menjalankan: npm run broker:up; npm run start:notification; npm start. Pengujian melalui Postman/gateway :8080. Consumer dibuat sebelum order pertama agar antrean sudah terikat.", caption)
 
     section("2. Consumer mati dan pesan menunggu")
-    add("Consumer dihentikan terlebih dahulu, lalu tiga request order dikirim satu per satu melalui gateway. Ketiganya memperoleh HTTP 201 Created.")
-    image(MANUAL / manual["recovery"]["orders"][0]["postmanFile"], "Respons Postman untuk pesanan pertama saat consumer mati.",
-          "order pertama memperoleh 201 Created meskipun consumer berhenti. ID pesanan dipakai untuk mencocokkan log setelah consumer pulih.", 85 * mm)
-    image(MANUAL / manual["recovery"]["orders"][1]["postmanFile"], "Respons Postman untuk pesanan kedua saat consumer mati.",
-          "order kedua juga berhasil dibuat dengan ID berbeda. Penerimaan pesanan tidak menunggu Notification Service kembali aktif.", 85 * mm)
-
-    continuation("2. Consumer mati dan pesan menunggu (lanjutan)")
-    image(MANUAL / manual["recovery"]["orders"][2]["postmanFile"], "Respons Postman untuk pesanan ketiga saat consumer mati.",
-          "order ketiga memperoleh 201 Created. Tiga ID pesanan dari Gambar 2-4 dicocokkan dengan log pemulihan pada pengujian berikutnya.", 85 * mm)
+    add("Consumer dihentikan, kemudian tiga order dikirim melalui gateway menggunakan Postman. Ketiganya mendapat HTTP 201 Created; responsnya ditampilkan pada Gambar 7-9 dalam lampiran.")
     image(MANUAL / manual["dashboard"]["file"], "Dashboard notification-queue, 4 November 2026 pukul 17:13:11 UTC+7.",
-          "Ready=3 menunjukkan tiga pesan menunggu, Unacked=0 berarti tidak ada pesan sedang diproses, dan Consumers=0 memastikan consumer mati. Broker tetap aktif pada vhost /.", 85 * mm)
+          "Ready=3 menunjukkan tiga pesan menunggu, Unacked=0 berarti tidak ada pesan sedang diproses, dan Consumers=0 memastikan consumer mati. Broker tetap aktif pada vhost /.")
+    table(["Pengamatan", "Hasil"], [
+        ["Ready / Unacked / Consumers", "3 / 0 / 0"],
+        ["Tiga request Postman", "Masing-masing 201 Created"],
+    ], [0.5, 0.5])
 
     section("3. Consumer dinyalakan kembali")
     add("Setelah npm run start:notification dijalankan kembali, consumer-18824 memproses ketiga pesan tertahan. Setiap email simulasi diikuti ack; orderId cocok dengan ketiga respons Postman.")
     image(MANUAL / manual["recovery"]["file"], "Log consumer setelah dinyalakan kembali.",
-          "tiga ID pesanan pada Gambar 2-4 diproses satu per satu. Setiap email simulasi diikuti ack, sehingga pesan yang menunggu diselesaikan setelah consumer pulih.")
+          "tiga ID pesanan pada Gambar 7-9 dalam lampiran diproses satu per satu. Setiap email simulasi diikuti ack, sehingga pesan yang menunggu diselesaikan setelah consumer pulih.")
     table(["OrderId sesuai Postman", "Email / ack UTC+7"], [
         [entry["orderId"], f"{local_clock(entry['emailAt'])} / {local_clock(entry['ackedAt'])}"]
         for entry in manual["recovery"]["orders"]
@@ -218,25 +214,15 @@ def build():
 
     section("4. Crash sebelum ack dan redelivery")
     crash = manual["crash"]
-    add("Consumer dijalankan dengan --crash. Satu request order dikirim melalui Postman untuk menguji crash sesudah email dicetak tetapi sebelum acknowledgement.")
-    image(MANUAL / crash["postmanFile"], "Respons Postman untuk satu pesanan uji crash.",
-          "hanya satu order dibuat dan mendapat 201 Created. ID pesanan menjadi acuan untuk membuktikan bahwa email kedua berasal dari redelivery, bukan request baru.")
-    add("Identitas pesan uji", sub_style)
-    table(["Identitas", "Nilai"], [
-        ["OrderId", crash["orderId"]],
-        ["MessageId", crash["messageId"]],
-    ], [0.2, 0.8])
-    add("Setelah consumer berhenti otomatis, jalankan npm run start:notification tanpa --crash dan tanpa mengirim request order baru.")
-
-    continuation("4. Crash sebelum ack dan redelivery (lanjutan)")
+    add("Consumer dijalankan dengan --crash, lalu satu order dibuat. Respons Postman ada pada Gambar 10 dalam lampiran. Setelah crash, consumer biasa dinyalakan tanpa membuat order baru.")
     image(MANUAL / crash["file"], "Log crash dan pemulihan consumer untuk pesan yang sama.",
-          "email pertama diikuti crash sebelum ack. Setelah restart, messageId yang sama mencetak email kedua dengan redelivered:true, lalu di-ack.")
+          "email pertama diikuti crash sebelum ack. Setelah restart, pesan yang sama mencetak email kedua dengan redelivered:true, lalu di-ack. Set processed hilang saat restart; pemrosesan bersifat at-least-once.")
+    add("MessageId yang sama: " + escape(crash["messageId"]), caption)
     table(["Tahap", "Waktu UTC+7", "Hasil"], [
         ["Email pertama", local_clock(crash["firstEmailAt"]), "consumer-5556; redelivered:false; crash sebelum ack"],
         ["Email kedua", local_clock(crash["secondEmailAt"]), "consumer-18608; redelivered:true"],
         ["Ack", local_clock(crash["ackedAt"]), "consumer-18608; kind: acked"],
     ], [0.23, 0.26, 0.51])
-    add("Set processed hilang saat restart, sehingga duplikat tidak dikenali. Broker mengirim ulang pesan yang belum di-ack; pemrosesan bersifat at-least-once.")
 
     section("5. Competing consumers")
     add("Pengujian tambahan pukul 17:40 UTC+7 menjalankan dua consumer pada satu notification-queue. Enam order diterima melalui gateway dengan HTTP 201; event dibagi tanpa ID yang tumpang tindih.")
@@ -280,6 +266,19 @@ def build():
         add(f'<link href="{url}" color="blue">{label}</link>', caption)
     add("Panduan Praktikum Web Service Lab 10, Philipus Suryo Subandoro.", caption)
 
+    section("Lampiran. Bukti request Postman")
+    add("Screenshot berikut memperlihatkan respons request manual. ID pesanan dicocokkan dengan log pemulihan pada Gambar 3 dan log crash pada Gambar 4.")
+    image(MANUAL / manual["recovery"]["orders"][0]["postmanFile"], "Respons Postman untuk pesanan pertama saat consumer mati.",
+          "order pertama memperoleh 201 Created meskipun consumer berhenti. ID yang sama muncul pada log Gambar 3 setelah consumer dinyalakan kembali.", 85 * mm)
+    image(MANUAL / manual["recovery"]["orders"][1]["postmanFile"], "Respons Postman untuk pesanan kedua saat consumer mati.",
+          "order kedua juga mendapat 201 Created dengan ID berbeda. Penerimaan order tetap berjalan, sedangkan notifikasi menunggu consumer aktif.", 85 * mm)
+
+    continuation("Lampiran. Bukti request Postman (lanjutan)")
+    image(MANUAL / manual["recovery"]["orders"][2]["postmanFile"], "Respons Postman untuk pesanan ketiga saat consumer mati.",
+          "order ketiga mendapat 201 Created. Tiga request pada Gambar 7-9 menghasilkan pesan yang menunggu, sesuai Ready=3 pada dashboard Gambar 2.", 85 * mm)
+    image(MANUAL / crash["postmanFile"], "Respons Postman untuk satu pesanan uji crash.",
+          "hanya satu order dibuat dan mendapat 201 Created. Dua email pada log Gambar 4 memakai ID pesanan yang sama, sehingga berasal dari redelivery pesan tersebut.", 85 * mm)
+
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     doc = ReportDoc(str(OUTPUT), pagesize=(PAGE_W, PAGE_H), leftMargin=LEFT, rightMargin=RIGHT,
                     topMargin=TOP, bottomMargin=BOTTOM, title="Laporan Praktikum Web Service Sesi 10",
@@ -288,7 +287,7 @@ def build():
                          leftPadding=0, rightPadding=0, topPadding=0, bottomPadding=0)], onPageEnd=footer))
     doc.build(story)
     print(OUTPUT)
-    print(f"Pages: {doc.page}; figures explained within main sections; no contents page, chapters, or appendix")
+    print(f"Pages: {doc.page}; all figures explained; Postman screenshots in appendix; no contents page or chapters")
 
 
 if __name__ == "__main__":

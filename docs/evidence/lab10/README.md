@@ -46,4 +46,4 @@ Simpan output `npm test` ke `docs/evidence/lab10/tests.txt` bila memperbarui log
 
 Broker Docker tetap berjalan sesudah demo, tetapi seluruh proses anak dan koneksi AMQP demonya ditutup. `npm run broker:stop` menghentikan broker tanpa menghapus volume. Tidak ada cloud deployment Lab 10 dalam bukti ini. Jangan masukkan kredensial cloud `AMQP_URL` atau API key ke Git; demo tidak merekam header autentikasi.
 
-Diagram ada di [`docs/lab10/arsitektur.png`](../../lab10/arsitektur.png), laporan dan refleksi di [`docs/lab10/README.md`](../../lab10/README.md), PDF di [Laporan Praktikum Web Service Sesi 10](<../../../output/pdf/Laporan Praktikum Web Service Sesi 10.pdf>).
+Diagram ada di [`docs/lab10/arsitektur.png`](../../lab10/arsitektur.png), laporan dan refleksi di [`docs/lab10/README.md`](../../lab10/README.md), PDF di [Laporan Praktikum Web Service Sesi 10](<../../../output/pdf/Laporan Praktikum Web Service Sesi-10.pdf>).
