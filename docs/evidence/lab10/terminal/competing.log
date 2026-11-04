@@ -1,0 +1,22 @@
+LAB 10 - COMPETING CONSUMERS
+Sumber: proses consumer aktual, RabbitMQ lokal
+Vhost: lab10-terminal-20261104104010911
+Waktu log: UTC (tambahkan 7 jam untuk waktu lokal)
+
+10:40:13.771 [worker-A] READY queue=notification-queue
+10:40:14.662 [worker-B] READY queue=notification-queue
+10:40:15.871 [worker-A] EMAIL TERKIRIM ord-1e8f5415-8a71-4d68-8e8c-2c73637fb62a
+10:40:15.873 [worker-A] ACK ord-1e8f5415-8a71-4d68-8e8c-2c73637fb62a
+10:40:15.886 [worker-B] EMAIL TERKIRIM ord-ff3d792d-ec76-4bc8-9a4f-ab57d990df22
+10:40:15.887 [worker-B] ACK ord-ff3d792d-ec76-4bc8-9a4f-ab57d990df22
+10:40:16.879 [worker-A] EMAIL TERKIRIM ord-52a3f722-1b91-45c3-8310-196b255bab5b
+10:40:16.880 [worker-A] ACK ord-52a3f722-1b91-45c3-8310-196b255bab5b
+10:40:16.894 [worker-B] EMAIL TERKIRIM ord-59205318-68ad-4e05-b26e-d2da1d6f387c
+10:40:16.895 [worker-B] ACK ord-59205318-68ad-4e05-b26e-d2da1d6f387c
+10:40:17.890 [worker-A] EMAIL TERKIRIM ord-4185bd03-647d-40e4-8778-dc21b8afcb0a
+10:40:17.891 [worker-A] ACK ord-4185bd03-647d-40e4-8778-dc21b8afcb0a
+10:40:17.905 [worker-B] EMAIL TERKIRIM ord-c01e1a79-4983-432e-b71a-1bd346219a59
+10:40:17.906 [worker-B] ACK ord-c01e1a79-4983-432e-b71a-1bd346219a59
+
+Hasil terverifikasi: worker-A 3 email; worker-B 3 email; 6 ID berbeda.
+Log JSON asli tersedia pada file .jsonl di folder ini.

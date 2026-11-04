@@ -1,4 +1,4 @@
-"""Build the formal monochrome Lab 10 PDF from retained evidence.
+"""Build the formal Lab 10 PDF with black text and original color figures.
 
 Requires reportlab and Pillow. Original evidence images are never modified.
 """
@@ -50,18 +50,18 @@ def fonts():
     raise RuntimeError("Install Times New Roman or Liberation Serif")
 
 
-def gray_buffer(path):
-    # Color conversion is confined to the PDF presentation. Source PNGs remain intact.
+def image_buffer(path):
+    # Preserve original image colors while keeping the academic typography black.
     with PILImage.open(path) as source:
         if source.mode == "RGBA":
             white = PILImage.new("RGB", source.size, "white")
             white.paste(source, mask=source.getchannel("A"))
-            gray = white.convert("L")
+            picture = white
         else:
-            gray = source.convert("L")
-        size = gray.size
+            picture = source.convert("RGB")
+        size = picture.size
         buffer = BytesIO()
-        gray.save(buffer, format="PNG")
+        picture.save(buffer, format="PNG")
         buffer.seek(0)
     return buffer, size
 
@@ -121,7 +121,7 @@ class Cover(Flowable):
         line("VIA MESSAGE QUEUE", 25, 14, True)
         line("Penerapan RabbitMQ pada Marketplace UMKM", 38, 13, True)
         line("Mata Kuliah Web Service", 48)
-        logo, (width, height) = gray_buffer(ROOT / "docs/lab10/assets/logo-ukwms.png")
+        logo, (width, height) = image_buffer(ROOT / "docs/lab10/assets/logo-ukwms.png")
         logo_height = 65 * mm
         logo_width = logo_height * width / height
         canvas.drawImage(ImageReader(logo), (WIDTH - logo_width) / 2,
@@ -147,6 +147,10 @@ def build():
     fonts()
     result = json.loads((EVIDENCE / "results.json").read_text(encoding="utf-8"))
     manual = json.loads((MANUAL / "observations.json").read_text(encoding="utf-8"))
+    terminal_dir = EVIDENCE / "terminal"
+    terminal = json.loads((terminal_dir / "results.json").read_text(encoding="utf-8"))
+    if not terminal.get("passed") or len(terminal["cases"]) != 2:
+        raise ValueError("Complete the additional consumer log evidence before building")
     log = (EVIDENCE / "tests.txt").read_text(encoding="utf-8-sig")
     stats = {name: int(re.search(rf"^# {name} (\d+)\s*$", log, re.MULTILINE).group(1)) for name in ("tests", "pass", "fail")}
     if not result["passed"] or len(result["scenarios"]) != 8 or stats["fail"]:
@@ -196,7 +200,7 @@ def build():
         heading(f"BAB {number}<br/>{title}", 0, f"BAB {number} {title}")
 
     def image(path, label, maximum=100 * mm):
-        buffer, (width, height) = gray_buffer(path)
+        buffer, (width, height) = image_buffer(path)
         image_buffers.append(buffer)
         scale = min(WIDTH / width, maximum / height)
         story.append(Image(buffer, width=width * scale, height=height * scale, hAlign="CENTER"))
@@ -289,15 +293,27 @@ def build():
     add("Email tercetak dua kali untuk messageId yang sama karena broker belum menerima ack pertama dan Set processed hilang saat restart. Hasil ini menunjukkan perlunya idempotensi tahan restart.")
 
     story.append(PageBreak())
-    heading("4.5 Competing Consumers dan Pub Sub")
-    add("Dua pola ini diperiksa pada run otomatis dengan RabbitMQ asli. Enam event pada satu antrean terbagi antara dua worker. Ketika dua antrean berbeda diikat ke exchange fanout yang sama, setiap antrean memperoleh salinan event.")
-    table(["Eksperimen", "Hasil run otomatis"], [
-        ["Competing consumers", "6 event dibagi 3 ke worker-A dan 3 ke worker-B; ID tidak tumpang tindih."],
-        ["Pub/sub", "2 event diterima notification-queue dan audit-queue; masing-masing memproses 2."],
-    ], [0.33, 0.67])
-    image(EVIDENCE / "competing-consumers.png", "Gambar 4.4 Rekaman otomatis pembagian enam event pada dua worker. Tampilan merupakan halaman rekaman skrip, bukan screenshot terminal.", 90 * mm)
-    add("Prefetch 1 membatasi satu pesan unacked per worker. Pembagian 3+3 adalah hasil run ini, bukan jaminan pembagian selalu seimbang. Consumer audit memakai program simulasi yang sama dengan argumen audit-queue; belum ada database audit produksi.")
-    heading("4.6 Pengujian Tambahan dan Konsistensi")
+    heading("4.5 Competing Consumers")
+    add("Pengujian tambahan pada 4 November 2026 pukul 17:40 UTC+7 menjalankan dua consumer pada notification-queue yang sama. Enam order dikirim melalui gateway dan seluruhnya mendapat HTTP 201. Event dibagi antara worker-A dan worker-B, tanpa ID yang diproses oleh kedua worker.")
+    image(terminal_dir / "competing-consumers.jpg", "Gambar 4.4 Screenshot VS Code yang menampilkan log consumer aktual. Tampilan ringkas mempertahankan timestamp, nama worker, jenis event, dan orderId dari file JSONL asli; bukan halaman hasil HTML.", 105 * mm)
+    competing = next(entry for entry in terminal["cases"] if entry["type"] == "competing")
+    table(["Consumer", "Email simulasi", "Acknowledgement"], [
+        [name, len(ids), len(ids)] for name, ids in competing["workers"].items()
+    ], [0.4, 0.3, 0.3])
+    add("Prefetch 1 membatasi satu pesan unacked per worker. Pembagian 3+3 adalah hasil run ini, bukan jaminan pembagian selalu seimbang. Bukti ini memakai virtual host tambahan yang terpisah dari antrean manual pengguna.")
+
+    story.append(PageBreak())
+    heading("4.6 Publish Subscribe")
+    add("Pada pukul 17:42 UTC+7, satu consumer membaca notification-queue dan satu consumer lain membaca audit-queue. Kedua antrean terikat ke exchange orders. Dua order baru dikirim; setiap antrean menerima salinan kedua event dengan orderId yang sama.")
+    image(terminal_dir / "pubsub.jpg", "Gambar 4.5 Screenshot VS Code atas log consumer aktual pada dua antrean. Setiap orderId terlihat pada consumer notification dan audit, masing-masing diikuti ack.", 105 * mm)
+    pubsub = next(entry for entry in terminal["cases"] if entry["type"] == "pubsub")
+    table(["OrderId yang diterbitkan", "Penerima"], [
+        [entry["order"]["id"], "notification dan audit"] for entry in pubsub["orders"]
+    ], [0.65, 0.35])
+    add("Fanout mengirim satu salinan ke setiap antrean terikat. Pola ini berbeda dari pembagian pekerjaan pada satu antrean. Consumer audit memakai program simulasi yang sama dengan nama antrean berbeda; belum ada database audit produksi.")
+
+    story.append(PageBreak())
+    heading("4.7 Pengujian Tambahan dan Konsistensi")
     table(["Pengujian", "Hasil"], [
         ["Alur normal", "HTTP 201 diterima sebelum email simulasi selesai."],
         ["Duplikat pada proses sama", "ID lama di-ack dan dilewati tanpa email baru."],
@@ -330,9 +346,22 @@ def build():
     heading("LAMPIRAN SUMBER DAN REPRODUKSI", 0)
     add("Repository pengumpulan tetap menggunakan repository Lab 09 dengan branch lab10-message-queue. Tautan berikut membuka versi Lab 10 beserta sumber laporan dan bukti:")
     add('<link href="https://github.com/academicbambang/prakwebservice-lab09-microservices/tree/lab10-message-queue" color="black">Repository Lab 10 Marketplace UMKM</link>.')
-    add("Bukti manual utama berada pada docs/evidence/lab10/manual/, terdiri atas tujuh screenshot asli, observations.json sebagai transkripsi, dan SHA256SUMS.txt untuk pemeriksaan keutuhan. Gambar pada PDF disajikan dalam skala abu-abu; berkas screenshot asli di repository tidak diubah.")
+    add("Bukti manual utama berada pada docs/evidence/lab10/manual/, terdiri atas tujuh screenshot asli, observations.json sebagai transkripsi, dan SHA256SUMS.txt untuk pemeriksaan keutuhan. Gambar dan logo pada PDF mempertahankan warna aslinya, sedangkan teks, judul, dan tabel tetap hitam putih. Berkas screenshot asli di repository tidak diubah.")
+    add("Bukti tambahan pada docs/evidence/lab10/terminal/ memuat screenshot VS Code atas tampilan ringkas log aktual competing consumers dan pub/sub, file JSONL asli, serta hasil HTTP pengujian pada virtual host terpisah. Waktu dan ID run tambahan ini tidak digabung dengan run manual sebelumnya.")
     add("Bukti otomatis pelengkap terdapat pada docs/evidence/lab10/results.json, execution.txt, tests.txt, dan log tiap proses. Dokumen lengkap serta prosedur manual tersedia pada docs/lab10/README.md; collection Postman berada pada docs/postman/lab10.postman_collection.json.")
     add("Untuk membangun ulang laporan, jalankan python scripts/build-lab10-report.py menggunakan Python yang memiliki reportlab dan Pillow. Builder membaca bukti yang sudah tersimpan, tidak menjalankan ulang pengujian dan tidak mengubah antrean yang sedang digunakan.")
+
+    story.append(PageBreak())
+    heading("LAMPIRAN BUKTI REQUEST POSTMAN", 0)
+    add("Screenshot Postman berikut adalah lampiran asli pengguna. Masing-masing menunjukkan HTTP 201 Created dan orderId yang dapat dicocokkan dengan log pemulihan pada Subbab 4.3.", caption)
+    for index in (0, 1):
+        image(MANUAL / manual["recovery"]["orders"][index]["postmanFile"], f"Gambar L.{index + 1} Respons Postman pesanan {index + 1} saat consumer mati.", 82 * mm)
+    story.append(PageBreak())
+    for path, label in [
+        (MANUAL / manual["recovery"]["orders"][2]["postmanFile"], "Gambar L.3 Respons Postman pesanan ketiga saat consumer mati."),
+        (MANUAL / crash["postmanFile"], "Gambar L.4 Respons Postman untuk satu pesanan pada uji crash. OrderId yang sama diproses ulang setelah consumer kembali berjalan."),
+    ]:
+        image(path, label, 82 * mm)
 
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     doc = FormalDoc(str(OUTPUT), pagesize=(PAGE_W, PAGE_H), leftMargin=LEFT, rightMargin=RIGHT,

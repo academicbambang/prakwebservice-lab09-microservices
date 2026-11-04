@@ -1,0 +1,18 @@
+LAB 10 - PUBLISH SUBSCRIBE
+Sumber: proses consumer aktual, RabbitMQ lokal
+Vhost: lab10-terminal-20261104104010911
+Waktu log: UTC (tambahkan 7 jam untuk waktu lokal)
+
+10:42:17.829 [notification] READY queue=notification-queue
+10:42:18.694 [audit] READY queue=audit-queue
+10:42:19.807 [notification] EMAIL TERKIRIM ord-c68f6a07-e44a-4382-9a19-6ab2e9a2f1c8
+10:42:19.808 [audit] EMAIL TERKIRIM ord-c68f6a07-e44a-4382-9a19-6ab2e9a2f1c8
+10:42:19.820 [notification] ACK ord-c68f6a07-e44a-4382-9a19-6ab2e9a2f1c8
+10:42:19.820 [audit] ACK ord-c68f6a07-e44a-4382-9a19-6ab2e9a2f1c8
+10:42:20.824 [notification] EMAIL TERKIRIM ord-f4d63d27-51e0-4f0a-a496-f5493cddfdd0
+10:42:20.824 [audit] EMAIL TERKIRIM ord-f4d63d27-51e0-4f0a-a496-f5493cddfdd0
+10:42:20.825 [notification] ACK ord-f4d63d27-51e0-4f0a-a496-f5493cddfdd0
+10:42:20.825 [audit] ACK ord-f4d63d27-51e0-4f0a-a496-f5493cddfdd0
+
+Hasil terverifikasi: notification 2 email; audit 2 email; ID sama di kedua antrean.
+Log JSON asli tersedia pada file .jsonl di folder ini.

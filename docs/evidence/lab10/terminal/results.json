@@ -1,0 +1,207 @@
+{
+  "executedAt": "2026-11-04T10:40:10.911Z",
+  "vhost": "lab10-terminal-20261104104010911",
+  "source": "Additional real RabbitMQ run; screenshots show VS Code displaying a condensed view of actual consumer JSONL logs.",
+  "cases": [
+    {
+      "type": "competing",
+      "orders": [
+        {
+          "startedAt": "2026-11-04T10:40:14.762Z",
+          "status": 201,
+          "order": {
+            "id": "ord-1e8f5415-8a71-4d68-8e8c-2c73637fb62a",
+            "customerName": "Terminal competing 1",
+            "items": [
+              {
+                "productId": "prod-001",
+                "name": "Kopi Arabika Gayo",
+                "quantity": 1,
+                "unitPrice": 85000,
+                "subtotal": 85000
+              }
+            ],
+            "total": 85000,
+            "status": "pending",
+            "createdAt": "2026-11-04T10:40:14.854Z"
+          }
+        },
+        {
+          "startedAt": "2026-11-04T10:40:14.862Z",
+          "status": 201,
+          "order": {
+            "id": "ord-ff3d792d-ec76-4bc8-9a4f-ab57d990df22",
+            "customerName": "Terminal competing 2",
+            "items": [
+              {
+                "productId": "prod-001",
+                "name": "Kopi Arabika Gayo",
+                "quantity": 1,
+                "unitPrice": 85000,
+                "subtotal": 85000
+              }
+            ],
+            "total": 85000,
+            "status": "pending",
+            "createdAt": "2026-11-04T10:40:14.873Z"
+          }
+        },
+        {
+          "startedAt": "2026-11-04T10:40:14.876Z",
+          "status": 201,
+          "order": {
+            "id": "ord-52a3f722-1b91-45c3-8310-196b255bab5b",
+            "customerName": "Terminal competing 3",
+            "items": [
+              {
+                "productId": "prod-001",
+                "name": "Kopi Arabika Gayo",
+                "quantity": 1,
+                "unitPrice": 85000,
+                "subtotal": 85000
+              }
+            ],
+            "total": 85000,
+            "status": "pending",
+            "createdAt": "2026-11-04T10:40:14.884Z"
+          }
+        },
+        {
+          "startedAt": "2026-11-04T10:40:14.887Z",
+          "status": 201,
+          "order": {
+            "id": "ord-59205318-68ad-4e05-b26e-d2da1d6f387c",
+            "customerName": "Terminal competing 4",
+            "items": [
+              {
+                "productId": "prod-001",
+                "name": "Kopi Arabika Gayo",
+                "quantity": 1,
+                "unitPrice": 85000,
+                "subtotal": 85000
+              }
+            ],
+            "total": 85000,
+            "status": "pending",
+            "createdAt": "2026-11-04T10:40:14.896Z"
+          }
+        },
+        {
+          "startedAt": "2026-11-04T10:40:14.899Z",
+          "status": 201,
+          "order": {
+            "id": "ord-4185bd03-647d-40e4-8778-dc21b8afcb0a",
+            "customerName": "Terminal competing 5",
+            "items": [
+              {
+                "productId": "prod-001",
+                "name": "Kopi Arabika Gayo",
+                "quantity": 1,
+                "unitPrice": 85000,
+                "subtotal": 85000
+              }
+            ],
+            "total": 85000,
+            "status": "pending",
+            "createdAt": "2026-11-04T10:40:14.907Z"
+          }
+        },
+        {
+          "startedAt": "2026-11-04T10:40:14.910Z",
+          "status": 201,
+          "order": {
+            "id": "ord-c01e1a79-4983-432e-b71a-1bd346219a59",
+            "customerName": "Terminal competing 6",
+            "items": [
+              {
+                "productId": "prod-001",
+                "name": "Kopi Arabika Gayo",
+                "quantity": 1,
+                "unitPrice": 85000,
+                "subtotal": 85000
+              }
+            ],
+            "total": 85000,
+            "status": "pending",
+            "createdAt": "2026-11-04T10:40:14.916Z"
+          }
+        }
+      ],
+      "workers": {
+        "worker-A": [
+          "ord-1e8f5415-8a71-4d68-8e8c-2c73637fb62a",
+          "ord-52a3f722-1b91-45c3-8310-196b255bab5b",
+          "ord-4185bd03-647d-40e4-8778-dc21b8afcb0a"
+        ],
+        "worker-B": [
+          "ord-ff3d792d-ec76-4bc8-9a4f-ab57d990df22",
+          "ord-59205318-68ad-4e05-b26e-d2da1d6f387c",
+          "ord-c01e1a79-4983-432e-b71a-1bd346219a59"
+        ]
+      },
+      "passed": true
+    },
+    {
+      "type": "pubsub",
+      "orders": [
+        {
+          "startedAt": "2026-11-04T10:42:18.778Z",
+          "status": 201,
+          "order": {
+            "id": "ord-c68f6a07-e44a-4382-9a19-6ab2e9a2f1c8",
+            "customerName": "Terminal pubsub 1",
+            "items": [
+              {
+                "productId": "prod-001",
+                "name": "Kopi Arabika Gayo",
+                "quantity": 1,
+                "unitPrice": 85000,
+                "subtotal": 85000
+              }
+            ],
+            "total": 85000,
+            "status": "pending",
+            "createdAt": "2026-11-04T10:42:18.789Z"
+          }
+        },
+        {
+          "startedAt": "2026-11-04T10:42:18.792Z",
+          "status": 201,
+          "order": {
+            "id": "ord-f4d63d27-51e0-4f0a-a496-f5493cddfdd0",
+            "customerName": "Terminal pubsub 2",
+            "items": [
+              {
+                "productId": "prod-001",
+                "name": "Kopi Arabika Gayo",
+                "quantity": 1,
+                "unitPrice": 85000,
+                "subtotal": 85000
+              }
+            ],
+            "total": 85000,
+            "status": "pending",
+            "createdAt": "2026-11-04T10:42:18.799Z"
+          }
+        }
+      ],
+      "consumers": [
+        "notification",
+        "audit"
+      ],
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "finishedAt": "2026-11-04T10:43:05.128Z",
+  "screenshots": [
+    {
+      "file": "competing-consumers.jpg",
+      "source": "VS Code viewing competing.log, derived from worker-A.jsonl and worker-B.jsonl"
+    },
+    {
+      "file": "pubsub.jpg",
+      "source": "VS Code viewing pubsub.log, derived from notification.jsonl and audit.jsonl"
+    }
+  ]
+}
