@@ -36,7 +36,9 @@ if (require.main === module) {
     const child = spawn(process.execPath, [resolve(root, file)], { cwd: root, env, stdio: 'inherit', windowsHide: true });
     children.push(child);
     child.on('error', (error) => { console.error(error.message); stop(1); });
-    child.on('exit', (code) => { if (!stopping) stop(code || 1); });
+    child.on('exit', (code) => {
+      if (!stopping) console.error(`${file} berhenti (${code}); service lain tetap berjalan. Mulai ulang service tersebut secara terpisah.`);
+    });
   }
   process.on('SIGINT', () => stop());
   process.on('SIGTERM', () => stop());

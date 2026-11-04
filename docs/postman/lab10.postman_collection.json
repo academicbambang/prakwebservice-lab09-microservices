@@ -1,0 +1,530 @@
+{
+  "info": {
+    "name": "Lab 10 - RabbitMQ Marketplace UMKM",
+    "description": "Kelanjutan repository Lab 09. Jalankan folder secara MANUAL dan BERURUTAN dengan intervensi consumer sesuai deskripsi; jangan Run seluruh collection sekaligus. Isi apiKey secara lokal, jangan export nilainya. Dashboard RabbitMQ lokal :15672. Event menggunakan ID produk string dan items sesuai API Marketplace UMKM. Email adalah simulasi. Rate limit 20 request/10 detik/IP.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "key",
+        "value": "X-API-Key",
+        "type": "string"
+      },
+      {
+        "key": "value",
+        "value": "{{apiKey}}",
+        "type": "string"
+      },
+      {
+        "key": "in",
+        "value": "header",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8080"
+    },
+    {
+      "key": "productId",
+      "value": "prod-001"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 Normal - consumer harus ready dahulu",
+      "description": "Broker, katalog, order, gateway, dan satu consumer aktif. HTTP 201 tidak menunggu email simulasi.",
+      "item": [
+        {
+          "name": "Order 1 / 01 Normal - consumer harus ready dahulu",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/order-service/orders",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Lab 10 Order 1 / 01 Normal - consumer harus ready dahulu\",\n  \"items\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": 1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Order tetap HTTP 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) { const order = pm.response.json().data; pm.collectionVariables.set('lastOrderId', order.id); console.log('Cocokkan log consumer dengan messageId:', 'order-' + order.id); }"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 Consumer mati - kirim tepat 3 order",
+      "description": "Hentikan hanya notification consumer SETELAH queue/binding terbentuk. Kirim 3 request ini, ambil dashboard Ready=3, lalu nyalakan consumer dan simpan log pemulihan.",
+      "item": [
+        {
+          "name": "Order 1 / 02 Consumer mati - kirim tepat 3 order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/order-service/orders",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Lab 10 Order 1 / 02 Consumer mati - kirim tepat 3 order\",\n  \"items\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": 1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Order tetap HTTP 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) { const order = pm.response.json().data; pm.collectionVariables.set('lastOrderId', order.id); console.log('Cocokkan log consumer dengan messageId:', 'order-' + order.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Order 2 / 02 Consumer mati - kirim tepat 3 order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/order-service/orders",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Lab 10 Order 2 / 02 Consumer mati - kirim tepat 3 order\",\n  \"items\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": 1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Order tetap HTTP 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) { const order = pm.response.json().data; pm.collectionVariables.set('lastOrderId', order.id); console.log('Cocokkan log consumer dengan messageId:', 'order-' + order.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Order 3 / 02 Consumer mati - kirim tepat 3 order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/order-service/orders",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Lab 10 Order 3 / 02 Consumer mati - kirim tepat 3 order\",\n  \"items\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": 1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Order tetap HTTP 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) { const order = pm.response.json().data; pm.collectionVariables.set('lastOrderId', order.id); console.log('Cocokkan log consumer dengan messageId:', 'order-' + order.id); }"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 Competing consumers - 6 order",
+      "description": "Antrean kosong; dua consumer membaca notification-queue. Amati 6 ID order dibagi antara dua worker.",
+      "item": [
+        {
+          "name": "Order 1 / 03 Competing consumers - 6 order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/order-service/orders",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Lab 10 Order 1 / 03 Competing consumers - 6 order\",\n  \"items\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": 1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Order tetap HTTP 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) { const order = pm.response.json().data; pm.collectionVariables.set('lastOrderId', order.id); console.log('Cocokkan log consumer dengan messageId:', 'order-' + order.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Order 2 / 03 Competing consumers - 6 order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/order-service/orders",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Lab 10 Order 2 / 03 Competing consumers - 6 order\",\n  \"items\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": 1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Order tetap HTTP 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) { const order = pm.response.json().data; pm.collectionVariables.set('lastOrderId', order.id); console.log('Cocokkan log consumer dengan messageId:', 'order-' + order.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Order 3 / 03 Competing consumers - 6 order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/order-service/orders",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Lab 10 Order 3 / 03 Competing consumers - 6 order\",\n  \"items\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": 1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Order tetap HTTP 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) { const order = pm.response.json().data; pm.collectionVariables.set('lastOrderId', order.id); console.log('Cocokkan log consumer dengan messageId:', 'order-' + order.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Order 4 / 03 Competing consumers - 6 order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/order-service/orders",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Lab 10 Order 4 / 03 Competing consumers - 6 order\",\n  \"items\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": 1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Order tetap HTTP 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) { const order = pm.response.json().data; pm.collectionVariables.set('lastOrderId', order.id); console.log('Cocokkan log consumer dengan messageId:', 'order-' + order.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Order 5 / 03 Competing consumers - 6 order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/order-service/orders",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Lab 10 Order 5 / 03 Competing consumers - 6 order\",\n  \"items\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": 1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Order tetap HTTP 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) { const order = pm.response.json().data; pm.collectionVariables.set('lastOrderId', order.id); console.log('Cocokkan log consumer dengan messageId:', 'order-' + order.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Order 6 / 03 Competing consumers - 6 order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/order-service/orders",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Lab 10 Order 6 / 03 Competing consumers - 6 order\",\n  \"items\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": 1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Order tetap HTTP 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) { const order = pm.response.json().data; pm.collectionVariables.set('lastOrderId', order.id); console.log('Cocokkan log consumer dengan messageId:', 'order-' + order.id); }"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04 Pub-sub - 2 order",
+      "description": "Satu consumer notification-queue dan satu consumer audit-queue harus ready dahulu. Kedua antrean menerima dua event yang sama.",
+      "item": [
+        {
+          "name": "Order 1 / 04 Pub-sub - 2 order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/order-service/orders",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Lab 10 Order 1 / 04 Pub-sub - 2 order\",\n  \"items\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": 1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Order tetap HTTP 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) { const order = pm.response.json().data; pm.collectionVariables.set('lastOrderId', order.id); console.log('Cocokkan log consumer dengan messageId:', 'order-' + order.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Order 2 / 04 Pub-sub - 2 order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/order-service/orders",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Lab 10 Order 2 / 04 Pub-sub - 2 order\",\n  \"items\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": 1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Order tetap HTTP 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) { const order = pm.response.json().data; pm.collectionVariables.set('lastOrderId', order.id); console.log('Cocokkan log consumer dengan messageId:', 'order-' + order.id); }"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "05 Crash - hanya SATU order",
+      "description": "Hentikan semua consumer notification-queue; jalankan node notification-service/notification-service.js --crash. Kirim satu order, tunggu crash, lalu mulai consumer biasa. Cocokkan messageId email pertama dan kedua.",
+      "item": [
+        {
+          "name": "Order 1 / 05 Crash - hanya SATU order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/order-service/orders",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Lab 10 Order 1 / 05 Crash - hanya SATU order\",\n  \"items\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": 1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Order tetap HTTP 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) { const order = pm.response.json().data; pm.collectionVariables.set('lastOrderId', order.id); console.log('Cocokkan log consumer dengan messageId:', 'order-' + order.id); }"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "06 Lihat pesanan",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/order-service/orders",
+        "header": []
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Riwayat HTTP 200', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

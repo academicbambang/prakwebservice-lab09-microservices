@@ -1,0 +1,129 @@
+02 / Consumer mati
+
+Tiga order tetap HTTP 201; notification-queue Ready=3, Unacked=0, Consumers=0.
+
+{
+  "orders": [
+    {
+      "startedAt": "2026-11-04T09:39:54.409Z",
+      "durationMs": 22,
+      "request": {
+        "method": "POST",
+        "url": "http://127.0.0.1:52470/order-service/orders",
+        "body": {
+          "customerName": "Lab 10 consumer-mati-1",
+          "items": [
+            {
+              "productId": "prod-001",
+              "quantity": 1
+            }
+          ]
+        }
+      },
+      "response": {
+        "status": 201,
+        "body": {
+          "data": {
+            "id": "ord-419493ee-f96d-445c-83f0-13c039882429",
+            "customerName": "Lab 10 consumer-mati-1",
+            "items": [
+              {
+                "productId": "prod-001",
+                "name": "Kopi Arabika Gayo",
+                "quantity": 1,
+                "unitPrice": 85000,
+                "subtotal": 85000
+              }
+            ],
+            "total": 85000,
+            "status": "pending",
+            "createdAt": "2026-11-04T09:39:54.426Z"
+          }
+        }
+      }
+    },
+    {
+      "startedAt": "2026-11-04T09:39:54.431Z",
+      "durationMs": 18,
+      "request": {
+        "method": "POST",
+        "url": "http://127.0.0.1:52470/order-service/orders",
+        "body": {
+          "customerName": "Lab 10 consumer-mati-2",
+          "items": [
+            {
+              "productId": "prod-001",
+              "quantity": 1
+            }
+          ]
+        }
+      },
+      "response": {
+        "status": 201,
+        "body": {
+          "data": {
+            "id": "ord-eebf7d5e-e21e-430a-9128-a1e30186f43a",
+            "customerName": "Lab 10 consumer-mati-2",
+            "items": [
+              {
+                "productId": "prod-001",
+                "name": "Kopi Arabika Gayo",
+                "quantity": 1,
+                "unitPrice": 85000,
+                "subtotal": 85000
+              }
+            ],
+            "total": 85000,
+            "status": "pending",
+            "createdAt": "2026-11-04T09:39:54.444Z"
+          }
+        }
+      }
+    },
+    {
+      "startedAt": "2026-11-04T09:39:54.449Z",
+      "durationMs": 18,
+      "request": {
+        "method": "POST",
+        "url": "http://127.0.0.1:52470/order-service/orders",
+        "body": {
+          "customerName": "Lab 10 consumer-mati-3",
+          "items": [
+            {
+              "productId": "prod-001",
+              "quantity": 1
+            }
+          ]
+        }
+      },
+      "response": {
+        "status": 201,
+        "body": {
+          "data": {
+            "id": "ord-52e20e22-7d5e-4b0a-912d-d99a73c59ed0",
+            "customerName": "Lab 10 consumer-mati-3",
+            "items": [
+              {
+                "productId": "prod-001",
+                "name": "Kopi Arabika Gayo",
+                "quantity": 1,
+                "unitPrice": 85000,
+                "subtotal": 85000
+              }
+            ],
+            "total": 85000,
+            "status": "pending",
+            "createdAt": "2026-11-04T09:39:54.462Z"
+          }
+        }
+      }
+    }
+  ],
+  "queue": {
+    "queue": "notification-queue",
+    "durable": true,
+    "ready": 3,
+    "unacked": 0,
+    "consumers": 0
+  }
+}

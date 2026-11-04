@@ -1,0 +1,408 @@
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Bukti Lab 10 — RabbitMQ</title><style>
+  *{box-sizing:border-box}body{margin:0;background:#eef2f5;color:#183344;font:16px/1.5 "Segoe UI",sans-serif}main{max-width:1500px;margin:36px auto;padding:0 24px}h1{font-size:32px}h2{font-size:25px;margin:10px 0}section{background:white;border:1px solid #c9d7e0;border-radius:12px;padding:28px;margin:24px 0}pre{font:13px/1.6 Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere;background:#f3f6f8;border-radius:6px;padding:18px}pre.logs{background:#112936;color:#d9eff0}.muted,.foot{color:#526b7a;font-size:13px}.badge{display:inline-block;background:#dcf5e8;color:#156346;border-radius:20px;padding:3px 12px;font-weight:700;font-size:13px}a{color:#146d65}nav a{margin-right:16px}img{max-width:100%}
+  </style></head><body><main><header><p>PRAKTIKUM WEB SERVICE / LAB 10</p><h1>Komunikasi antarservice melalui RabbitMQ</h1><p>Bambang Herlambang · 5803024019 · Marketplace UMKM</p><p>Producer, consumer, gateway, dan katalog berjalan sebagai proses terpisah. RabbitMQ memakai Docker dan vhost uji terisolasi.</p><nav><a href="#normal-flow">01 / Alur normal</a><a href="#consumer-down">02 / Consumer mati</a><a href="#consumer-recovered">03 / Consumer pulih</a><a href="#competing-consumers">04 / Competing consumers</a><a href="#pub-sub">05 / Publish-subscribe</a><a href="#crash-redelivery">06 / Crash sebelum ack &amp; redelivery</a><a href="#duplicate-and-invalid">07 / Deduplikasi lokal &amp; pesan rusak</a><a href="#publisher-disconnected">08 / Publisher terputus &amp; pulih</a></nav></header><section id="normal-flow"><span class="badge">LULUS</span><h2>01 / Alur normal</h2><p>Order HTTP 201 diterima sebelum email simulasi selesai.</p><p class="muted">Eksekusi 2026-11-04T09:39:42.931Z · vhost lab10-20261104093942931-3ce6</p><pre>{
+  &quot;http&quot;: {
+    &quot;startedAt&quot;: &quot;2026-11-04T09:39:44.611Z&quot;,
+    &quot;durationMs&quot;: 96,
+    &quot;request&quot;: {
+      &quot;method&quot;: &quot;POST&quot;,
+      &quot;url&quot;: &quot;http://127.0.0.1:52470/order-service/orders&quot;,
+      &quot;body&quot;: {
+        &quot;customerName&quot;: &quot;Lab 10 normal&quot;,
+        &quot;items&quot;: [
+          {
+            &quot;productId&quot;: &quot;prod-001&quot;,
+            &quot;quantity&quot;: 1
+          }
+        ]
+      }
+    },
+    &quot;response&quot;: {
+      &quot;status&quot;: 201,
+      &quot;body&quot;: {
+        &quot;data&quot;: {
+          &quot;id&quot;: &quot;ord-fa76175f-84eb-4478-bf44-e6a431304efa&quot;,
+          &quot;customerName&quot;: &quot;Lab 10 normal&quot;,
+          &quot;items&quot;: [
+            {
+              &quot;productId&quot;: &quot;prod-001&quot;,
+              &quot;name&quot;: &quot;Kopi Arabika Gayo&quot;,
+              &quot;quantity&quot;: 1,
+              &quot;unitPrice&quot;: 85000,
+              &quot;subtotal&quot;: 85000
+            }
+          ],
+          &quot;total&quot;: 85000,
+          &quot;status&quot;: &quot;pending&quot;,
+          &quot;createdAt&quot;: &quot;2026-11-04T09:39:44.700Z&quot;
+        }
+      }
+    }
+  },
+  &quot;emailsAtHttpResponse&quot;: 0,
+  &quot;queueAfterAck&quot;: {
+    &quot;queue&quot;: &quot;notification-queue&quot;,
+    &quot;durable&quot;: true,
+    &quot;ready&quot;: 0,
+    &quot;unacked&quot;: 0,
+    &quot;consumers&quot;: 1
+  }
+}</pre><h3>Log proses Node.js aktual</h3><pre class="logs">2026-11-04T09:39:43.686Z [normal] ready  [notification-queue/normal] menunggu pesan...
+2026-11-04T09:39:44.711Z [normal] received order-ord-fa76175f-84eb-4478-bf44-e6a431304efa redelivered=false
+2026-11-04T09:39:45.723Z [normal] email order-ord-fa76175f-84eb-4478-bf44-e6a431304efa redelivered=false [notification-queue/normal] email terkirim (simulasi): pesanan #ord-fa76175f-84eb-4478-bf44-e6a431304efa Kopi Arabika Gayo x1
+2026-11-04T09:39:45.725Z [normal] acked order-ord-fa76175f-84eb-4478-bf44-e6a431304efa </pre><p class="foot">Sumber: npm run test:lab10. Log berasal dari proses dan RabbitMQ aktual; tampilan ini merender rekaman, bukan terminal. Email merupakan simulasi.</p></section><section id="consumer-down"><span class="badge">LULUS</span><h2>02 / Consumer mati</h2><p>Tiga order tetap HTTP 201; notification-queue Ready=3, Unacked=0, Consumers=0.</p><p class="muted">Eksekusi 2026-11-04T09:39:42.931Z · vhost lab10-20261104093942931-3ce6</p><pre>{
+  &quot;orders&quot;: [
+    {
+      &quot;startedAt&quot;: &quot;2026-11-04T09:39:54.409Z&quot;,
+      &quot;durationMs&quot;: 22,
+      &quot;request&quot;: {
+        &quot;method&quot;: &quot;POST&quot;,
+        &quot;url&quot;: &quot;http://127.0.0.1:52470/order-service/orders&quot;,
+        &quot;body&quot;: {
+          &quot;customerName&quot;: &quot;Lab 10 consumer-mati-1&quot;,
+          &quot;items&quot;: [
+            {
+              &quot;productId&quot;: &quot;prod-001&quot;,
+              &quot;quantity&quot;: 1
+            }
+          ]
+        }
+      },
+      &quot;response&quot;: {
+        &quot;status&quot;: 201,
+        &quot;body&quot;: {
+          &quot;data&quot;: {
+            &quot;id&quot;: &quot;ord-419493ee-f96d-445c-83f0-13c039882429&quot;,
+            &quot;customerName&quot;: &quot;Lab 10 consumer-mati-1&quot;,
+            &quot;items&quot;: [
+              {
+                &quot;productId&quot;: &quot;prod-001&quot;,
+                &quot;name&quot;: &quot;Kopi Arabika Gayo&quot;,
+                &quot;quantity&quot;: 1,
+                &quot;unitPrice&quot;: 85000,
+                &quot;subtotal&quot;: 85000
+              }
+            ],
+            &quot;total&quot;: 85000,
+            &quot;status&quot;: &quot;pending&quot;,
+            &quot;createdAt&quot;: &quot;2026-11-04T09:39:54.426Z&quot;
+          }
+        }
+      }
+    },
+    {
+      &quot;startedAt&quot;: &quot;2026-11-04T09:39:54.431Z&quot;,
+      &quot;durationMs&quot;: 18,
+      &quot;request&quot;: {
+        &quot;method&quot;: &quot;POST&quot;,
+        &quot;url&quot;: &quot;http://127.0.0.1:52470/order-service/orders&quot;,
+        &quot;body&quot;: {
+          &quot;customerName&quot;: &quot;Lab 10 consumer-mati-2&quot;,
+          &quot;items&quot;: [
+            {
+              &quot;productId&quot;: &quot;prod-001&quot;,
+              &quot;quantity&quot;: 1
+            }
+          ]
+        }
+      },
+      &quot;response&quot;: {
+        &quot;status&quot;: 201,
+        &quot;body&quot;: {
+          &quot;data&quot;: {
+            &quot;id&quot;: &quot;ord-eebf7d5e-e21e-430a-9128-a1e30186f43a&quot;,
+            &quot;customerName&quot;: &quot;Lab 10 consumer-mati-2&quot;,
+            &quot;items&quot;: [
+              {
+                &quot;productId&quot;: &quot;prod-001&quot;,
+                &quot;name&quot;: &quot;Kopi Arabika Gayo&quot;,
+                &quot;quantity&quot;: 1,
+                &quot;unitPrice&quot;: 85000,
+                &quot;subtotal&quot;: 85000
+              }
+            ],
+            &quot;total&quot;: 85000,
+            &quot;status&quot;: &quot;pending&quot;,
+            &quot;createdAt&quot;: &quot;2026-11-04T09:39:54.444Z&quot;
+          }
+        }
+      }
+    },
+    {
+      &quot;startedAt&quot;: &quot;2026-11-04T09:39:54.449Z&quot;,
+      &quot;durationMs&quot;: 18,
+      &quot;request&quot;: {
+        &quot;method&quot;: &quot;POST&quot;,
+        &quot;url&quot;: &quot;http://127.0.0.1:52470/order-service/orders&quot;,
+        &quot;body&quot;: {
+          &quot;customerName&quot;: &quot;Lab 10 consumer-mati-3&quot;,
+          &quot;items&quot;: [
+            {
+              &quot;productId&quot;: &quot;prod-001&quot;,
+              &quot;quantity&quot;: 1
+            }
+          ]
+        }
+      },
+      &quot;response&quot;: {
+        &quot;status&quot;: 201,
+        &quot;body&quot;: {
+          &quot;data&quot;: {
+            &quot;id&quot;: &quot;ord-52e20e22-7d5e-4b0a-912d-d99a73c59ed0&quot;,
+            &quot;customerName&quot;: &quot;Lab 10 consumer-mati-3&quot;,
+            &quot;items&quot;: [
+              {
+                &quot;productId&quot;: &quot;prod-001&quot;,
+                &quot;name&quot;: &quot;Kopi Arabika Gayo&quot;,
+                &quot;quantity&quot;: 1,
+                &quot;unitPrice&quot;: 85000,
+                &quot;subtotal&quot;: 85000
+              }
+            ],
+            &quot;total&quot;: 85000,
+            &quot;status&quot;: &quot;pending&quot;,
+            &quot;createdAt&quot;: &quot;2026-11-04T09:39:54.462Z&quot;
+          }
+        }
+      }
+    }
+  ],
+  &quot;queue&quot;: {
+    &quot;queue&quot;: &quot;notification-queue&quot;,
+    &quot;durable&quot;: true,
+    &quot;ready&quot;: 3,
+    &quot;unacked&quot;: 0,
+    &quot;consumers&quot;: 0
+  }
+}</pre><p class="foot">Sumber: npm run test:lab10. Log berasal dari proses dan RabbitMQ aktual; tampilan ini merender rekaman, bukan terminal. Email merupakan simulasi.</p></section><section id="consumer-recovered"><span class="badge">LULUS</span><h2>03 / Consumer pulih</h2><p>Ketiga event tertahan diproses dan di-ack; Ready kembali 0.</p><p class="muted">Eksekusi 2026-11-04T09:39:42.931Z · vhost lab10-20261104093942931-3ce6</p><pre>{
+  &quot;queue&quot;: {
+    &quot;queue&quot;: &quot;notification-queue&quot;,
+    &quot;durable&quot;: true,
+    &quot;ready&quot;: 0,
+    &quot;unacked&quot;: 0,
+    &quot;consumers&quot;: 1
+  },
+  &quot;processedOrders&quot;: [
+    &quot;ord-419493ee-f96d-445c-83f0-13c039882429&quot;,
+    &quot;ord-eebf7d5e-e21e-430a-9128-a1e30186f43a&quot;,
+    &quot;ord-52e20e22-7d5e-4b0a-912d-d99a73c59ed0&quot;
+  ]
+}</pre><h3>Log proses Node.js aktual</h3><pre class="logs">2026-11-04T09:40:02.211Z [recovered] received order-ord-419493ee-f96d-445c-83f0-13c039882429 redelivered=false
+2026-11-04T09:40:02.213Z [recovered] ready  [notification-queue/recovered] menunggu pesan...
+2026-11-04T09:40:03.220Z [recovered] email order-ord-419493ee-f96d-445c-83f0-13c039882429 redelivered=false [notification-queue/recovered] email terkirim (simulasi): pesanan #ord-419493ee-f96d-445c-83f0-13c039882429 Kopi Arabika Gayo x1
+2026-11-04T09:40:03.221Z [recovered] acked order-ord-419493ee-f96d-445c-83f0-13c039882429
+2026-11-04T09:40:03.224Z [recovered] received order-ord-eebf7d5e-e21e-430a-9128-a1e30186f43a redelivered=false
+2026-11-04T09:40:04.229Z [recovered] email order-ord-eebf7d5e-e21e-430a-9128-a1e30186f43a redelivered=false [notification-queue/recovered] email terkirim (simulasi): pesanan #ord-eebf7d5e-e21e-430a-9128-a1e30186f43a Kopi Arabika Gayo x1
+2026-11-04T09:40:04.229Z [recovered] acked order-ord-eebf7d5e-e21e-430a-9128-a1e30186f43a
+2026-11-04T09:40:04.232Z [recovered] received order-ord-52e20e22-7d5e-4b0a-912d-d99a73c59ed0 redelivered=false
+2026-11-04T09:40:05.242Z [recovered] email order-ord-52e20e22-7d5e-4b0a-912d-d99a73c59ed0 redelivered=false [notification-queue/recovered] email terkirim (simulasi): pesanan #ord-52e20e22-7d5e-4b0a-912d-d99a73c59ed0 Kopi Arabika Gayo x1
+2026-11-04T09:40:05.243Z [recovered] acked order-ord-52e20e22-7d5e-4b0a-912d-d99a73c59ed0 </pre><p class="foot">Sumber: npm run test:lab10. Log berasal dari proses dan RabbitMQ aktual; tampilan ini merender rekaman, bukan terminal. Email merupakan simulasi.</p></section><section id="competing-consumers"><span class="badge">LULUS</span><h2>04 / Competing consumers</h2><p>Satu antrean, enam event dibagi: worker-A=3, worker-B=3; tidak ada ID yang diproses dua worker.</p><p class="muted">Eksekusi 2026-11-04T09:39:42.931Z · vhost lab10-20261104093942931-3ce6</p><pre>{
+  &quot;sentOrderIds&quot;: [
+    &quot;ord-1ca4c917-7466-4227-ac17-a92c96385ec2&quot;,
+    &quot;ord-18dbd29a-cdc6-41c2-8e52-0466230793c1&quot;,
+    &quot;ord-596bf0a7-5307-4727-9d92-a01b07cbd011&quot;,
+    &quot;ord-fc4957e7-1fb4-417e-88b6-e87c89c98725&quot;,
+    &quot;ord-61d14e23-393f-4643-9355-610099b33074&quot;,
+    &quot;ord-a6ea144f-6674-4eab-b81c-452d71aacf3a&quot;
+  ],
+  &quot;workerA&quot;: [
+    &quot;ord-18dbd29a-cdc6-41c2-8e52-0466230793c1&quot;,
+    &quot;ord-fc4957e7-1fb4-417e-88b6-e87c89c98725&quot;,
+    &quot;ord-a6ea144f-6674-4eab-b81c-452d71aacf3a&quot;
+  ],
+  &quot;workerB&quot;: [
+    &quot;ord-1ca4c917-7466-4227-ac17-a92c96385ec2&quot;,
+    &quot;ord-596bf0a7-5307-4727-9d92-a01b07cbd011&quot;,
+    &quot;ord-61d14e23-393f-4643-9355-610099b33074&quot;
+  ],
+  &quot;queue&quot;: {
+    &quot;queue&quot;: &quot;notification-queue&quot;,
+    &quot;durable&quot;: true,
+    &quot;ready&quot;: 0,
+    &quot;unacked&quot;: 0,
+    &quot;consumers&quot;: 2
+  }
+}</pre><h3>Log proses Node.js aktual</h3><pre class="logs">2026-11-04T09:40:14.508Z [worker-A] ready  [notification-queue/worker-A] menunggu pesan...
+2026-11-04T09:40:14.508Z [worker-B] ready  [notification-queue/worker-B] menunggu pesan...
+2026-11-04T09:40:19.426Z [worker-B] received order-ord-1ca4c917-7466-4227-ac17-a92c96385ec2 redelivered=false
+2026-11-04T09:40:19.437Z [worker-A] received order-ord-18dbd29a-cdc6-41c2-8e52-0466230793c1 redelivered=false
+2026-11-04T09:40:20.432Z [worker-B] email order-ord-1ca4c917-7466-4227-ac17-a92c96385ec2 redelivered=false [notification-queue/worker-B] email terkirim (simulasi): pesanan #ord-1ca4c917-7466-4227-ac17-a92c96385ec2 Kopi Arabika Gayo x1
+2026-11-04T09:40:20.433Z [worker-B] acked order-ord-1ca4c917-7466-4227-ac17-a92c96385ec2
+2026-11-04T09:40:20.436Z [worker-B] received order-ord-596bf0a7-5307-4727-9d92-a01b07cbd011 redelivered=false
+2026-11-04T09:40:20.448Z [worker-A] email order-ord-18dbd29a-cdc6-41c2-8e52-0466230793c1 redelivered=false [notification-queue/worker-A] email terkirim (simulasi): pesanan #ord-18dbd29a-cdc6-41c2-8e52-0466230793c1 Kopi Arabika Gayo x1
+2026-11-04T09:40:20.449Z [worker-A] acked order-ord-18dbd29a-cdc6-41c2-8e52-0466230793c1
+2026-11-04T09:40:20.451Z [worker-A] received order-ord-fc4957e7-1fb4-417e-88b6-e87c89c98725 redelivered=false
+2026-11-04T09:40:21.446Z [worker-B] email order-ord-596bf0a7-5307-4727-9d92-a01b07cbd011 redelivered=false [notification-queue/worker-B] email terkirim (simulasi): pesanan #ord-596bf0a7-5307-4727-9d92-a01b07cbd011 Kopi Arabika Gayo x1
+2026-11-04T09:40:21.446Z [worker-B] acked order-ord-596bf0a7-5307-4727-9d92-a01b07cbd011
+2026-11-04T09:40:21.450Z [worker-B] received order-ord-61d14e23-393f-4643-9355-610099b33074 redelivered=false
+2026-11-04T09:40:21.461Z [worker-A] email order-ord-fc4957e7-1fb4-417e-88b6-e87c89c98725 redelivered=false [notification-queue/worker-A] email terkirim (simulasi): pesanan #ord-fc4957e7-1fb4-417e-88b6-e87c89c98725 Kopi Arabika Gayo x1
+2026-11-04T09:40:21.462Z [worker-A] acked order-ord-fc4957e7-1fb4-417e-88b6-e87c89c98725
+2026-11-04T09:40:21.466Z [worker-A] received order-ord-a6ea144f-6674-4eab-b81c-452d71aacf3a redelivered=false
+2026-11-04T09:40:22.458Z [worker-B] email order-ord-61d14e23-393f-4643-9355-610099b33074 redelivered=false [notification-queue/worker-B] email terkirim (simulasi): pesanan #ord-61d14e23-393f-4643-9355-610099b33074 Kopi Arabika Gayo x1
+2026-11-04T09:40:22.459Z [worker-B] acked order-ord-61d14e23-393f-4643-9355-610099b33074
+2026-11-04T09:40:22.473Z [worker-A] email order-ord-a6ea144f-6674-4eab-b81c-452d71aacf3a redelivered=false [notification-queue/worker-A] email terkirim (simulasi): pesanan #ord-a6ea144f-6674-4eab-b81c-452d71aacf3a Kopi Arabika Gayo x1
+2026-11-04T09:40:22.474Z [worker-A] acked order-ord-a6ea144f-6674-4eab-b81c-452d71aacf3a </pre><p class="foot">Sumber: npm run test:lab10. Log berasal dari proses dan RabbitMQ aktual; tampilan ini merender rekaman, bukan terminal. Email merupakan simulasi.</p></section><section id="pub-sub"><span class="badge">LULUS</span><h2>05 / Publish-subscribe</h2><p>Dua antrean berbeda menerima salinan dari dua event yang sama: dua notifikasi dan dua audit simulasi.</p><p class="muted">Eksekusi 2026-11-04T09:39:42.931Z · vhost lab10-20261104093942931-3ce6</p><pre>{
+  &quot;sentOrderIds&quot;: [
+    &quot;ord-331dba3e-fb00-4c14-81eb-dfa1756312af&quot;,
+    &quot;ord-5c68995d-e168-45ff-a250-e262a57b02a4&quot;
+  ],
+  &quot;queues&quot;: [
+    {
+      &quot;queue&quot;: &quot;notification-queue&quot;,
+      &quot;durable&quot;: true,
+      &quot;ready&quot;: 0,
+      &quot;unacked&quot;: 0,
+      &quot;consumers&quot;: 1
+    },
+    {
+      &quot;queue&quot;: &quot;audit-queue&quot;,
+      &quot;durable&quot;: true,
+      &quot;ready&quot;: 0,
+      &quot;unacked&quot;: 0,
+      &quot;consumers&quot;: 1
+    }
+  ]
+}</pre><h3>Log proses Node.js aktual</h3><pre class="logs">2026-11-04T09:40:29.555Z [pubsub-notification] ready  [notification-queue/pubsub-notification] menunggu pesan...
+2026-11-04T09:40:29.567Z [pubsub-audit] ready  [audit-queue/pubsub-audit] menunggu pesan...
+2026-11-04T09:40:29.642Z [pubsub-notification] received order-ord-331dba3e-fb00-4c14-81eb-dfa1756312af redelivered=false
+2026-11-04T09:40:29.645Z [pubsub-audit] received order-ord-331dba3e-fb00-4c14-81eb-dfa1756312af redelivered=false
+2026-11-04T09:40:30.643Z [pubsub-notification] email order-ord-331dba3e-fb00-4c14-81eb-dfa1756312af redelivered=false [notification-queue/pubsub-notification] email terkirim (simulasi): pesanan #ord-331dba3e-fb00-4c14-81eb-dfa1756312af Kopi Arabika Gayo x1
+2026-11-04T09:40:30.644Z [pubsub-notification] acked order-ord-331dba3e-fb00-4c14-81eb-dfa1756312af
+2026-11-04T09:40:30.646Z [pubsub-notification] received order-ord-5c68995d-e168-45ff-a250-e262a57b02a4 redelivered=false
+2026-11-04T09:40:30.658Z [pubsub-audit] email order-ord-331dba3e-fb00-4c14-81eb-dfa1756312af redelivered=false [audit-queue/pubsub-audit] email terkirim (simulasi): pesanan #ord-331dba3e-fb00-4c14-81eb-dfa1756312af Kopi Arabika Gayo x1
+2026-11-04T09:40:30.659Z [pubsub-audit] acked order-ord-331dba3e-fb00-4c14-81eb-dfa1756312af
+2026-11-04T09:40:30.660Z [pubsub-audit] received order-ord-5c68995d-e168-45ff-a250-e262a57b02a4 redelivered=false
+2026-11-04T09:40:31.659Z [pubsub-notification] email order-ord-5c68995d-e168-45ff-a250-e262a57b02a4 redelivered=false [notification-queue/pubsub-notification] email terkirim (simulasi): pesanan #ord-5c68995d-e168-45ff-a250-e262a57b02a4 Kopi Arabika Gayo x1
+2026-11-04T09:40:31.660Z [pubsub-notification] acked order-ord-5c68995d-e168-45ff-a250-e262a57b02a4
+2026-11-04T09:40:31.675Z [pubsub-audit] email order-ord-5c68995d-e168-45ff-a250-e262a57b02a4 redelivered=false [audit-queue/pubsub-audit] email terkirim (simulasi): pesanan #ord-5c68995d-e168-45ff-a250-e262a57b02a4 Kopi Arabika Gayo x1
+2026-11-04T09:40:31.675Z [pubsub-audit] acked order-ord-5c68995d-e168-45ff-a250-e262a57b02a4 </pre><p class="foot">Sumber: npm run test:lab10. Log berasal dari proses dan RabbitMQ aktual; tampilan ini merender rekaman, bukan terminal. Email merupakan simulasi.</p></section><section id="crash-redelivery"><span class="badge">LULUS</span><h2>06 / Crash sebelum ack &amp; redelivery</h2><p>MessageId yang sama menghasilkan email simulasi dua kali; proses kedua menerima redelivered=true.</p><p class="muted">Eksekusi 2026-11-04T09:39:42.931Z · vhost lab10-20261104093942931-3ce6</p><pre>{
+  &quot;orderId&quot;: &quot;ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb&quot;,
+  &quot;messageId&quot;: &quot;order-ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb&quot;,
+  &quot;crashExitCode&quot;: 1,
+  &quot;queueAfterCrash&quot;: {
+    &quot;queue&quot;: &quot;notification-queue&quot;,
+    &quot;durable&quot;: true,
+    &quot;ready&quot;: 1,
+    &quot;unacked&quot;: 0,
+    &quot;consumers&quot;: 0
+  },
+  &quot;queueAfterRecovery&quot;: {
+    &quot;queue&quot;: &quot;notification-queue&quot;,
+    &quot;durable&quot;: true,
+    &quot;ready&quot;: 0,
+    &quot;unacked&quot;: 0,
+    &quot;consumers&quot;: 1
+  },
+  &quot;simulatedEmailCount&quot;: 2,
+  &quot;explanation&quot;: &quot;Set processed hanya di memori. Setelah restart, ID lama hilang dan pesan diproses ulang.&quot;
+}</pre><h3>Log proses Node.js aktual</h3><pre class="logs">2026-11-04T09:40:49.585Z [crash-before-ack] ready  [notification-queue/crash-before-ack] menunggu pesan...
+2026-11-04T09:40:49.660Z [crash-before-ack] received order-ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb redelivered=false
+2026-11-04T09:40:50.666Z [crash-before-ack] email order-ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb redelivered=false [notification-queue/crash-before-ack] email terkirim (simulasi): pesanan #ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb Kopi Arabika Gayo x1
+2026-11-04T09:40:50.667Z [crash-before-ack] crash order-ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb Crash sebelum ack! Set processed akan hilang saat proses mati.
+2026-11-04T09:40:59.492Z [after-crash] received order-ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb redelivered=true
+2026-11-04T09:40:59.495Z [after-crash] ready  [notification-queue/after-crash] menunggu pesan...
+2026-11-04T09:41:00.496Z [after-crash] email order-ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb redelivered=true [notification-queue/after-crash] email terkirim (simulasi): pesanan #ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb Kopi Arabika Gayo x1
+2026-11-04T09:41:00.496Z [after-crash] acked order-ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb </pre><p class="foot">Sumber: npm run test:lab10. Log berasal dari proses dan RabbitMQ aktual; tampilan ini merender rekaman, bukan terminal. Email merupakan simulasi.</p></section><section id="duplicate-and-invalid"><span class="badge">LULUS</span><h2>07 / Deduplikasi lokal &amp; pesan rusak</h2><p>Duplikat dalam proses yang sama di-ack tanpa email baru; JSON rusak di-nack tanpa requeue.</p><p class="muted">Eksekusi 2026-11-04T09:39:42.931Z · vhost lab10-20261104093942931-3ce6</p><pre>{
+  &quot;originalMessageId&quot;: &quot;order-ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb&quot;,
+  &quot;newEmailsForDuplicate&quot;: 0,
+  &quot;queue&quot;: {
+    &quot;queue&quot;: &quot;notification-queue&quot;,
+    &quot;durable&quot;: true,
+    &quot;ready&quot;: 0,
+    &quot;unacked&quot;: 0,
+    &quot;consumers&quot;: 1
+  }
+}</pre><h3>Log proses Node.js aktual</h3><pre class="logs">2026-11-04T09:41:09.441Z [after-crash] duplicate order-ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb Duplikat dalam proses ini, dilewati.
+2026-11-04T09:41:09.447Z [after-crash] invalid invalid-demo Pesan rusak/tidak valid, dibuang tanpa requeue.</pre><p class="foot">Sumber: npm run test:lab10. Log berasal dari proses dan RabbitMQ aktual; tampilan ini merender rekaman, bukan terminal. Email merupakan simulasi.</p></section><section id="publisher-disconnected"><span class="badge">LULUS</span><h2>08 / Publisher terputus &amp; pulih</h2><p>Saat koneksi publisher ditutup, order tetap 201 tetapi event hilang. Setelah reconnect, order baru mengirim event; event yang hilang tidak diulang.</p><p class="muted">Eksekusi 2026-11-04T09:39:42.931Z · vhost lab10-20261104093942931-3ce6</p><pre>{
+  &quot;interruption&quot;: &quot;Management API menutup hanya koneksi publisher, bukan mematikan seluruh broker.&quot;,
+  &quot;orderDuringDisconnect&quot;: {
+    &quot;startedAt&quot;: &quot;2026-11-04T09:41:19.468Z&quot;,
+    &quot;durationMs&quot;: 11,
+    &quot;request&quot;: {
+      &quot;method&quot;: &quot;POST&quot;,
+      &quot;url&quot;: &quot;http://127.0.0.1:52470/order-service/orders&quot;,
+      &quot;body&quot;: {
+        &quot;customerName&quot;: &quot;Lab 10 publisher-terputus&quot;,
+        &quot;items&quot;: [
+          {
+            &quot;productId&quot;: &quot;prod-001&quot;,
+            &quot;quantity&quot;: 1
+          }
+        ]
+      }
+    },
+    &quot;response&quot;: {
+      &quot;status&quot;: 201,
+      &quot;body&quot;: {
+        &quot;data&quot;: {
+          &quot;id&quot;: &quot;ord-e18aa753-99d6-489d-b126-67c3b6f3a407&quot;,
+          &quot;customerName&quot;: &quot;Lab 10 publisher-terputus&quot;,
+          &quot;items&quot;: [
+            {
+              &quot;productId&quot;: &quot;prod-001&quot;,
+              &quot;name&quot;: &quot;Kopi Arabika Gayo&quot;,
+              &quot;quantity&quot;: 1,
+              &quot;unitPrice&quot;: 85000,
+              &quot;subtotal&quot;: 85000
+            }
+          ],
+          &quot;total&quot;: 85000,
+          &quot;status&quot;: &quot;pending&quot;,
+          &quot;createdAt&quot;: &quot;2026-11-04T09:41:19.477Z&quot;
+        }
+      }
+    }
+  },
+  &quot;orderAfterReconnect&quot;: {
+    &quot;startedAt&quot;: &quot;2026-11-04T09:41:22.427Z&quot;,
+    &quot;durationMs&quot;: 9,
+    &quot;request&quot;: {
+      &quot;method&quot;: &quot;POST&quot;,
+      &quot;url&quot;: &quot;http://127.0.0.1:52470/order-service/orders&quot;,
+      &quot;body&quot;: {
+        &quot;customerName&quot;: &quot;Lab 10 publisher-pulih&quot;,
+        &quot;items&quot;: [
+          {
+            &quot;productId&quot;: &quot;prod-001&quot;,
+            &quot;quantity&quot;: 1
+          }
+        ]
+      }
+    },
+    &quot;response&quot;: {
+      &quot;status&quot;: 201,
+      &quot;body&quot;: {
+        &quot;data&quot;: {
+          &quot;id&quot;: &quot;ord-e1cbac92-46fb-4b55-8a04-cb3c0e1af37d&quot;,
+          &quot;customerName&quot;: &quot;Lab 10 publisher-pulih&quot;,
+          &quot;items&quot;: [
+            {
+              &quot;productId&quot;: &quot;prod-001&quot;,
+              &quot;name&quot;: &quot;Kopi Arabika Gayo&quot;,
+              &quot;quantity&quot;: 1,
+              &quot;unitPrice&quot;: 85000,
+              &quot;subtotal&quot;: 85000
+            }
+          ],
+          &quot;total&quot;: 85000,
+          &quot;status&quot;: &quot;pending&quot;,
+          &quot;createdAt&quot;: &quot;2026-11-04T09:41:22.434Z&quot;
+        }
+      }
+    }
+  },
+  &quot;storedOrderCount&quot;: 15,
+  &quot;deliveredAfterReconnect&quot;: [
+    &quot;ord-e1cbac92-46fb-4b55-8a04-cb3c0e1af37d&quot;
+  ],
+  &quot;queue&quot;: {
+    &quot;queue&quot;: &quot;notification-queue&quot;,
+    &quot;durable&quot;: true,
+    &quot;ready&quot;: 0,
+    &quot;unacked&quot;: 0,
+    &quot;consumers&quot;: 1
+  }
+}</pre><h3>Log proses Node.js aktual</h3><pre class="logs">2026-11-04T09:39:44.217Z [publisher] ready  Terhubung ke RabbitMQ; publisher siap.
+2026-11-04T09:41:19.358Z [publisher] disconnected  RabbitMQ terputus; mencoba terhubung kembali.
+2026-11-04T09:41:19.477Z [publisher] not-published order-ord-e18aa753-99d6-489d-b126-67c3b6f3a407 Event TIDAK terkirim; order tetap disimpan. Tidak ada outbox/replay otomatis.
+2026-11-04T09:41:22.392Z [publisher] ready  Terhubung ke RabbitMQ; publisher siap.</pre><p class="foot">Sumber: npm run test:lab10. Log berasal dari proses dan RabbitMQ aktual; tampilan ini merender rekaman, bukan terminal. Email merupakan simulasi.</p></section><p class="foot">Kredensial broker dan API key tidak disimpan dalam bukti. Screenshot dashboard-ready-3.png merupakan RabbitMQ Management UI asli; screenshot log lainnya merupakan halaman rekaman ini.</p></main></body></html>

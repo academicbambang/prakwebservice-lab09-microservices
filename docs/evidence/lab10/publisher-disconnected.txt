@@ -1,0 +1,102 @@
+08 / Publisher terputus & pulih
+
+Saat koneksi publisher ditutup, order tetap 201 tetapi event hilang. Setelah reconnect, order baru mengirim event; event yang hilang tidak diulang.
+
+{
+  "interruption": "Management API menutup hanya koneksi publisher, bukan mematikan seluruh broker.",
+  "orderDuringDisconnect": {
+    "startedAt": "2026-11-04T09:41:19.468Z",
+    "durationMs": 11,
+    "request": {
+      "method": "POST",
+      "url": "http://127.0.0.1:52470/order-service/orders",
+      "body": {
+        "customerName": "Lab 10 publisher-terputus",
+        "items": [
+          {
+            "productId": "prod-001",
+            "quantity": 1
+          }
+        ]
+      }
+    },
+    "response": {
+      "status": 201,
+      "body": {
+        "data": {
+          "id": "ord-e18aa753-99d6-489d-b126-67c3b6f3a407",
+          "customerName": "Lab 10 publisher-terputus",
+          "items": [
+            {
+              "productId": "prod-001",
+              "name": "Kopi Arabika Gayo",
+              "quantity": 1,
+              "unitPrice": 85000,
+              "subtotal": 85000
+            }
+          ],
+          "total": 85000,
+          "status": "pending",
+          "createdAt": "2026-11-04T09:41:19.477Z"
+        }
+      }
+    }
+  },
+  "orderAfterReconnect": {
+    "startedAt": "2026-11-04T09:41:22.427Z",
+    "durationMs": 9,
+    "request": {
+      "method": "POST",
+      "url": "http://127.0.0.1:52470/order-service/orders",
+      "body": {
+        "customerName": "Lab 10 publisher-pulih",
+        "items": [
+          {
+            "productId": "prod-001",
+            "quantity": 1
+          }
+        ]
+      }
+    },
+    "response": {
+      "status": 201,
+      "body": {
+        "data": {
+          "id": "ord-e1cbac92-46fb-4b55-8a04-cb3c0e1af37d",
+          "customerName": "Lab 10 publisher-pulih",
+          "items": [
+            {
+              "productId": "prod-001",
+              "name": "Kopi Arabika Gayo",
+              "quantity": 1,
+              "unitPrice": 85000,
+              "subtotal": 85000
+            }
+          ],
+          "total": 85000,
+          "status": "pending",
+          "createdAt": "2026-11-04T09:41:22.434Z"
+        }
+      }
+    }
+  },
+  "storedOrderCount": 15,
+  "deliveredAfterReconnect": [
+    "ord-e1cbac92-46fb-4b55-8a04-cb3c0e1af37d"
+  ],
+  "queue": {
+    "queue": "notification-queue",
+    "durable": true,
+    "ready": 0,
+    "unacked": 0,
+    "consumers": 1
+  }
+}
+
+{"at":"2026-11-04T09:39:44.217Z","component":"publisher","kind":"ready","exchange":"orders","message":"Terhubung ke RabbitMQ; publisher siap."}
+
+{"at":"2026-11-04T09:41:19.358Z","component":"publisher","kind":"disconnected","message":"RabbitMQ terputus; mencoba terhubung kembali."}
+
+{"at":"2026-11-04T09:41:19.477Z","component":"publisher","kind":"not-published","orderId":"ord-e18aa753-99d6-489d-b126-67c3b6f3a407","messageId":"order-ord-e18aa753-99d6-489d-b126-67c3b6f3a407","message":"Event TIDAK terkirim; order tetap disimpan. Tidak ada outbox/replay otomatis."}
+
+{"at":"2026-11-04T09:41:22.392Z","component":"publisher","kind":"ready","exchange":"orders","message":"Terhubung ke RabbitMQ; publisher siap."}

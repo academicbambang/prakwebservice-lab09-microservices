@@ -7,6 +7,7 @@ const { OrderError, validateOrderInput, priceOrder } = require('./order');
 function createOrderApp({
   catalogUrl = process.env.CATALOG_SERVICE_URL || 'http://127.0.0.1:3000',
   fetchImpl = fetch,
+  publishOrderCreated = () => false,
 } = {}) {
   const app = express();
   const orders = new Map();
@@ -124,6 +125,8 @@ function createOrderApp({
 
     // Reservasi dan penyimpanan order belum memakai transaksi lintas service/kompensasi.
     orders.set(order.id, order);
+    // Synchronous enqueue only. Delivery/ack/email happen outside the HTTP request.
+    publishOrderCreated(order);
     return res.status(201).location(`/orders/${order.id}`).json({ data: order });
   });
 

@@ -1,0 +1,19 @@
+07 / Deduplikasi lokal & pesan rusak
+
+Duplikat dalam proses yang sama di-ack tanpa email baru; JSON rusak di-nack tanpa requeue.
+
+{
+  "originalMessageId": "order-ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb",
+  "newEmailsForDuplicate": 0,
+  "queue": {
+    "queue": "notification-queue",
+    "durable": true,
+    "ready": 0,
+    "unacked": 0,
+    "consumers": 1
+  }
+}
+
+{"at":"2026-11-04T09:41:09.441Z","component":"consumer","queue":"notification-queue","consumer":"after-crash","kind":"duplicate","messageId":"order-ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb","orderId":"ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb","message":"Duplikat dalam proses ini, dilewati."}
+
+{"at":"2026-11-04T09:41:09.447Z","component":"consumer","queue":"notification-queue","consumer":"after-crash","kind":"invalid","messageId":"invalid-demo","message":"Pesan rusak/tidak valid, dibuang tanpa requeue."}

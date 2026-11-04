@@ -1,0 +1,60 @@
+01 / Alur normal
+
+Order HTTP 201 diterima sebelum email simulasi selesai.
+
+{
+  "http": {
+    "startedAt": "2026-11-04T09:39:44.611Z",
+    "durationMs": 96,
+    "request": {
+      "method": "POST",
+      "url": "http://127.0.0.1:52470/order-service/orders",
+      "body": {
+        "customerName": "Lab 10 normal",
+        "items": [
+          {
+            "productId": "prod-001",
+            "quantity": 1
+          }
+        ]
+      }
+    },
+    "response": {
+      "status": 201,
+      "body": {
+        "data": {
+          "id": "ord-fa76175f-84eb-4478-bf44-e6a431304efa",
+          "customerName": "Lab 10 normal",
+          "items": [
+            {
+              "productId": "prod-001",
+              "name": "Kopi Arabika Gayo",
+              "quantity": 1,
+              "unitPrice": 85000,
+              "subtotal": 85000
+            }
+          ],
+          "total": 85000,
+          "status": "pending",
+          "createdAt": "2026-11-04T09:39:44.700Z"
+        }
+      }
+    }
+  },
+  "emailsAtHttpResponse": 0,
+  "queueAfterAck": {
+    "queue": "notification-queue",
+    "durable": true,
+    "ready": 0,
+    "unacked": 0,
+    "consumers": 1
+  }
+}
+
+{"at":"2026-11-04T09:39:43.686Z","component":"consumer","queue":"notification-queue","consumer":"normal","kind":"ready","exchange":"orders","prefetch":1,"message":"[notification-queue/normal] menunggu pesan..."}
+
+{"at":"2026-11-04T09:39:44.711Z","component":"consumer","queue":"notification-queue","consumer":"normal","kind":"received","messageId":"order-ord-fa76175f-84eb-4478-bf44-e6a431304efa","orderId":"ord-fa76175f-84eb-4478-bf44-e6a431304efa","redelivered":false}
+
+{"at":"2026-11-04T09:39:45.723Z","component":"consumer","queue":"notification-queue","consumer":"normal","kind":"email","messageId":"order-ord-fa76175f-84eb-4478-bf44-e6a431304efa","orderId":"ord-fa76175f-84eb-4478-bf44-e6a431304efa","redelivered":false,"message":"[notification-queue/normal] email terkirim (simulasi): pesanan #ord-fa76175f-84eb-4478-bf44-e6a431304efa Kopi Arabika Gayo x1"}
+
+{"at":"2026-11-04T09:39:45.725Z","component":"consumer","queue":"notification-queue","consumer":"normal","kind":"acked","messageId":"order-ord-fa76175f-84eb-4478-bf44-e6a431304efa","orderId":"ord-fa76175f-84eb-4478-bf44-e6a431304efa"}

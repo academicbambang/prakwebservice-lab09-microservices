@@ -4,7 +4,7 @@ Bukti ini berasal dari pengujian lokal implementasi Lab 09 milik **Bambang Herla
 
 ## Sumber eksekusi
 
-- [`tests.txt`](tests.txt) adalah keluaran `npm test`: **58 test lulus, 0 gagal**.
+- [`tests.txt`](tests.txt) adalah keluaran `npm test` pada Lab 09: **67 test lulus, 0 gagal**. Hasil suite setelah penambahan Lab 10 dicatat di folder bukti Lab 10.
 - [`smoke-test.json`](smoke-test.json) dan [`smoke-test.txt`](smoke-test.txt) dihasilkan oleh `npm run test:lab09` dari request HTTP aktual melalui gateway. Hasilnya 3 produk, pesanan `201`, stok `40 → 38`, dan total `170000`.
 - [`service-failure.json`](service-failure.json) dan [`service-failure.txt`](service-failure.txt) berasal dari eksekusi demo yang sama. Skrip menghentikan hanya proses katalog, memeriksa POST `503` dan GET `200`, menghidupkan kembali katalog, lalu memeriksa POST `201`. Verifikasi akhir menemukan dua pesanan tersimpan dan stok kopi `38`.
 - [`index.html`](index.html) dibentuk dari rekaman request/respons eksekusi tersebut agar bukti dapat dibaca dan ditangkap dengan browser.

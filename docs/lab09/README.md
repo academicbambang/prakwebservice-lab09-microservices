@@ -59,7 +59,7 @@ Uji monolit sesuai [petunjuknya](../../monolith/README.md), lalu hentikan monoli
 npm start
 ```
 
-Default lokal: katalog `127.0.0.1:3000`, pesanan `127.0.0.1:3001`, gateway `127.0.0.1:8080`. Ketika perlu mematikan **hanya katalog**, jalankan ketiga proses di terminal terpisah sebagai berikut, karena launcher `npm start` menghentikan seluruh stack ketika salah satu child keluar:
+Default lokal: katalog `127.0.0.1:3000`, pesanan `127.0.0.1:3001`, gateway `127.0.0.1:8080`. Ketika perlu mematikan **hanya katalog**, jalankan ketiga proses di terminal terpisah sebagai berikut agar tiap proses dapat dikendalikan dengan Ctrl+C. Mulai Lab 10, launcher juga membiarkan service lain tetap hidup ketika satu child keluar:
 
 ```sh
 node catalog-service/server.js

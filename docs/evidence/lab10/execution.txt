@@ -1,0 +1,527 @@
+LAB 10 / Eksekusi aktual: 2026-11-04T09:39:42.931Z
+
+Status: LULUS
+
+Virtual host terisolasi: lab10-20261104093942931-3ce6
+
+01 / Alur normal
+
+Order HTTP 201 diterima sebelum email simulasi selesai.
+
+{
+  "http": {
+    "startedAt": "2026-11-04T09:39:44.611Z",
+    "durationMs": 96,
+    "request": {
+      "method": "POST",
+      "url": "http://127.0.0.1:52470/order-service/orders",
+      "body": {
+        "customerName": "Lab 10 normal",
+        "items": [
+          {
+            "productId": "prod-001",
+            "quantity": 1
+          }
+        ]
+      }
+    },
+    "response": {
+      "status": 201,
+      "body": {
+        "data": {
+          "id": "ord-fa76175f-84eb-4478-bf44-e6a431304efa",
+          "customerName": "Lab 10 normal",
+          "items": [
+            {
+              "productId": "prod-001",
+              "name": "Kopi Arabika Gayo",
+              "quantity": 1,
+              "unitPrice": 85000,
+              "subtotal": 85000
+            }
+          ],
+          "total": 85000,
+          "status": "pending",
+          "createdAt": "2026-11-04T09:39:44.700Z"
+        }
+      }
+    }
+  },
+  "emailsAtHttpResponse": 0,
+  "queueAfterAck": {
+    "queue": "notification-queue",
+    "durable": true,
+    "ready": 0,
+    "unacked": 0,
+    "consumers": 1
+  }
+}
+
+{"at":"2026-11-04T09:39:43.686Z","component":"consumer","queue":"notification-queue","consumer":"normal","kind":"ready","exchange":"orders","prefetch":1,"message":"[notification-queue/normal] menunggu pesan..."}
+
+{"at":"2026-11-04T09:39:44.711Z","component":"consumer","queue":"notification-queue","consumer":"normal","kind":"received","messageId":"order-ord-fa76175f-84eb-4478-bf44-e6a431304efa","orderId":"ord-fa76175f-84eb-4478-bf44-e6a431304efa","redelivered":false}
+
+{"at":"2026-11-04T09:39:45.723Z","component":"consumer","queue":"notification-queue","consumer":"normal","kind":"email","messageId":"order-ord-fa76175f-84eb-4478-bf44-e6a431304efa","orderId":"ord-fa76175f-84eb-4478-bf44-e6a431304efa","redelivered":false,"message":"[notification-queue/normal] email terkirim (simulasi): pesanan #ord-fa76175f-84eb-4478-bf44-e6a431304efa Kopi Arabika Gayo x1"}
+
+{"at":"2026-11-04T09:39:45.725Z","component":"consumer","queue":"notification-queue","consumer":"normal","kind":"acked","messageId":"order-ord-fa76175f-84eb-4478-bf44-e6a431304efa","orderId":"ord-fa76175f-84eb-4478-bf44-e6a431304efa"}
+
+02 / Consumer mati
+
+Tiga order tetap HTTP 201; notification-queue Ready=3, Unacked=0, Consumers=0.
+
+{
+  "orders": [
+    {
+      "startedAt": "2026-11-04T09:39:54.409Z",
+      "durationMs": 22,
+      "request": {
+        "method": "POST",
+        "url": "http://127.0.0.1:52470/order-service/orders",
+        "body": {
+          "customerName": "Lab 10 consumer-mati-1",
+          "items": [
+            {
+              "productId": "prod-001",
+              "quantity": 1
+            }
+          ]
+        }
+      },
+      "response": {
+        "status": 201,
+        "body": {
+          "data": {
+            "id": "ord-419493ee-f96d-445c-83f0-13c039882429",
+            "customerName": "Lab 10 consumer-mati-1",
+            "items": [
+              {
+                "productId": "prod-001",
+                "name": "Kopi Arabika Gayo",
+                "quantity": 1,
+                "unitPrice": 85000,
+                "subtotal": 85000
+              }
+            ],
+            "total": 85000,
+            "status": "pending",
+            "createdAt": "2026-11-04T09:39:54.426Z"
+          }
+        }
+      }
+    },
+    {
+      "startedAt": "2026-11-04T09:39:54.431Z",
+      "durationMs": 18,
+      "request": {
+        "method": "POST",
+        "url": "http://127.0.0.1:52470/order-service/orders",
+        "body": {
+          "customerName": "Lab 10 consumer-mati-2",
+          "items": [
+            {
+              "productId": "prod-001",
+              "quantity": 1
+            }
+          ]
+        }
+      },
+      "response": {
+        "status": 201,
+        "body": {
+          "data": {
+            "id": "ord-eebf7d5e-e21e-430a-9128-a1e30186f43a",
+            "customerName": "Lab 10 consumer-mati-2",
+            "items": [
+              {
+                "productId": "prod-001",
+                "name": "Kopi Arabika Gayo",
+                "quantity": 1,
+                "unitPrice": 85000,
+                "subtotal": 85000
+              }
+            ],
+            "total": 85000,
+            "status": "pending",
+            "createdAt": "2026-11-04T09:39:54.444Z"
+          }
+        }
+      }
+    },
+    {
+      "startedAt": "2026-11-04T09:39:54.449Z",
+      "durationMs": 18,
+      "request": {
+        "method": "POST",
+        "url": "http://127.0.0.1:52470/order-service/orders",
+        "body": {
+          "customerName": "Lab 10 consumer-mati-3",
+          "items": [
+            {
+              "productId": "prod-001",
+              "quantity": 1
+            }
+          ]
+        }
+      },
+      "response": {
+        "status": 201,
+        "body": {
+          "data": {
+            "id": "ord-52e20e22-7d5e-4b0a-912d-d99a73c59ed0",
+            "customerName": "Lab 10 consumer-mati-3",
+            "items": [
+              {
+                "productId": "prod-001",
+                "name": "Kopi Arabika Gayo",
+                "quantity": 1,
+                "unitPrice": 85000,
+                "subtotal": 85000
+              }
+            ],
+            "total": 85000,
+            "status": "pending",
+            "createdAt": "2026-11-04T09:39:54.462Z"
+          }
+        }
+      }
+    }
+  ],
+  "queue": {
+    "queue": "notification-queue",
+    "durable": true,
+    "ready": 3,
+    "unacked": 0,
+    "consumers": 0
+  }
+}
+
+03 / Consumer pulih
+
+Ketiga event tertahan diproses dan di-ack; Ready kembali 0.
+
+{
+  "queue": {
+    "queue": "notification-queue",
+    "durable": true,
+    "ready": 0,
+    "unacked": 0,
+    "consumers": 1
+  },
+  "processedOrders": [
+    "ord-419493ee-f96d-445c-83f0-13c039882429",
+    "ord-eebf7d5e-e21e-430a-9128-a1e30186f43a",
+    "ord-52e20e22-7d5e-4b0a-912d-d99a73c59ed0"
+  ]
+}
+
+{"at":"2026-11-04T09:40:02.211Z","component":"consumer","queue":"notification-queue","consumer":"recovered","kind":"received","messageId":"order-ord-419493ee-f96d-445c-83f0-13c039882429","orderId":"ord-419493ee-f96d-445c-83f0-13c039882429","redelivered":false}
+
+{"at":"2026-11-04T09:40:02.213Z","component":"consumer","queue":"notification-queue","consumer":"recovered","kind":"ready","exchange":"orders","prefetch":1,"message":"[notification-queue/recovered] menunggu pesan..."}
+
+{"at":"2026-11-04T09:40:03.220Z","component":"consumer","queue":"notification-queue","consumer":"recovered","kind":"email","messageId":"order-ord-419493ee-f96d-445c-83f0-13c039882429","orderId":"ord-419493ee-f96d-445c-83f0-13c039882429","redelivered":false,"message":"[notification-queue/recovered] email terkirim (simulasi): pesanan #ord-419493ee-f96d-445c-83f0-13c039882429 Kopi Arabika Gayo x1"}
+
+{"at":"2026-11-04T09:40:03.221Z","component":"consumer","queue":"notification-queue","consumer":"recovered","kind":"acked","messageId":"order-ord-419493ee-f96d-445c-83f0-13c039882429","orderId":"ord-419493ee-f96d-445c-83f0-13c039882429"}
+
+{"at":"2026-11-04T09:40:03.224Z","component":"consumer","queue":"notification-queue","consumer":"recovered","kind":"received","messageId":"order-ord-eebf7d5e-e21e-430a-9128-a1e30186f43a","orderId":"ord-eebf7d5e-e21e-430a-9128-a1e30186f43a","redelivered":false}
+
+{"at":"2026-11-04T09:40:04.229Z","component":"consumer","queue":"notification-queue","consumer":"recovered","kind":"email","messageId":"order-ord-eebf7d5e-e21e-430a-9128-a1e30186f43a","orderId":"ord-eebf7d5e-e21e-430a-9128-a1e30186f43a","redelivered":false,"message":"[notification-queue/recovered] email terkirim (simulasi): pesanan #ord-eebf7d5e-e21e-430a-9128-a1e30186f43a Kopi Arabika Gayo x1"}
+
+{"at":"2026-11-04T09:40:04.229Z","component":"consumer","queue":"notification-queue","consumer":"recovered","kind":"acked","messageId":"order-ord-eebf7d5e-e21e-430a-9128-a1e30186f43a","orderId":"ord-eebf7d5e-e21e-430a-9128-a1e30186f43a"}
+
+{"at":"2026-11-04T09:40:04.232Z","component":"consumer","queue":"notification-queue","consumer":"recovered","kind":"received","messageId":"order-ord-52e20e22-7d5e-4b0a-912d-d99a73c59ed0","orderId":"ord-52e20e22-7d5e-4b0a-912d-d99a73c59ed0","redelivered":false}
+
+{"at":"2026-11-04T09:40:05.242Z","component":"consumer","queue":"notification-queue","consumer":"recovered","kind":"email","messageId":"order-ord-52e20e22-7d5e-4b0a-912d-d99a73c59ed0","orderId":"ord-52e20e22-7d5e-4b0a-912d-d99a73c59ed0","redelivered":false,"message":"[notification-queue/recovered] email terkirim (simulasi): pesanan #ord-52e20e22-7d5e-4b0a-912d-d99a73c59ed0 Kopi Arabika Gayo x1"}
+
+{"at":"2026-11-04T09:40:05.243Z","component":"consumer","queue":"notification-queue","consumer":"recovered","kind":"acked","messageId":"order-ord-52e20e22-7d5e-4b0a-912d-d99a73c59ed0","orderId":"ord-52e20e22-7d5e-4b0a-912d-d99a73c59ed0"}
+
+04 / Competing consumers
+
+Satu antrean, enam event dibagi: worker-A=3, worker-B=3; tidak ada ID yang diproses dua worker.
+
+{
+  "sentOrderIds": [
+    "ord-1ca4c917-7466-4227-ac17-a92c96385ec2",
+    "ord-18dbd29a-cdc6-41c2-8e52-0466230793c1",
+    "ord-596bf0a7-5307-4727-9d92-a01b07cbd011",
+    "ord-fc4957e7-1fb4-417e-88b6-e87c89c98725",
+    "ord-61d14e23-393f-4643-9355-610099b33074",
+    "ord-a6ea144f-6674-4eab-b81c-452d71aacf3a"
+  ],
+  "workerA": [
+    "ord-18dbd29a-cdc6-41c2-8e52-0466230793c1",
+    "ord-fc4957e7-1fb4-417e-88b6-e87c89c98725",
+    "ord-a6ea144f-6674-4eab-b81c-452d71aacf3a"
+  ],
+  "workerB": [
+    "ord-1ca4c917-7466-4227-ac17-a92c96385ec2",
+    "ord-596bf0a7-5307-4727-9d92-a01b07cbd011",
+    "ord-61d14e23-393f-4643-9355-610099b33074"
+  ],
+  "queue": {
+    "queue": "notification-queue",
+    "durable": true,
+    "ready": 0,
+    "unacked": 0,
+    "consumers": 2
+  }
+}
+
+{"at":"2026-11-04T09:40:14.508Z","component":"consumer","queue":"notification-queue","consumer":"worker-A","kind":"ready","exchange":"orders","prefetch":1,"message":"[notification-queue/worker-A] menunggu pesan..."}
+
+{"at":"2026-11-04T09:40:14.508Z","component":"consumer","queue":"notification-queue","consumer":"worker-B","kind":"ready","exchange":"orders","prefetch":1,"message":"[notification-queue/worker-B] menunggu pesan..."}
+
+{"at":"2026-11-04T09:40:19.426Z","component":"consumer","queue":"notification-queue","consumer":"worker-B","kind":"received","messageId":"order-ord-1ca4c917-7466-4227-ac17-a92c96385ec2","orderId":"ord-1ca4c917-7466-4227-ac17-a92c96385ec2","redelivered":false}
+
+{"at":"2026-11-04T09:40:19.437Z","component":"consumer","queue":"notification-queue","consumer":"worker-A","kind":"received","messageId":"order-ord-18dbd29a-cdc6-41c2-8e52-0466230793c1","orderId":"ord-18dbd29a-cdc6-41c2-8e52-0466230793c1","redelivered":false}
+
+{"at":"2026-11-04T09:40:20.432Z","component":"consumer","queue":"notification-queue","consumer":"worker-B","kind":"email","messageId":"order-ord-1ca4c917-7466-4227-ac17-a92c96385ec2","orderId":"ord-1ca4c917-7466-4227-ac17-a92c96385ec2","redelivered":false,"message":"[notification-queue/worker-B] email terkirim (simulasi): pesanan #ord-1ca4c917-7466-4227-ac17-a92c96385ec2 Kopi Arabika Gayo x1"}
+
+{"at":"2026-11-04T09:40:20.433Z","component":"consumer","queue":"notification-queue","consumer":"worker-B","kind":"acked","messageId":"order-ord-1ca4c917-7466-4227-ac17-a92c96385ec2","orderId":"ord-1ca4c917-7466-4227-ac17-a92c96385ec2"}
+
+{"at":"2026-11-04T09:40:20.436Z","component":"consumer","queue":"notification-queue","consumer":"worker-B","kind":"received","messageId":"order-ord-596bf0a7-5307-4727-9d92-a01b07cbd011","orderId":"ord-596bf0a7-5307-4727-9d92-a01b07cbd011","redelivered":false}
+
+{"at":"2026-11-04T09:40:20.448Z","component":"consumer","queue":"notification-queue","consumer":"worker-A","kind":"email","messageId":"order-ord-18dbd29a-cdc6-41c2-8e52-0466230793c1","orderId":"ord-18dbd29a-cdc6-41c2-8e52-0466230793c1","redelivered":false,"message":"[notification-queue/worker-A] email terkirim (simulasi): pesanan #ord-18dbd29a-cdc6-41c2-8e52-0466230793c1 Kopi Arabika Gayo x1"}
+
+{"at":"2026-11-04T09:40:20.449Z","component":"consumer","queue":"notification-queue","consumer":"worker-A","kind":"acked","messageId":"order-ord-18dbd29a-cdc6-41c2-8e52-0466230793c1","orderId":"ord-18dbd29a-cdc6-41c2-8e52-0466230793c1"}
+
+{"at":"2026-11-04T09:40:20.451Z","component":"consumer","queue":"notification-queue","consumer":"worker-A","kind":"received","messageId":"order-ord-fc4957e7-1fb4-417e-88b6-e87c89c98725","orderId":"ord-fc4957e7-1fb4-417e-88b6-e87c89c98725","redelivered":false}
+
+{"at":"2026-11-04T09:40:21.446Z","component":"consumer","queue":"notification-queue","consumer":"worker-B","kind":"email","messageId":"order-ord-596bf0a7-5307-4727-9d92-a01b07cbd011","orderId":"ord-596bf0a7-5307-4727-9d92-a01b07cbd011","redelivered":false,"message":"[notification-queue/worker-B] email terkirim (simulasi): pesanan #ord-596bf0a7-5307-4727-9d92-a01b07cbd011 Kopi Arabika Gayo x1"}
+
+{"at":"2026-11-04T09:40:21.446Z","component":"consumer","queue":"notification-queue","consumer":"worker-B","kind":"acked","messageId":"order-ord-596bf0a7-5307-4727-9d92-a01b07cbd011","orderId":"ord-596bf0a7-5307-4727-9d92-a01b07cbd011"}
+
+{"at":"2026-11-04T09:40:21.450Z","component":"consumer","queue":"notification-queue","consumer":"worker-B","kind":"received","messageId":"order-ord-61d14e23-393f-4643-9355-610099b33074","orderId":"ord-61d14e23-393f-4643-9355-610099b33074","redelivered":false}
+
+{"at":"2026-11-04T09:40:21.461Z","component":"consumer","queue":"notification-queue","consumer":"worker-A","kind":"email","messageId":"order-ord-fc4957e7-1fb4-417e-88b6-e87c89c98725","orderId":"ord-fc4957e7-1fb4-417e-88b6-e87c89c98725","redelivered":false,"message":"[notification-queue/worker-A] email terkirim (simulasi): pesanan #ord-fc4957e7-1fb4-417e-88b6-e87c89c98725 Kopi Arabika Gayo x1"}
+
+{"at":"2026-11-04T09:40:21.462Z","component":"consumer","queue":"notification-queue","consumer":"worker-A","kind":"acked","messageId":"order-ord-fc4957e7-1fb4-417e-88b6-e87c89c98725","orderId":"ord-fc4957e7-1fb4-417e-88b6-e87c89c98725"}
+
+{"at":"2026-11-04T09:40:21.466Z","component":"consumer","queue":"notification-queue","consumer":"worker-A","kind":"received","messageId":"order-ord-a6ea144f-6674-4eab-b81c-452d71aacf3a","orderId":"ord-a6ea144f-6674-4eab-b81c-452d71aacf3a","redelivered":false}
+
+{"at":"2026-11-04T09:40:22.458Z","component":"consumer","queue":"notification-queue","consumer":"worker-B","kind":"email","messageId":"order-ord-61d14e23-393f-4643-9355-610099b33074","orderId":"ord-61d14e23-393f-4643-9355-610099b33074","redelivered":false,"message":"[notification-queue/worker-B] email terkirim (simulasi): pesanan #ord-61d14e23-393f-4643-9355-610099b33074 Kopi Arabika Gayo x1"}
+
+{"at":"2026-11-04T09:40:22.459Z","component":"consumer","queue":"notification-queue","consumer":"worker-B","kind":"acked","messageId":"order-ord-61d14e23-393f-4643-9355-610099b33074","orderId":"ord-61d14e23-393f-4643-9355-610099b33074"}
+
+{"at":"2026-11-04T09:40:22.473Z","component":"consumer","queue":"notification-queue","consumer":"worker-A","kind":"email","messageId":"order-ord-a6ea144f-6674-4eab-b81c-452d71aacf3a","orderId":"ord-a6ea144f-6674-4eab-b81c-452d71aacf3a","redelivered":false,"message":"[notification-queue/worker-A] email terkirim (simulasi): pesanan #ord-a6ea144f-6674-4eab-b81c-452d71aacf3a Kopi Arabika Gayo x1"}
+
+{"at":"2026-11-04T09:40:22.474Z","component":"consumer","queue":"notification-queue","consumer":"worker-A","kind":"acked","messageId":"order-ord-a6ea144f-6674-4eab-b81c-452d71aacf3a","orderId":"ord-a6ea144f-6674-4eab-b81c-452d71aacf3a"}
+
+05 / Publish-subscribe
+
+Dua antrean berbeda menerima salinan dari dua event yang sama: dua notifikasi dan dua audit simulasi.
+
+{
+  "sentOrderIds": [
+    "ord-331dba3e-fb00-4c14-81eb-dfa1756312af",
+    "ord-5c68995d-e168-45ff-a250-e262a57b02a4"
+  ],
+  "queues": [
+    {
+      "queue": "notification-queue",
+      "durable": true,
+      "ready": 0,
+      "unacked": 0,
+      "consumers": 1
+    },
+    {
+      "queue": "audit-queue",
+      "durable": true,
+      "ready": 0,
+      "unacked": 0,
+      "consumers": 1
+    }
+  ]
+}
+
+{"at":"2026-11-04T09:40:29.555Z","component":"consumer","queue":"notification-queue","consumer":"pubsub-notification","kind":"ready","exchange":"orders","prefetch":1,"message":"[notification-queue/pubsub-notification] menunggu pesan..."}
+
+{"at":"2026-11-04T09:40:29.567Z","component":"consumer","queue":"audit-queue","consumer":"pubsub-audit","kind":"ready","exchange":"orders","prefetch":1,"message":"[audit-queue/pubsub-audit] menunggu pesan..."}
+
+{"at":"2026-11-04T09:40:29.642Z","component":"consumer","queue":"notification-queue","consumer":"pubsub-notification","kind":"received","messageId":"order-ord-331dba3e-fb00-4c14-81eb-dfa1756312af","orderId":"ord-331dba3e-fb00-4c14-81eb-dfa1756312af","redelivered":false}
+
+{"at":"2026-11-04T09:40:29.645Z","component":"consumer","queue":"audit-queue","consumer":"pubsub-audit","kind":"received","messageId":"order-ord-331dba3e-fb00-4c14-81eb-dfa1756312af","orderId":"ord-331dba3e-fb00-4c14-81eb-dfa1756312af","redelivered":false}
+
+{"at":"2026-11-04T09:40:30.643Z","component":"consumer","queue":"notification-queue","consumer":"pubsub-notification","kind":"email","messageId":"order-ord-331dba3e-fb00-4c14-81eb-dfa1756312af","orderId":"ord-331dba3e-fb00-4c14-81eb-dfa1756312af","redelivered":false,"message":"[notification-queue/pubsub-notification] email terkirim (simulasi): pesanan #ord-331dba3e-fb00-4c14-81eb-dfa1756312af Kopi Arabika Gayo x1"}
+
+{"at":"2026-11-04T09:40:30.644Z","component":"consumer","queue":"notification-queue","consumer":"pubsub-notification","kind":"acked","messageId":"order-ord-331dba3e-fb00-4c14-81eb-dfa1756312af","orderId":"ord-331dba3e-fb00-4c14-81eb-dfa1756312af"}
+
+{"at":"2026-11-04T09:40:30.646Z","component":"consumer","queue":"notification-queue","consumer":"pubsub-notification","kind":"received","messageId":"order-ord-5c68995d-e168-45ff-a250-e262a57b02a4","orderId":"ord-5c68995d-e168-45ff-a250-e262a57b02a4","redelivered":false}
+
+{"at":"2026-11-04T09:40:30.658Z","component":"consumer","queue":"audit-queue","consumer":"pubsub-audit","kind":"email","messageId":"order-ord-331dba3e-fb00-4c14-81eb-dfa1756312af","orderId":"ord-331dba3e-fb00-4c14-81eb-dfa1756312af","redelivered":false,"message":"[audit-queue/pubsub-audit] email terkirim (simulasi): pesanan #ord-331dba3e-fb00-4c14-81eb-dfa1756312af Kopi Arabika Gayo x1"}
+
+{"at":"2026-11-04T09:40:30.659Z","component":"consumer","queue":"audit-queue","consumer":"pubsub-audit","kind":"acked","messageId":"order-ord-331dba3e-fb00-4c14-81eb-dfa1756312af","orderId":"ord-331dba3e-fb00-4c14-81eb-dfa1756312af"}
+
+{"at":"2026-11-04T09:40:30.660Z","component":"consumer","queue":"audit-queue","consumer":"pubsub-audit","kind":"received","messageId":"order-ord-5c68995d-e168-45ff-a250-e262a57b02a4","orderId":"ord-5c68995d-e168-45ff-a250-e262a57b02a4","redelivered":false}
+
+{"at":"2026-11-04T09:40:31.659Z","component":"consumer","queue":"notification-queue","consumer":"pubsub-notification","kind":"email","messageId":"order-ord-5c68995d-e168-45ff-a250-e262a57b02a4","orderId":"ord-5c68995d-e168-45ff-a250-e262a57b02a4","redelivered":false,"message":"[notification-queue/pubsub-notification] email terkirim (simulasi): pesanan #ord-5c68995d-e168-45ff-a250-e262a57b02a4 Kopi Arabika Gayo x1"}
+
+{"at":"2026-11-04T09:40:31.660Z","component":"consumer","queue":"notification-queue","consumer":"pubsub-notification","kind":"acked","messageId":"order-ord-5c68995d-e168-45ff-a250-e262a57b02a4","orderId":"ord-5c68995d-e168-45ff-a250-e262a57b02a4"}
+
+{"at":"2026-11-04T09:40:31.675Z","component":"consumer","queue":"audit-queue","consumer":"pubsub-audit","kind":"email","messageId":"order-ord-5c68995d-e168-45ff-a250-e262a57b02a4","orderId":"ord-5c68995d-e168-45ff-a250-e262a57b02a4","redelivered":false,"message":"[audit-queue/pubsub-audit] email terkirim (simulasi): pesanan #ord-5c68995d-e168-45ff-a250-e262a57b02a4 Kopi Arabika Gayo x1"}
+
+{"at":"2026-11-04T09:40:31.675Z","component":"consumer","queue":"audit-queue","consumer":"pubsub-audit","kind":"acked","messageId":"order-ord-5c68995d-e168-45ff-a250-e262a57b02a4","orderId":"ord-5c68995d-e168-45ff-a250-e262a57b02a4"}
+
+06 / Crash sebelum ack & redelivery
+
+MessageId yang sama menghasilkan email simulasi dua kali; proses kedua menerima redelivered=true.
+
+{
+  "orderId": "ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb",
+  "messageId": "order-ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb",
+  "crashExitCode": 1,
+  "queueAfterCrash": {
+    "queue": "notification-queue",
+    "durable": true,
+    "ready": 1,
+    "unacked": 0,
+    "consumers": 0
+  },
+  "queueAfterRecovery": {
+    "queue": "notification-queue",
+    "durable": true,
+    "ready": 0,
+    "unacked": 0,
+    "consumers": 1
+  },
+  "simulatedEmailCount": 2,
+  "explanation": "Set processed hanya di memori. Setelah restart, ID lama hilang dan pesan diproses ulang."
+}
+
+{"at":"2026-11-04T09:40:49.585Z","component":"consumer","queue":"notification-queue","consumer":"crash-before-ack","kind":"ready","exchange":"orders","prefetch":1,"message":"[notification-queue/crash-before-ack] menunggu pesan..."}
+
+{"at":"2026-11-04T09:40:49.660Z","component":"consumer","queue":"notification-queue","consumer":"crash-before-ack","kind":"received","messageId":"order-ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb","orderId":"ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb","redelivered":false}
+
+{"at":"2026-11-04T09:40:50.666Z","component":"consumer","queue":"notification-queue","consumer":"crash-before-ack","kind":"email","messageId":"order-ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb","orderId":"ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb","redelivered":false,"message":"[notification-queue/crash-before-ack] email terkirim (simulasi): pesanan #ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb Kopi Arabika Gayo x1"}
+
+{"at":"2026-11-04T09:40:50.667Z","component":"consumer","queue":"notification-queue","consumer":"crash-before-ack","kind":"crash","messageId":"order-ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb","message":"Crash sebelum ack! Set processed akan hilang saat proses mati."}
+
+{"at":"2026-11-04T09:40:59.492Z","component":"consumer","queue":"notification-queue","consumer":"after-crash","kind":"received","messageId":"order-ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb","orderId":"ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb","redelivered":true}
+
+{"at":"2026-11-04T09:40:59.495Z","component":"consumer","queue":"notification-queue","consumer":"after-crash","kind":"ready","exchange":"orders","prefetch":1,"message":"[notification-queue/after-crash] menunggu pesan..."}
+
+{"at":"2026-11-04T09:41:00.496Z","component":"consumer","queue":"notification-queue","consumer":"after-crash","kind":"email","messageId":"order-ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb","orderId":"ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb","redelivered":true,"message":"[notification-queue/after-crash] email terkirim (simulasi): pesanan #ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb Kopi Arabika Gayo x1"}
+
+{"at":"2026-11-04T09:41:00.496Z","component":"consumer","queue":"notification-queue","consumer":"after-crash","kind":"acked","messageId":"order-ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb","orderId":"ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb"}
+
+07 / Deduplikasi lokal & pesan rusak
+
+Duplikat dalam proses yang sama di-ack tanpa email baru; JSON rusak di-nack tanpa requeue.
+
+{
+  "originalMessageId": "order-ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb",
+  "newEmailsForDuplicate": 0,
+  "queue": {
+    "queue": "notification-queue",
+    "durable": true,
+    "ready": 0,
+    "unacked": 0,
+    "consumers": 1
+  }
+}
+
+{"at":"2026-11-04T09:41:09.441Z","component":"consumer","queue":"notification-queue","consumer":"after-crash","kind":"duplicate","messageId":"order-ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb","orderId":"ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb","message":"Duplikat dalam proses ini, dilewati."}
+
+{"at":"2026-11-04T09:41:09.447Z","component":"consumer","queue":"notification-queue","consumer":"after-crash","kind":"invalid","messageId":"invalid-demo","message":"Pesan rusak/tidak valid, dibuang tanpa requeue."}
+
+08 / Publisher terputus & pulih
+
+Saat koneksi publisher ditutup, order tetap 201 tetapi event hilang. Setelah reconnect, order baru mengirim event; event yang hilang tidak diulang.
+
+{
+  "interruption": "Management API menutup hanya koneksi publisher, bukan mematikan seluruh broker.",
+  "orderDuringDisconnect": {
+    "startedAt": "2026-11-04T09:41:19.468Z",
+    "durationMs": 11,
+    "request": {
+      "method": "POST",
+      "url": "http://127.0.0.1:52470/order-service/orders",
+      "body": {
+        "customerName": "Lab 10 publisher-terputus",
+        "items": [
+          {
+            "productId": "prod-001",
+            "quantity": 1
+          }
+        ]
+      }
+    },
+    "response": {
+      "status": 201,
+      "body": {
+        "data": {
+          "id": "ord-e18aa753-99d6-489d-b126-67c3b6f3a407",
+          "customerName": "Lab 10 publisher-terputus",
+          "items": [
+            {
+              "productId": "prod-001",
+              "name": "Kopi Arabika Gayo",
+              "quantity": 1,
+              "unitPrice": 85000,
+              "subtotal": 85000
+            }
+          ],
+          "total": 85000,
+          "status": "pending",
+          "createdAt": "2026-11-04T09:41:19.477Z"
+        }
+      }
+    }
+  },
+  "orderAfterReconnect": {
+    "startedAt": "2026-11-04T09:41:22.427Z",
+    "durationMs": 9,
+    "request": {
+      "method": "POST",
+      "url": "http://127.0.0.1:52470/order-service/orders",
+      "body": {
+        "customerName": "Lab 10 publisher-pulih",
+        "items": [
+          {
+            "productId": "prod-001",
+            "quantity": 1
+          }
+        ]
+      }
+    },
+    "response": {
+      "status": 201,
+      "body": {
+        "data": {
+          "id": "ord-e1cbac92-46fb-4b55-8a04-cb3c0e1af37d",
+          "customerName": "Lab 10 publisher-pulih",
+          "items": [
+            {
+              "productId": "prod-001",
+              "name": "Kopi Arabika Gayo",
+              "quantity": 1,
+              "unitPrice": 85000,
+              "subtotal": 85000
+            }
+          ],
+          "total": 85000,
+          "status": "pending",
+          "createdAt": "2026-11-04T09:41:22.434Z"
+        }
+      }
+    }
+  },
+  "storedOrderCount": 15,
+  "deliveredAfterReconnect": [
+    "ord-e1cbac92-46fb-4b55-8a04-cb3c0e1af37d"
+  ],
+  "queue": {
+    "queue": "notification-queue",
+    "durable": true,
+    "ready": 0,
+    "unacked": 0,
+    "consumers": 1
+  }
+}
+
+{"at":"2026-11-04T09:39:44.217Z","component":"publisher","kind":"ready","exchange":"orders","message":"Terhubung ke RabbitMQ; publisher siap."}
+
+{"at":"2026-11-04T09:41:19.358Z","component":"publisher","kind":"disconnected","message":"RabbitMQ terputus; mencoba terhubung kembali."}
+
+{"at":"2026-11-04T09:41:19.477Z","component":"publisher","kind":"not-published","orderId":"ord-e18aa753-99d6-489d-b126-67c3b6f3a407","messageId":"order-ord-e18aa753-99d6-489d-b126-67c3b6f3a407","message":"Event TIDAK terkirim; order tetap disimpan. Tidak ada outbox/replay otomatis."}
+
+{"at":"2026-11-04T09:41:22.392Z","component":"publisher","kind":"ready","exchange":"orders","message":"Terhubung ke RabbitMQ; publisher siap."}

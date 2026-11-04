@@ -1,0 +1,41 @@
+06 / Crash sebelum ack & redelivery
+
+MessageId yang sama menghasilkan email simulasi dua kali; proses kedua menerima redelivered=true.
+
+{
+  "orderId": "ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb",
+  "messageId": "order-ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb",
+  "crashExitCode": 1,
+  "queueAfterCrash": {
+    "queue": "notification-queue",
+    "durable": true,
+    "ready": 1,
+    "unacked": 0,
+    "consumers": 0
+  },
+  "queueAfterRecovery": {
+    "queue": "notification-queue",
+    "durable": true,
+    "ready": 0,
+    "unacked": 0,
+    "consumers": 1
+  },
+  "simulatedEmailCount": 2,
+  "explanation": "Set processed hanya di memori. Setelah restart, ID lama hilang dan pesan diproses ulang."
+}
+
+{"at":"2026-11-04T09:40:49.585Z","component":"consumer","queue":"notification-queue","consumer":"crash-before-ack","kind":"ready","exchange":"orders","prefetch":1,"message":"[notification-queue/crash-before-ack] menunggu pesan..."}
+
+{"at":"2026-11-04T09:40:49.660Z","component":"consumer","queue":"notification-queue","consumer":"crash-before-ack","kind":"received","messageId":"order-ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb","orderId":"ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb","redelivered":false}
+
+{"at":"2026-11-04T09:40:50.666Z","component":"consumer","queue":"notification-queue","consumer":"crash-before-ack","kind":"email","messageId":"order-ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb","orderId":"ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb","redelivered":false,"message":"[notification-queue/crash-before-ack] email terkirim (simulasi): pesanan #ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb Kopi Arabika Gayo x1"}
+
+{"at":"2026-11-04T09:40:50.667Z","component":"consumer","queue":"notification-queue","consumer":"crash-before-ack","kind":"crash","messageId":"order-ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb","message":"Crash sebelum ack! Set processed akan hilang saat proses mati."}
+
+{"at":"2026-11-04T09:40:59.492Z","component":"consumer","queue":"notification-queue","consumer":"after-crash","kind":"received","messageId":"order-ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb","orderId":"ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb","redelivered":true}
+
+{"at":"2026-11-04T09:40:59.495Z","component":"consumer","queue":"notification-queue","consumer":"after-crash","kind":"ready","exchange":"orders","prefetch":1,"message":"[notification-queue/after-crash] menunggu pesan..."}
+
+{"at":"2026-11-04T09:41:00.496Z","component":"consumer","queue":"notification-queue","consumer":"after-crash","kind":"email","messageId":"order-ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb","orderId":"ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb","redelivered":true,"message":"[notification-queue/after-crash] email terkirim (simulasi): pesanan #ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb Kopi Arabika Gayo x1"}
+
+{"at":"2026-11-04T09:41:00.496Z","component":"consumer","queue":"notification-queue","consumer":"after-crash","kind":"acked","messageId":"order-ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb","orderId":"ord-0e1f5944-1f8c-407c-9fb7-90644dfd90fb"}

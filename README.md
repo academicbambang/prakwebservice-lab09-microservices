@@ -1,6 +1,34 @@
-# Lab 09: Microservices Marketplace UMKM
+# Lab 09–10: Microservices Marketplace UMKM
 
-**Bambang Herlambang — NRP 5803024019 — Praktikum individu**
+## Lab 10: komunikasi asinkron dengan RabbitMQ
+
+Lab 10 melanjutkan repository Lab 09 ini. Order Service tetap mereservasi stok lewat HTTP, lalu menerbitkan `order.created` ke exchange fanout `orders`. Consumer `notification-service` memproses notifikasi simulasi dengan ack manual dan `prefetch(1)` tanpa menahan respons pesanan `201`.
+
+Tautan pengumpulan Lab 10: [branch `codex/lab10-message-queue` pada repository yang sama](https://github.com/academicbambang/prakwebservice-lab09-microservices/tree/codex/lab10-message-queue).
+
+- [Laporan lengkap, prosedur manual, penerapan proyek, dan refleksi Lab 10](docs/lab10/README.md).
+- [Bukti eksekusi RabbitMQ aktual](docs/evidence/lab10/README.md) dan [halaman hasil](docs/evidence/lab10/index.html).
+- [Diagram Lab 10](docs/lab10/arsitektur.png) dan [sumber Mermaid](docs/lab10/arsitektur.mmd).
+- [Laporan PDF Lab 10](output/pdf/laporan-praktikum-sesi-10.pdf).
+
+Mulai dari root repository dengan Docker Desktop aktif:
+
+```sh
+npm ci
+npm run setup
+npm run broker:up
+npm run start:notification
+```
+
+Biarkan consumer berjalan; di terminal lain jalankan `npm start`. Tunggu log publisher `ready`, lalu di terminal ketiga jalankan `npm run test:smoke`. Dashboard RabbitMQ lokal: `http://127.0.0.1:15672` (akun demo bawaan RabbitMQ sesuai panduan). Kredensial broker cloud hanya di environment `AMQP_URL`, tidak di Git.
+
+Pengujian otomatis terisolasi: `npm test` lalu `npm run test:lab10`. Untuk merekam ulang screenshot dashboard dan log, jalankan `npx playwright install chromium` sekali lalu `npm run test:lab10:evidence`. Demo membuat virtual host baru, tidak menghapus antrean pengguna, dan menutup seluruh proses demonya setelah selesai. Broker Docker tetap berjalan; hentikan dengan `npm run broker:stop` jika selesai.
+
+Launcher sekarang membiarkan service lain tetap hidup ketika satu child berhenti. Notification Service dijalankan terpisah agar dapat dimatikan/dihidupkan selama eksperimen. Uji `--crash` sengaja memperlihatkan duplikasi: Set deduplikasi hanya di memori. Tidak ada transactional outbox; jika publisher terputus, order dapat tersimpan tanpa event. Batasan dan rancangan perbaikannya dibahas di laporan.
+
+## Arsip dan implementasi Lab 09
+
+**Bambang Herlambang — NRP 5803024019 — Catatan pengerjaan Lab 09**
 
 Repository khusus Lab 09: [prakwebservice-lab09-microservices](https://github.com/academicbambang/prakwebservice-lab09-microservices). Gateway dipakai ulang dari [implementasi Lab 08](https://github.com/academicbambang/prakwebservice-lab08-api-gateway), lalu dilengkapi reservasi stok dan pengujian kegagalan antarservice.
 
@@ -95,7 +123,7 @@ npm test
 npm run test:lab09
 ```
 
-[Log suite](docs/evidence/lab09/tests.txt) mencatat **67 dari 67 test lulus**. Cakupannya meliputi routing dan API key, harga dari katalog, validasi input, pengurangan stok, batch, pesanan bersamaan tanpa overselling, isolasi data, timeout termasuk pembacaan body, dokumentasi, dan frontend.
+[Log suite Lab 09](docs/evidence/lab09/tests.txt) mencatat **67 dari 67 test lulus** pada eksekusi Lab 09. Suite saat ini juga mencakup Lab 10; hasil terbaru dicatat terpisah di folder bukti Lab 10. Cakupannya meliputi routing dan API key, harga dari katalog, validasi input, pengurangan stok, batch, pesanan bersamaan tanpa overselling, isolasi data, timeout termasuk pembacaan body, dokumentasi, dan frontend.
 
 `test:lab09` menyiapkan tiga proses lokal pada port yang tersedia, memeriksa stok berkurang, menghentikan katalog, memeriksa POST `503` dan GET `200`, lalu menghidupkan katalog dan memeriksa POST `201`. Bukti tersedia dalam [halaman hasil](docs/evidence/lab09/index.html), [log test](docs/evidence/lab09/tests.txt), dan [catatan asal bukti](docs/evidence/lab09/README.md). Screenshot yang dilampirkan berasal dari halaman respons HTTP otomatis yang dirender browser; bukan screenshot Postman.
 
@@ -107,7 +135,7 @@ npm run test:smoke
 
 Smoke test membuat pesanan sungguhan dan mengurangi stok. Pengujian batas gateway tersedia melalui `npm run test:rate-limit`; hentikan stack lain pada port `8080` lebih dahulu.
 
-Untuk mengulangi skenario secara manual, import [collection Postman](docs/postman/lab09.postman_collection.json) dan [environment lokal](docs/postman/lab09.postman_environment.json), lalu isi `apiKey` secara lokal. Folder normal/input negatif dijalankan saat katalog aktif. Folder kegagalan memerlukan intervensi untuk menghentikan/menghidupkan **hanya katalog**; jangan jalankan seluruh collection sekaligus. Folder alat pengembang menyediakan request health, readiness, GraphQL, dan OpenAPI. Uji service mati memakai tiga terminal sebagaimana dijelaskan dalam laporan; launcher `npm start` menghentikan seluruh stack jika satu child keluar.
+Untuk mengulangi skenario secara manual, import [collection Postman](docs/postman/lab09.postman_collection.json) dan [environment lokal](docs/postman/lab09.postman_environment.json), lalu isi `apiKey` secara lokal. Folder normal/input negatif dijalankan saat katalog aktif. Folder kegagalan memerlukan intervensi untuk menghentikan/menghidupkan **hanya katalog**; jangan jalankan seluruh collection sekaligus. Folder alat pengembang menyediakan request health, readiness, GraphQL, dan OpenAPI. Uji service mati memakai tiga terminal sebagaimana dijelaskan dalam laporan agar tiap service dapat dikendalikan sendiri. Mulai Lab 10, keluarnya satu child launcher tidak lagi menghentikan service lain.
 
 [Environment Postman Render](docs/postman/lab09-render.postman_environment.json) memakai URL layanan baru yang sebenarnya; nilai `apiKey` sengaja kosong. Isi dengan key deployment khusus Lab 09 dari `gateway/.env.render`, bukan key lokal atau digest server. Skenario mematikan hanya katalog tetap dijalankan lokal.
 

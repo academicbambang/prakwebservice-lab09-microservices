@@ -1,0 +1,13 @@
+flowchart TB
+    C["Klien / Postman"] -->|"HTTP :8080"| G["Gateway\nAPI key + rate limit"]
+    G -->|"/product-service/*"| P["Catalog Service :3000\nproduk, harga, stok"]
+    G -->|"/order-service/*"| O["Order Service :3001\npesanan + snapshot harga"]
+    O -->|"1. HTTP reserve\ntimeout 2 detik"| P
+    O -->|"2. Simpan order, publish order.created\npersistent + messageId\nHTTP 201 tanpa menunggu consumer"| E["RabbitMQ :5672\norders / fanout / durable"]
+    E --> NQ[("notification-queue\ndurable")]
+    E --> AQ[("audit-queue\ndurable / opsional")]
+    NQ -->|"satu pesan ke satu worker\nprefetch 1 + manual ack"| N["Notification worker A\nemail simulasi, lalu ack"]
+    NQ --> N2["Notification worker B\nopsional: competing consumers"]
+    AQ --> A["Consumer audit\nprogram yang sama, queue berbeda"]
+    N -.-> S["Set processed di memori\nhilang saat restart\ncrash sebelum ack = redelivery"]
+    M["Management UI :15672\nReady / Unacked / Consumers"] -.-> E

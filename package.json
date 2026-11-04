@@ -2,11 +2,12 @@
   "name": "prakwebservice-lab09-microservices",
   "version": "0.1.0",
   "private": true,
-  "description": "Tugas individu Praktikum Web Service sesi 09: memecah monolit menjadi microservices katalog-pesanan",
+  "description": "Praktikum Web Service Lab 09–10: microservices katalog-pesanan dan event RabbitMQ",
   "workspaces": [
     "gateway",
     "catalog-service",
-    "order-service"
+    "order-service",
+    "notification-service"
   ],
   "engines": {
     "node": ">=22"
@@ -17,9 +18,18 @@
     "start": "node scripts/start.js",
     "test": "node --test tests/*.test.js",
     "start:monolith": "node monolith/monolith.js",
+    "start:notification": "node notification-service/notification-service.js",
+    "broker:up": "docker compose up -d --wait rabbitmq",
+    "broker:stop": "docker compose stop rabbitmq",
+    "broker:down": "docker compose down",
     "test:smoke": "node smoke-test.js",
     "test:lab09": "node scripts/demo-lab09.js",
+    "test:lab10": "node scripts/demo-lab10.js",
+    "test:lab10:evidence": "node scripts/demo-lab10.js --screenshots",
     "verify:deployment": "node scripts/verify-deployment.js",
     "test:rate-limit": "node scripts/demo-rate-limit.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.62.1"
   }
 }

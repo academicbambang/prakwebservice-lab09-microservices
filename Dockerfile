@@ -4,6 +4,7 @@ COPY package.json package-lock.json ./
 COPY gateway/package.json gateway/package.json
 COPY catalog-service/package.json catalog-service/package.json
 COPY order-service/package.json order-service/package.json
+COPY notification-service/package.json notification-service/package.json
 RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
 COPY --chown=node:node . .
 ENV NODE_ENV=production HOST=0.0.0.0 PORT=8080
