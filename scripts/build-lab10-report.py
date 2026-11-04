@@ -28,7 +28,7 @@ ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE = ROOT / "docs/evidence/lab10"
 MANUAL = EVIDENCE / "manual"
 TERMINAL = EVIDENCE / "terminal"
-OUTPUT = ROOT / "output/pdf/laporan-praktikum-sesi-10.pdf"
+OUTPUT = ROOT / "output/pdf/Laporan Praktikum Web Service Sesi 10.pdf"
 PAGE_W, PAGE_H = 210 * mm, 297 * mm
 LEFT = RIGHT = TOP = BOTTOM = 25 * mm
 WIDTH, HEIGHT = PAGE_W - LEFT - RIGHT, PAGE_H - TOP - BOTTOM
