@@ -233,7 +233,7 @@ Jika RabbitMQ mati saat order dibuat, publisher mencatat bahwa event tidak terki
 
 ## Pengumpulan dan batas deployment
 
-Yang dikumpulkan sebelum Lab 11: tautan repository yang sama beserta commit/branch Lab 10, screenshot dashboard Ready=3, log pemulihan consumer, log crash/redelivery dengan email dua kali, diagram terbaru, penerapan proyek, dan refleksi. [PDF laporan](<../../output/pdf/Laporan Praktikum Web Service Sesi-10.pdf>) merangkum hasil dan menyertakan bukti.
+Yang dikumpulkan sebelum Lab 11: tautan repository yang sama beserta commit/branch Lab 10, screenshot dashboard Ready=3, log pemulihan consumer, log crash/redelivery dengan email dua kali, diagram terbaru, penerapan proyek, dan refleksi. [PDF laporan](<../../output/pdf/Laporan Prak Web Service Sesi-10.pdf>) merangkum hasil dan menyertakan bukti.
 
 PDF memakai susunan ringkas tanpa daftar isi dan tanpa BAB: cover, implementasi dan arsitektur, bukti pengujian, penerapan proyek, refleksi, serta lampiran. Empat screenshot Postman ditempatkan pada lampiran dan dirujuk dari pengujian consumer mati serta uji crash. Setiap gambar di isi maupun lampiran diberi nomor, keterangan, dan penjelasan hasilnya. Font Times New Roman, ukuran A4, margin 2,5 cm, tanpa header. Footer hanya nomor halaman di tengah; cover tanpa nomor dan isi dimulai dari 1. Teks, judul, dan tabel hitam putih; tautan berwarna biru; logo, diagram, dan screenshot tetap berwarna. Bukti competing consumers dan pub/sub memakai [screenshot VS Code atas log aktual](../evidence/lab10/terminal/README.md).
 
