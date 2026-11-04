@@ -1,4 +1,4 @@
-"""Build a concise Lab 10 report without a contents page or chapter structure.
+"""Build a concise Lab 10 report with explained figures in the main sections.
 
 Requires reportlab and Pillow. Screenshots keep their original colors and bytes.
 """
@@ -20,7 +20,7 @@ from reportlab.lib.utils import ImageReader
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import (
-    BaseDocTemplate, Flowable, Frame, Image, PageBreak, PageTemplate,
+    BaseDocTemplate, Flowable, Frame, Image, KeepTogether, PageBreak, PageTemplate,
     Paragraph, Spacer, Table, TableStyle,
 )
 
@@ -141,6 +141,7 @@ def build():
     head = ParagraphStyle("CellHead", parent=cell, fontName="BodyBold")
     story, buffers = [Cover()], []
     headings = []
+    figure_number = 0
 
     def add(text, style=body):
         story.append(Paragraph(text, style))
@@ -152,12 +153,21 @@ def build():
         headings.append(text)
         story.append(heading)
 
-    def image(path, label, maximum=115 * mm):
+    def continuation(text):
+        story.append(PageBreak())
+        add(text, heading_style)
+
+    def image(path, label, explanation, maximum=115 * mm):
+        nonlocal figure_number
+        figure_number += 1
         buffer, (width, height) = image_buffer(path)
         buffers.append(buffer)
         scale = min(WIDTH / width, maximum / height)
-        story.append(Image(buffer, width=width * scale, height=height * scale, hAlign="CENTER"))
-        add(label, caption)
+        story.append(KeepTogether([
+            Image(buffer, width=width * scale, height=height * scale, hAlign="CENTER"),
+            Paragraph(f"Gambar {figure_number}. {label}", caption),
+            Paragraph(f"Pada Gambar {figure_number}, {explanation}", body),
+        ]))
 
     def table(headers, rows, widths):
         data = [[Paragraph(escape(str(v)), head) for v in headers]]
@@ -173,8 +183,9 @@ def build():
         story.extend([item, Spacer(1, 8)])
 
     section("1. Implementasi dan arsitektur")
-    add("Lab 10 menambahkan RabbitMQ dan Notification Service pada toko Lab 09. Order Service tetap mereservasi stok melalui HTTP, menyimpan pesanan, lalu menerbitkan order.created tanpa menunggu email. Consumer memproses email simulasi dan memberikan ack setelah selesai.")
-    image(ROOT / "docs/lab10/arsitektur.png", "Gambar 1. Arsitektur Lab 10: reservasi stok sinkron dan notifikasi asinkron.", 110 * mm)
+    add("Lab 10 menambahkan RabbitMQ dan Notification Service pada Marketplace UMKM. Alur sinkron dan asinkron disajikan dalam diagram berikut.")
+    image(ROOT / "docs/lab10/arsitektur.png", "Arsitektur Lab 10: reservasi stok sinkron dan notifikasi asinkron.",
+          "Order Service mereservasi stok melalui HTTP, lalu menerbitkan order.created ke RabbitMQ. Notification Service memproses email simulasi dan memberikan ack.", 100 * mm)
     table(["Komponen", "Tanggung jawab"], [
         ["Catalog Service :3000", "Pemilik produk, harga, dan stok; reserve melalui HTTP."],
         ["Order Service :3001", "Menyimpan pesanan dan snapshot harga; producer order.created."],
@@ -184,17 +195,22 @@ def build():
     add("Menjalankan: npm run broker:up; npm run start:notification; npm start. Pengujian melalui Postman/gateway :8080. Consumer dibuat sebelum order pertama agar antrean sudah terikat.", caption)
 
     section("2. Consumer mati dan pesan menunggu")
-    add("Consumer dihentikan, kemudian tiga order dikirim melalui Postman. Semua mendapat HTTP 201 Created. Pada vhost /, notification-queue menahan ketiga event meskipun tidak ada consumer aktif.")
-    image(MANUAL / manual["dashboard"]["file"], "Gambar 2. Dashboard manual, 4 November 2026 pukul 17:13:11 UTC+7: Ready=3, Unacked=0, Consumers=0.")
-    table(["Pengamatan", "Hasil"], [
-        ["Ready / Unacked / Consumers", "3 / 0 / 0"],
-        ["Tiga request Postman", "Masing-masing 201 Created"],
-    ], [0.5, 0.5])
-    add("Broker tetap aktif dan antrean sudah terbentuk. Hasil ini membuktikan producer dan consumer tidak harus hidup bersamaan.")
+    add("Consumer dihentikan terlebih dahulu, lalu tiga request order dikirim satu per satu melalui gateway. Ketiganya memperoleh HTTP 201 Created.")
+    image(MANUAL / manual["recovery"]["orders"][0]["postmanFile"], "Respons Postman untuk pesanan pertama saat consumer mati.",
+          "order pertama memperoleh 201 Created meskipun consumer berhenti. ID pesanan dipakai untuk mencocokkan log setelah consumer pulih.", 85 * mm)
+    image(MANUAL / manual["recovery"]["orders"][1]["postmanFile"], "Respons Postman untuk pesanan kedua saat consumer mati.",
+          "order kedua juga berhasil dibuat dengan ID berbeda. Penerimaan pesanan tidak menunggu Notification Service kembali aktif.", 85 * mm)
+
+    continuation("2. Consumer mati dan pesan menunggu (lanjutan)")
+    image(MANUAL / manual["recovery"]["orders"][2]["postmanFile"], "Respons Postman untuk pesanan ketiga saat consumer mati.",
+          "order ketiga memperoleh 201 Created. Tiga ID pesanan dari Gambar 2-4 dicocokkan dengan log pemulihan pada pengujian berikutnya.", 85 * mm)
+    image(MANUAL / manual["dashboard"]["file"], "Dashboard notification-queue, 4 November 2026 pukul 17:13:11 UTC+7.",
+          "Ready=3 menunjukkan tiga pesan menunggu, Unacked=0 berarti tidak ada pesan sedang diproses, dan Consumers=0 memastikan consumer mati. Broker tetap aktif pada vhost /.", 85 * mm)
 
     section("3. Consumer dinyalakan kembali")
     add("Setelah npm run start:notification dijalankan kembali, consumer-18824 memproses ketiga pesan tertahan. Setiap email simulasi diikuti ack; orderId cocok dengan ketiga respons Postman.")
-    image(MANUAL / manual["recovery"]["file"], "Gambar 3. Terminal manual setelah consumer pulih: tiga email simulasi dan tiga acknowledgement.")
+    image(MANUAL / manual["recovery"]["file"], "Log consumer setelah dinyalakan kembali.",
+          "tiga ID pesanan pada Gambar 2-4 diproses satu per satu. Setiap email simulasi diikuti ack, sehingga pesan yang menunggu diselesaikan setelah consumer pulih.")
     table(["OrderId sesuai Postman", "Email / ack UTC+7"], [
         [entry["orderId"], f"{local_clock(entry['emailAt'])} / {local_clock(entry['ackedAt'])}"]
         for entry in manual["recovery"]["orders"]
@@ -202,9 +218,19 @@ def build():
 
     section("4. Crash sebelum ack dan redelivery")
     crash = manual["crash"]
-    add("Consumer dijalankan dengan --crash, lalu satu order dikirim dan mendapat 201 Created. Consumer mencetak email lalu berhenti sebelum ack. Consumer biasa kemudian dijalankan tanpa mengirim order baru; pesan yang sama diproses ulang.")
-    image(MANUAL / crash["file"], "Gambar 4. Terminal manual: email pertama, Crash sebelum ack!, kemudian email kedua dengan redelivered:true.")
-    add("MessageId yang sama: " + escape(crash["messageId"]), caption)
+    add("Consumer dijalankan dengan --crash. Satu request order dikirim melalui Postman untuk menguji crash sesudah email dicetak tetapi sebelum acknowledgement.")
+    image(MANUAL / crash["postmanFile"], "Respons Postman untuk satu pesanan uji crash.",
+          "hanya satu order dibuat dan mendapat 201 Created. ID pesanan menjadi acuan untuk membuktikan bahwa email kedua berasal dari redelivery, bukan request baru.")
+    add("Identitas pesan uji", sub_style)
+    table(["Identitas", "Nilai"], [
+        ["OrderId", crash["orderId"]],
+        ["MessageId", crash["messageId"]],
+    ], [0.2, 0.8])
+    add("Setelah consumer berhenti otomatis, jalankan npm run start:notification tanpa --crash dan tanpa mengirim request order baru.")
+
+    continuation("4. Crash sebelum ack dan redelivery (lanjutan)")
+    image(MANUAL / crash["file"], "Log crash dan pemulihan consumer untuk pesan yang sama.",
+          "email pertama diikuti crash sebelum ack. Setelah restart, messageId yang sama mencetak email kedua dengan redelivered:true, lalu di-ack.")
     table(["Tahap", "Waktu UTC+7", "Hasil"], [
         ["Email pertama", local_clock(crash["firstEmailAt"]), "consumer-5556; redelivered:false; crash sebelum ack"],
         ["Email kedua", local_clock(crash["secondEmailAt"]), "consumer-18608; redelivered:true"],
@@ -214,7 +240,8 @@ def build():
 
     section("5. Competing consumers")
     add("Pengujian tambahan pukul 17:40 UTC+7 menjalankan dua consumer pada satu notification-queue. Enam order diterima melalui gateway dengan HTTP 201; event dibagi tanpa ID yang tumpang tindih.")
-    image(TERMINAL / "competing-consumers.jpg", "Gambar 5. Screenshot VS Code atas tampilan ringkas log consumer aktual; data asal tersimpan dalam file JSONL.")
+    image(TERMINAL / "competing-consumers.jpg", "Screenshot VS Code atas ringkasan log consumer aktual; sumbernya file JSONL.",
+          "worker-A dan worker-B masing-masing memproses tiga event. ID yang berbeda pada kedua worker menunjukkan setiap event dikerjakan oleh satu consumer.")
     competing = next(entry for entry in terminal["cases"] if entry["type"] == "competing")
     table(["Consumer", "Email simulasi", "Ack"], [
         [name, len(ids), len(ids)] for name, ids in competing["workers"].items()
@@ -223,7 +250,8 @@ def build():
 
     section("6. Publish subscribe")
     add("Pada pukul 17:42 UTC+7, consumer notification-queue dan audit-queue terikat ke exchange orders. Dua order baru dikirim; masing-masing antrean menerima kedua event dengan orderId yang sama.")
-    image(TERMINAL / "pubsub.jpg", "Gambar 6. Screenshot VS Code atas log aktual: notification dan audit menerima dua orderId yang sama dan memberikan ack.")
+    image(TERMINAL / "pubsub.jpg", "Screenshot VS Code atas log aktual notification dan audit.",
+          "dua orderId yang sama muncul pada consumer notification dan audit. Exchange fanout menyalin setiap event ke kedua antrean, kemudian masing-masing consumer memberi ack.")
     pubsub = next(entry for entry in terminal["cases"] if entry["type"] == "pubsub")
     table(["OrderId", "Penerima"], [
         [entry["order"]["id"], "notification dan audit"] for entry in pubsub["orders"]
@@ -252,17 +280,6 @@ def build():
         add(f'<link href="{url}" color="blue">{label}</link>', caption)
     add("Panduan Praktikum Web Service Lab 10, Philipus Suryo Subandoro.", caption)
 
-    section("Lampiran screenshot Postman")
-    add("Respons asli pengguna, masing-masing HTTP 201 Created. ID pesanan dapat dicocokkan dengan log pada bagian 3 dan 4.", caption)
-    for index in (0, 1):
-        image(MANUAL / manual["recovery"]["orders"][index]["postmanFile"], f"Pesanan {index + 1} saat consumer mati.", 90 * mm)
-    story.append(PageBreak())
-    for path, label in [
-        (MANUAL / manual["recovery"]["orders"][2]["postmanFile"], "Pesanan ketiga saat consumer mati."),
-        (MANUAL / crash["postmanFile"], "Satu pesanan uji crash; orderId yang sama diproses ulang setelah restart."),
-    ]:
-        image(path, label, 90 * mm)
-
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     doc = ReportDoc(str(OUTPUT), pagesize=(PAGE_W, PAGE_H), leftMargin=LEFT, rightMargin=RIGHT,
                     topMargin=TOP, bottomMargin=BOTTOM, title="Laporan Praktikum Web Service Sesi 10",
@@ -271,7 +288,7 @@ def build():
                          leftPadding=0, rightPadding=0, topPadding=0, bottomPadding=0)], onPageEnd=footer))
     doc.build(story)
     print(OUTPUT)
-    print(f"Pages: {doc.page}; no contents page or chapters")
+    print(f"Pages: {doc.page}; figures explained within main sections; no contents page, chapters, or appendix")
 
 
 if __name__ == "__main__":
