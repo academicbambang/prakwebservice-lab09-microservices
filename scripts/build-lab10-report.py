@@ -1,274 +1,351 @@
-"""Build a PDF from Lab 10 automated records and original manual screenshots.
+"""Build the formal monochrome Lab 10 PDF from retained evidence.
 
-Requires Python with reportlab and Pillow. Does not run tests or recreate evidence.
+Requires reportlab and Pillow. Original evidence images are never modified.
 """
 from __future__ import annotations
 
 import json
 import re
 from datetime import datetime, timedelta, timezone
+from io import BytesIO
 from pathlib import Path
 from xml.sax.saxutils import escape
 
 from PIL import Image as PILImage
 from reportlab.lib import colors
-from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY
+from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.units import mm
+from reportlab.lib.utils import ImageReader
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import (
-    SimpleDocTemplate, Paragraph, Spacer, Image, Table, TableStyle, PageBreak,
+    BaseDocTemplate, Flowable, Frame, Image, PageBreak, PageTemplate,
+    Paragraph, Spacer, Table, TableStyle,
 )
+from reportlab.platypus.tableofcontents import TableOfContents
 
 ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE = ROOT / "docs/evidence/lab10"
 MANUAL = EVIDENCE / "manual"
 OUTPUT = ROOT / "output/pdf/laporan-praktikum-sesi-10.pdf"
-INK = colors.HexColor("#163546")
-GREEN = colors.HexColor("#177b67")
-MUTED = colors.HexColor("#526b7a")
-LIGHT = colors.HexColor("#eaf1f5")
-WIDTH = 174 * mm
+PAGE_W, PAGE_H = 210 * mm, 297 * mm
+LEFT, RIGHT, TOP, BOTTOM = 40 * mm, 30 * mm, 30 * mm, 30 * mm
+WIDTH = PAGE_W - LEFT - RIGHT
+HEIGHT = PAGE_H - TOP - BOTTOM
 
 
-def configure_fonts():
+def fonts():
     candidates = [
-        (Path("C:/Windows/Fonts/segoeui.ttf"), Path("C:/Windows/Fonts/segoeuib.ttf")),
-        (Path("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"), Path("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf")),
+        (Path("C:/Windows/Fonts"), ("times.ttf", "timesbd.ttf", "timesi.ttf")),
+        (Path("/usr/share/fonts/truetype/msttcorefonts"), ("Times_New_Roman.ttf", "Times_New_Roman_Bold.ttf", "Times_New_Roman_Italic.ttf")),
+        (Path("/usr/share/fonts/truetype/liberation2"), ("LiberationSerif-Regular.ttf", "LiberationSerif-Bold.ttf", "LiberationSerif-Italic.ttf")),
     ]
-    for regular, bold in candidates:
-        if regular.exists() and bold.exists():
-            pdfmetrics.registerFont(TTFont("Body", str(regular)))
-            pdfmetrics.registerFont(TTFont("BodyBold", str(bold)))
-            pdfmetrics.registerFontFamily("Body", normal="Body", bold="BodyBold", italic="Body", boldItalic="BodyBold")
+    for directory, files in candidates:
+        if all((directory / name).exists() for name in files):
+            for family, name in zip(("Body", "BodyBold", "BodyItalic"), files):
+                pdfmetrics.registerFont(TTFont(family, str(directory / name)))
+            pdfmetrics.registerFontFamily("Body", normal="Body", bold="BodyBold", italic="BodyItalic", boldItalic="BodyBold")
             return
-    raise RuntimeError("Install Segoe UI or DejaVu Sans for the PDF report")
+    raise RuntimeError("Install Times New Roman or Liberation Serif")
+
+
+def gray_buffer(path):
+    # Color conversion is confined to the PDF presentation. Source PNGs remain intact.
+    with PILImage.open(path) as source:
+        if source.mode == "RGBA":
+            white = PILImage.new("RGB", source.size, "white")
+            white.paste(source, mask=source.getchannel("A"))
+            gray = white.convert("L")
+        else:
+            gray = source.convert("L")
+        size = gray.size
+        buffer = BytesIO()
+        gray.save(buffer, format="PNG")
+        buffer.seek(0)
+    return buffer, size
+
+
+def roman(number):
+    result = ""
+    for value, letters in ((100, "c"), (90, "xc"), (50, "l"), (40, "xl"), (10, "x"), (9, "ix"), (5, "v"), (4, "iv"), (1, "i")):
+        while number >= value:
+            result += letters
+            number -= value
+    return result
+
+
+class FormalDoc(BaseDocTemplate):
+    def beforeDocument(self):
+        self.body_start = None
+        self.heading_pages = []
+
+    def afterFlowable(self, flowable):
+        if not hasattr(flowable, "toc_level"):
+            return
+        if self.body_start is None:
+            self.body_start = self.page
+        label = self.page - self.body_start + 1
+        self.canv.bookmarkPage(flowable.anchor)
+        self.canv.addOutlineEntry(flowable.toc_text, flowable.anchor, flowable.toc_level)
+        self.notify("TOCEntry", (flowable.toc_level, flowable.toc_text, label, flowable.anchor))
+        self.heading_pages.append({"title": flowable.toc_text, "page": label, "physicalPage": self.page})
+
+
+def footer(canvas, doc):
+    if doc.page == 1:
+        return
+    label = roman(doc.page - 1) if doc.body_start is None else str(doc.page - doc.body_start + 1)
+    canvas.saveState()
+    canvas.setFillGray(0)
+    canvas.setFont("Body", 12)
+    canvas.drawCentredString(PAGE_W / 2, 15 * mm, label)
+    canvas.restoreState()
+
+
+class Cover(Flowable):
+    def __init__(self):
+        super().__init__()
+        self.width, self.height = WIDTH, HEIGHT - 1
+
+    def draw(self):
+        canvas = self.canv
+        canvas.setFillGray(0)
+
+        def line(text, from_top, size=12, bold=False):
+            canvas.setFont("BodyBold" if bold else "Body", size)
+            canvas.drawCentredString(WIDTH / 2, self.height - from_top * mm, text)
+
+        line("LAPORAN PRAKTIKUM SESI 10", 5, 14, True)
+        line("KOMUNIKASI ANTARSERVICE", 17, 14, True)
+        line("VIA MESSAGE QUEUE", 25, 14, True)
+        line("Penerapan RabbitMQ pada Marketplace UMKM", 38, 13, True)
+        line("Mata Kuliah Web Service", 48)
+        logo, (width, height) = gray_buffer(ROOT / "docs/lab10/assets/logo-ukwms.png")
+        logo_height = 65 * mm
+        logo_width = logo_height * width / height
+        canvas.drawImage(ImageReader(logo), (WIDTH - logo_width) / 2,
+                         self.height - 121 * mm, logo_width, logo_height)
+        line("Dosen Pengampu", 134)
+        line("Philipus Suryo Subandoro", 142)
+        line("Disusun oleh", 158, 12, True)
+        canvas.setFont("Body", 12)
+        canvas.drawString(10 * mm, self.height - 170 * mm, "Bambang Herlambang")
+        canvas.drawRightString(WIDTH - 10 * mm, self.height - 170 * mm, "5803024019")
+        line("PROGRAM STUDI INFORMATIKA", 207, 13, True)
+        line("FAKULTAS TEKNIK", 215, 13, True)
+        line("UNIVERSITAS KATOLIK WIDYA MANDALA SURABAYA", 223, 12, True)
+        line("2026", 231, 13, True)
+
+
+def local_clock(value):
+    stamp = datetime.fromisoformat(value.replace("Z", "+00:00")).astimezone(timezone(timedelta(hours=7)))
+    return stamp.strftime("%H:%M:%S.") + f"{stamp.microsecond // 1000:03d}"
 
 
 def build():
-    configure_fonts()
+    fonts()
     result = json.loads((EVIDENCE / "results.json").read_text(encoding="utf-8"))
-    if not result["passed"] or len(result["scenarios"]) != 8:
-        raise ValueError("Complete all 8 integration scenarios before building the report")
-    log = (EVIDENCE / "tests.txt").read_text(encoding="utf-8-sig")
-    stats = {}
-    for key in ("tests", "pass", "fail"):
-        match = re.search(rf"^# {key} (\d+)\s*$", log, re.MULTILINE)
-        if not match:
-            raise ValueError(f"Missing suite summary: {key}")
-        stats[key] = int(match.group(1))
-    if stats["fail"]:
-        raise ValueError("Test failures must be resolved before the report is built")
     manual = json.loads((MANUAL / "observations.json").read_text(encoding="utf-8"))
-    for name in [manual["dashboard"]["file"], manual["recovery"]["file"],
-                 manual["crash"]["file"], manual["crash"]["postmanFile"],
-                 *(order["postmanFile"] for order in manual["recovery"]["orders"])]:
-        if not (MANUAL / name).is_file():
-            raise FileNotFoundError(MANUAL / name)
+    log = (EVIDENCE / "tests.txt").read_text(encoding="utf-8-sig")
+    stats = {name: int(re.search(rf"^# {name} (\d+)\s*$", log, re.MULTILINE).group(1)) for name in ("tests", "pass", "fail")}
+    if not result["passed"] or len(result["scenarios"]) != 8 or stats["fail"]:
+        raise ValueError("Complete the integration scenarios and resolve test failures before building")
 
-    def local_clock(iso_timestamp):
-        stamp = datetime.fromisoformat(iso_timestamp.replace("Z", "+00:00")).astimezone(timezone(timedelta(hours=7)))
-        return stamp.strftime("%H:%M:%S.") + f"{stamp.microsecond // 1000:03d}"
+    body = ParagraphStyle("BodyText", fontName="Body", fontSize=12, leading=18,
+                          alignment=TA_JUSTIFY, spaceAfter=8, textColor=colors.black)
+    chapter_style = ParagraphStyle("Chapter", parent=body, fontName="BodyBold", fontSize=14,
+                                   leading=21, alignment=TA_CENTER, spaceAfter=20, keepWithNext=True)
+    sub_style = ParagraphStyle("Sub", parent=body, fontName="BodyBold", fontSize=12,
+                              leading=17, spaceBefore=10, spaceAfter=8, alignment=0, keepWithNext=True)
+    caption = ParagraphStyle("Caption", parent=body, fontSize=10, leading=13,
+                            alignment=0, spaceBefore=5, spaceAfter=9)
+    cell = ParagraphStyle("Cell", parent=body, fontSize=10, leading=13, alignment=0, spaceAfter=0)
+    head = ParagraphStyle("CellHead", parent=cell, fontName="BodyBold")
+    story = [Cover(), PageBreak(), Paragraph("DAFTAR ISI", chapter_style)]
+    toc = TableOfContents()
+    toc.dotsMinLevel = 0
+    toc.tableStyle = TableStyle([
+        ("LEFTPADDING", (0, 0), (-1, -1), 0),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 0),
+        ("TOPPADDING", (0, 0), (-1, -1), 0),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+    ])
+    toc.levelStyles = [
+        ParagraphStyle("TOCChapter", fontName="BodyBold", fontSize=11, leading=15,
+                       leftIndent=0, firstLineIndent=0, spaceBefore=5, rightIndent=16, textColor=colors.black),
+        ParagraphStyle("TOCSection", fontName="Body", fontSize=11, leading=14,
+                       leftIndent=12, firstLineIndent=0, spaceBefore=0, rightIndent=16, textColor=colors.black),
+    ]
+    story.append(toc)
+    image_buffers = []
 
-    styles = getSampleStyleSheet()
-    styles.add(ParagraphStyle(name="BodyText10", fontName="Body", fontSize=10, leading=15,
-                              textColor=INK, spaceAfter=9))
-    styles.add(ParagraphStyle(name="Title10", fontName="BodyBold", fontSize=29, leading=36,
-                              textColor=INK, spaceAfter=17))
-    styles.add(ParagraphStyle(name="Heading10", fontName="BodyBold", fontSize=17, leading=23,
-                              textColor=GREEN, spaceBefore=4, spaceAfter=13))
-    styles.add(ParagraphStyle(name="Sub10", fontName="BodyBold", fontSize=11, leading=16,
-                              textColor=INK, spaceBefore=9, spaceAfter=7))
-    styles.add(ParagraphStyle(name="Caption10", fontName="Body", fontSize=8, leading=11.5,
-                              textColor=MUTED, spaceAfter=9))
-    styles.add(ParagraphStyle(name="Cell10", fontName="Body", fontSize=9, leading=13, textColor=INK))
-    styles.add(ParagraphStyle(name="TableHead10", fontName="BodyBold", fontSize=9, leading=13, textColor=colors.white))
-    story = []
+    def add(text, style=body):
+        story.append(Paragraph(text, style))
 
-    def p(text, style="BodyText10"):
-        return Paragraph(text, styles[style])
+    def heading(text, level=1, title=None):
+        item = Paragraph(text, sub_style if level else chapter_style)
+        item.toc_level = level
+        item.toc_text = title or re.sub("<[^>]+>", " ", text)
+        item.anchor = f"section-{sum(hasattr(v, 'toc_level') for v in story)}"
+        story.append(item)
 
-    def add(text, style="BodyText10"):
-        story.append(p(text, style))
-
-    def page(title):
+    def chapter(number, title):
         story.append(PageBreak())
-        add(title, "Heading10")
+        heading(f"BAB {number}<br/>{title}", 0, f"BAB {number} {title}")
 
-    def image(path, max_height=155 * mm, caption=None):
-        path = Path(path)
-        if not path.exists():
-            raise FileNotFoundError(path)
-        with PILImage.open(path) as source:
-            width, height = source.size
-        scale = min(WIDTH / width, max_height / height)
-        story.append(Image(str(path), width=width * scale, height=height * scale, hAlign="CENTER"))
-        if caption:
-            story.append(Spacer(1, 3 * mm))
-            add(caption, "Caption10")
+    def image(path, label, maximum=100 * mm):
+        buffer, (width, height) = gray_buffer(path)
+        image_buffers.append(buffer)
+        scale = min(WIDTH / width, maximum / height)
+        story.append(Image(buffer, width=width * scale, height=height * scale, hAlign="CENTER"))
+        add(label, caption)
 
     def table(headers, rows, widths):
-        data = [[p(escape(str(cell)), "TableHead10") for cell in headers]]
-        data += [[p(escape(str(cell)), "Cell10") for cell in row] for row in rows]
-        block = Table(data, colWidths=widths, repeatRows=1, hAlign="LEFT")
-        block.setStyle(TableStyle([
-            ("BACKGROUND", (0, 0), (-1, 0), GREEN),
-            ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, LIGHT]),
-            ("VALIGN", (0, 0), (-1, -1), "TOP"),
-            ("LEFTPADDING", (0, 0), (-1, -1), 9), ("RIGHTPADDING", (0, 0), (-1, -1), 9),
-            ("TOPPADDING", (0, 0), (-1, -1), 8), ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
-            ("LINEBELOW", (0, 0), (-1, 0), 0.5, GREEN),
+        data = [[Paragraph(escape(str(v)), head) for v in headers]]
+        data += [[Paragraph(escape(str(v)), cell) for v in row] for row in rows]
+        item = Table(data, colWidths=[WIDTH * part for part in widths], repeatRows=1, hAlign="LEFT")
+        item.setStyle(TableStyle([
+            ("GRID", (0, 0), (-1, -1), 0.45, colors.HexColor("#888888")),
+            ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#eeeeee")),
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ("LEFTPADDING", (0, 0), (-1, -1), 7), ("RIGHTPADDING", (0, 0), (-1, -1), 7),
+            ("TOPPADDING", (0, 0), (-1, -1), 7), ("BOTTOMPADDING", (0, 0), (-1, -1), 7),
         ]))
-        story.append(block)
-        story.append(Spacer(1, 5 * mm))
+        story.extend([item, Spacer(1, 9)])
 
-    local = datetime.fromisoformat(result["executedAt"].replace("Z", "+00:00")).astimezone(timezone(timedelta(hours=7)))
-    add("PRAKTIKUM WEB SERVICE / SESI 10", "Caption10")
-    story.append(Spacer(1, 15 * mm))
-    add("Komunikasi Antarservice<br/>via Message Queue", "Title10")
-    add("Marketplace UMKM - kelanjutan Lab 09", "Heading10")
-    add("<b>Bambang Herlambang</b><br/>NRP 5803024019<br/>Proyek Marketplace UMKM (Kelompok D)")
-    add("Panduan menetapkan praktikum berkelompok. Identitas di atas adalah pemilik repository; identitas anggota lain belum diberikan.", "Caption10")
-    story.append(Spacer(1, 8 * mm))
-    table(["Verifikasi", "Hasil aktual"], [
-        ["Suite otomatis Lab 09 + Lab 10", f"{stats['pass']}/{stats['tests']} lulus, {stats['fail']} gagal"],
-        ["Integrasi RabbitMQ asli", "8 skenario lulus pada run otomatis"],
-        ["Broker", f"RabbitMQ {result['broker']['rabbitmqVersion']}; Docker, volume persisten"],
-        ["Waktu awal run otomatis", local.strftime("%d-%m-%Y %H:%M:%S") + " UTC+7"],
-        ["Bukti manual pengguna", "04-11-2026, 17:13-17:18 UTC+7; vhost /; dashboard dan terminal asli"],
-    ], [65 * mm, 109 * mm])
-    add("Repository yang sama dengan Lab 09:")
-    add('<link href="https://github.com/academicbambang/prakwebservice-lab09-microservices" color="#177b67">github.com/academicbambang/prakwebservice-lab09-microservices</link>', "Caption10")
-    add('<link href="https://github.com/academicbambang/prakwebservice-lab09-microservices/tree/codex/lab10-message-queue" color="#177b67">Versi pengumpulan: branch codex/lab10-message-queue</link>', "Caption10")
-    add("Ringkasan", "Sub10")
-    add("Order Service tetap memastikan stok melalui HTTP, lalu menerbitkan order.created ke RabbitMQ. Consumer memproses email simulasi secara terpisah. Pengujian membuktikan antrean menahan pesan ketika consumer mati, membagi beban antarkerja, menyebarkan salinan melalui fanout, serta mengirim ulang pesan yang belum di-ack.")
-    add("Bukti utama consumer mati/pulih dan crash memakai screenshot manual pengguna. Hasil competing consumers, pub/sub, dan verifikasi tambahan berasal dari run otomatis yang terpisah.", "Caption10")
-    add("Bukti lokal ini tidak menyatakan bahwa Lab 10 sudah dideploy ke Render. URL dan bukti deployment lama di repository adalah arsip Lab 09.", "Caption10")
+    chapter("I", "PENDAHULUAN")
+    heading("1.1 Latar Belakang")
+    add("Praktikum sesi 10 melanjutkan pemisahan aplikasi Marketplace UMKM pada Lab 09 dengan menambahkan komunikasi asinkron melalui RabbitMQ. Reservasi stok tetap dilakukan melalui HTTP karena hasilnya dibutuhkan sebelum pesanan diterima. Pekerjaan notifikasi dipindahkan ke consumer terpisah agar pesanan tidak perlu menunggu pengiriman email.")
+    add("Hasil pengujian menunjukkan bahwa pesanan tetap diterima ketika consumer berhenti, sedangkan pesan menunggu di antrean dan diproses setelah consumer pulih. Pengujian crash juga menunjukkan bahwa pesan dapat diproses dua kali apabila consumer berhenti sebelum memberikan acknowledgement.")
+    heading("1.2 Tujuan Praktikum")
+    add("Praktikum bertujuan menjalankan RabbitMQ dan mengamati status antreannya, membangun producer dan consumer terpisah, membuktikan penahanan pesan saat consumer mati, serta menjelaskan acknowledgement, redelivery, competing consumers, pub/sub, dan kebutuhan idempotensi.")
+    heading("1.3 Ruang Lingkup")
+    add("Implementasi mencakup gateway, Catalog Service, Order Service, RabbitMQ, dan Notification Service. Pesanan serta stok tetap disimpan dalam memori. Email yang ditampilkan merupakan simulasi log; aplikasi belum terhubung ke SMTP, database persisten, atau transactional outbox.")
+    add("Bukti utama butir consumer mati dan crash berasal dari pengujian manual pada 4 November 2026. Pengujian otomatis melengkapi pembuktian competing consumers, pub/sub, serta penanganan kegagalan. Keduanya menggunakan ID, waktu, dan virtual host yang berbeda.")
 
-    page("1. Arsitektur dan batas service")
-    image(ROOT / "docs/lab10/arsitektur.png", max_height=142 * mm,
-          caption="Diagram diperbarui dengan RabbitMQ, exchange orders, antrean notification/audit, dan consumer terpisah.")
+    chapter("II", "DASAR TEORI")
+    heading("2.1 Komunikasi Sinkron dan Asinkron")
+    add("Pada komunikasi sinkron, pemanggil menunggu respons service tujuan. Pola ini sesuai untuk pemeriksaan stok dan harga saat checkout. Pada komunikasi asinkron, producer menerbitkan event ke broker dan consumer memprosesnya kemudian. Balasan HTTP tidak menunggu pekerjaan consumer selesai.")
+    heading("2.2 RabbitMQ dan Exchange Fanout")
+    add("RabbitMQ menyalurkan pesan melalui exchange ke antrean yang terikat. Exchange fanout mengirim salinan pesan ke setiap antrean terikat. Pada praktikum ini, exchange orders menghubungkan notification-queue dan, pada eksperimen pub/sub, audit-queue. Dua consumer pada antrean yang sama berbagi pekerjaan, sedangkan consumer pada antrean berbeda menerima salinan masing-masing.")
+    add("Exchange dan antrean menggunakan durable=true; pesan memakai persistent=true. Volume Docker mempertahankan data broker. Konfigurasi ini melindungi pesan yang sudah diterima broker, tetapi tidak menyatukan penyimpanan pesanan dan publikasi event menjadi satu transaksi. Exchange sendiri tidak menahan event tanpa antrean tujuan.")
+    heading("2.3 Acknowledgement dan Idempotensi")
+    add("Consumer memberikan ack setelah pekerjaan selesai. Jika koneksi terputus sebelum ack, broker dapat mengirim ulang pesan yang belum diakui. Inilah perilaku at-least-once pada pesan yang telah diantrekan, bukan jaminan side effect terjadi tepat sekali.")
+    add("Consumer idempotent harus mencegah side effect berulang untuk messageId yang sama. Set dalam memori hanya mengenali duplikat selama proses hidup. Penyimpanan tahan restart dengan unique constraint dan transaksi diperlukan untuk side effect database; email eksternal memerlukan dukungan idempotency key dari penyedia atau rancangan pengiriman yang sesuai.")
+
+    chapter("III", "IMPLEMENTASI SISTEM")
+    heading("3.1 Arsitektur dan Kepemilikan Data")
+    add("Gateway meneruskan request ke katalog atau pesanan. Catalog Service menjadi pemilik tunggal stok dan harga. Order Service meminta reservasi melalui HTTP dengan timeout dua detik, menyimpan pesanan beserta snapshot harga, lalu menerbitkan order.created. Notification Service menerima pesan melalui RabbitMQ dan memberikan ack setelah email simulasi dicetak.")
+    image(ROOT / "docs/lab10/arsitektur.png", "Gambar 3.1 Arsitektur Lab 10 dengan alur reservasi sinkron dan notifikasi asinkron.")
     table(["Komponen", "Data dan tanggung jawab"], [
-        ["Catalog Service", "Produk, harga, stok di memori; hanya service ini yang mengubah stok."],
-        ["Order Service", "Pesanan dan snapshot harga; reserve HTTP dengan timeout 2 detik; publish sesudah order disimpan."],
-        ["RabbitMQ", "Exchange orders fanout dan antrean durable; pesan persistent; dashboard :15672."],
-        ["Notification Service", "Email simulasi; manual ack, prefetch 1; Set messageId hanya selama proses hidup."],
-    ], [48 * mm, 126 * mm])
+        ["Catalog Service :3000", "Produk, harga, dan stok; satu-satunya pengubah stok."],
+        ["Order Service :3001", "Pesanan dan snapshot harga; producer order.created."],
+        ["RabbitMQ :5672", "Exchange orders dan antrean durable; dashboard :15672."],
+        ["Notification Service", "Consumer, email simulasi, Set messageId, manual ack, prefetch 1."],
+    ], [0.32, 0.68])
+    heading("3.2 Kontrak Event dan Penanganan Pesan")
+    add("Payload memuat type=order.created dan data pesanan: id, customerName, items, total, status, serta createdAt. Setiap item berisi productId, name, quantity, unitPrice, dan subtotal. AMQP properties menggunakan messageId=order-${order.id}, contentType=application/json, dan persistent=true.")
+    add("Publisher menggunakan confirm channel secara asinkron dan mandatory=true. Confirm menunjukkan penerimaan publikasi oleh broker, bukan selesainya email. Event tanpa antrean tujuan dicatat sebagai unroutable. Nilai false dari channel.publish berarti buffer menahan backpressure, bukan pesan saat itu ditolak.")
+    add("Publisher mencoba reconnect setiap tiga detik ketika broker tidak tersedia. Order tetap dapat menerima HTTP 201, tetapi event yang tidak terkirim tidak direplay otomatis. Consumer melakukan manual ack; event atau JSON tidak valid di-nack tanpa requeue. Consumer perlu dijalankan kembali jika koneksi brokernya terputus.")
+    heading("3.3 Lingkungan dan Prosedur Menjalankan")
+    add("Lingkungan lokal menggunakan Node.js 22 atau lebih baru dan Docker Desktop dengan Linux engine. Persiapan dari root repository adalah npm ci, npm run setup, dan npm run broker:up. Consumer dijalankan dengan npm run start:notification sebelum order pertama diterbitkan agar antrean dan binding sudah terbentuk.")
+    add("Service HTTP dijalankan melalui npm start. Setelah publisher mencetak ready, request dapat dikirim melalui Postman atau npm run test:smoke. Gateway memakai alamat http://127.0.0.1:8080 dan header X-API-Key dari konfigurasi lokal. Dashboard RabbitMQ tersedia di http://127.0.0.1:15672. Kredensial cloud hanya disimpan melalui environment AMQP_URL.")
+    add("Pengujian otomatis memakai npm test dan npm run test:lab10:evidence. Demo memilih port HTTP bebas dan vhost baru agar tidak mengubah antrean pengguna. Screenshot otomatis memerlukan instalasi browser melalui npx playwright install chromium.")
 
-    page("2. Menjalankan dan kontrak event")
-    add("Persiapan dan terminal", "Sub10")
-    add("Gunakan Node.js 22+ dan Docker Desktop Linux. Dari root repository: <b>npm ci</b>, <b>npm run setup</b>, lalu <b>npm run broker:up</b>. Dashboard lokal http://127.0.0.1:15672 memakai akun demo bawaan RabbitMQ sesuai panduan; kredensial cloud hanya dalam environment AMQP_URL.")
-    add("Terminal 1 menjalankan <b>npm run start:notification</b> terlebih dahulu untuk membuat queue dan binding. Terminal 2 menjalankan <b>npm start</b>; tunggu log publisher ready. Terminal 3 menjalankan <b>npm run test:smoke</b> atau memakai collection Postman Lab 10 dengan API key lokal.")
-    add("Jalankan <b>npm test</b> dan <b>npm run test:lab10:evidence</b> untuk suite dan demo terisolasi. Screenshot otomatis memerlukan <b>npx playwright install chromium</b> sekali. Demo memilih port HTTP bebas dan virtual host RabbitMQ baru; tidak menghapus antrean pengguna.")
-    table(["Bagian", "Isi"], [
-        ["Exchange dan event", "orders / fanout / durable; type order.created"],
-        ["Payload data", "id, customerName, items (productId, name, quantity, unitPrice, subtotal), total, status, createdAt"],
-        ["Properties AMQP", "messageId = order-${order.id}; persistent=true; contentType=application/json"],
-        ["HTTP input", 'customerName dan items [{productId: "prod-001", quantity: 1}] sesuai API Lab 09'],
-        ["Ack", "Setelah email simulasi; JSON/event invalid di-nack tanpa requeue"],
-    ], [46 * mm, 128 * mm])
-    add("Confirm callback memeriksa penerimaan publikasi oleh broker tanpa menunggu consumer. mandatory=true mendeteksi event tanpa queue tujuan. Nilai false dari channel.publish berarti buffer penuh, bukan pesan ditolak. Reconnect publisher tiap 3 detik; tidak ada replay otomatis untuk event hilang.")
-    add("Data katalog, order, dan Set processed masih in-memory. Consumer tidak terhubung ke SMTP. Detail perintah eksperimen dan konfigurasi terdapat pada docs/lab10/README.md.", "Caption10")
-
-    page("3. Consumer mati: Ready = 3")
-    add("Pada uji manual pengguna, hanya Notification Service dihentikan. Tiga request pada folder Postman 02 Consumer mati masing-masing menghasilkan HTTP 201 Created. Gateway, Order Service, Catalog Service, dan RabbitMQ tetap berjalan.")
-    image(MANUAL / manual["dashboard"]["file"], max_height=145 * mm,
-          caption="Screenshot manual asli pengguna: notification-queue pada vhost /, Ready=3, Unacked=0, Consumers=0. Dashboard diperbarui 4 November 2026 pukul 17:13:11 UTC+7.")
-    table(["Pengamatan manual", "Nilai yang terlihat"], [
-        ["Antrean / virtual host", "notification-queue / vhost /"],
+    chapter("IV", "HASIL PENGUJIAN DAN PEMBAHASAN")
+    heading("4.1 Sumber Bukti Pengujian")
+    add("Pengujian manual menggunakan Postman, RabbitMQ Management UI, dan terminal VS Code pada virtual host /. Screenshot disalin utuh ke repository. Tabel waktu berikut merupakan transkripsi tampilan, dengan timestamp UTC pada log dikonversi ke UTC+7. Run otomatis sebelumnya memakai vhost terisolasi dan diperlakukan sebagai sumber bukti tersendiri.")
+    heading("4.2 Consumer Mati dan Pesan Menunggu")
+    add("Setelah consumer dihentikan, tiga request pada folder Postman 02 Consumer mati masing-masing mendapat 201 Created. Ketiga event menunggu di notification-queue ketika jumlah consumer nol. Pengirim dan penerima tidak harus aktif bersamaan jika broker aktif dan antrean sudah terikat.")
+    image(MANUAL / manual["dashboard"]["file"], "Gambar 4.1 Dashboard manual pada 4 November 2026 pukul 17:13:11 UTC+7. Judul halaman menunjukkan notification-queue pada vhost /.")
+    table(["Pengamatan", "Hasil manual"], [
         ["Ready / Unacked / Consumers", "3 / 0 / 0"],
-        ["Respons Postman", "Order 1, Order 2, dan Order 3 masing-masing 201 Created"],
-    ], [65 * mm, 109 * mm])
-    add("Dropdown global masih All, tetapi judul dan URL menunjukkan detail antrean pada virtual host /. Statistik pada halaman ini adalah milik antrean tersebut. Screenshot disalin utuh dari lampiran pengguna.", "Caption10")
+        ["Respons tiga request Postman", "Masing-masing 201 Created"],
+    ], [0.52, 0.48])
 
-    page("4. Consumer kembali: pesan tertahan diproses")
-    add("Pengguna menjalankan kembali npm run start:notification. Consumer-18824 menerima ketiga event tertahan, mencetak tiga email simulasi, dan memberikan ack untuk setiap pesan. OrderId pada terminal cocok dengan tiga respons Postman sebelumnya.")
-    image(MANUAL / manual["recovery"]["file"], max_height=140 * mm,
-          caption="Screenshot terminal VS Code asli pengguna. Ketiga log email terkirim (simulasi) masing-masing diikuti kind: acked.")
-    table(["Pesanan yang sama dengan Postman", "Email / ack (UTC+7)"], [
+    story.append(PageBreak())
+    heading("4.3 Consumer Dinyalakan Kembali")
+    add("Consumer dijalankan kembali melalui npm run start:notification. Consumer-18824 memproses ketiga pesan tertahan. Setiap email simulasi diikuti ack dan orderId-nya cocok dengan respons Postman sebelumnya.")
+    image(MANUAL / manual["recovery"]["file"], "Gambar 4.2 Terminal manual setelah consumer kembali berjalan dan memproses tiga pesan.")
+    table(["OrderId sesuai Postman", "Email / ack UTC+7"], [
         [entry["orderId"], f"{local_clock(entry['emailAt'])} / {local_clock(entry['ackedAt'])}"]
         for entry in manual["recovery"]["orders"]
-    ], [110 * mm, 64 * mm])
-    add("Waktu pada tabel adalah transkripsi screenshot terminal, dikonversi dari UTC (akhiran Z) ke UTC+7. Bukti manual pemulihan adalah tiga email dan tiga ack; screenshot dashboard sesudah pemulihan tidak disertakan.", "Caption10")
-    add("Pengirim dan penerima tidak harus aktif bersamaan jika broker aktif dan queue/binding telah dibuat. Exchange sendiri tidak menyimpan pesan tanpa antrean terikat.")
+    ], [0.62, 0.38])
+    add("Bukti manual pemulihan memperlihatkan tiga email dan tiga acknowledgement. Hal ini melengkapi screenshot Ready=3 sebelumnya dan membuktikan bahwa pesan yang tertahan dapat diproses setelah consumer pulih.")
 
-    page("5. Competing consumers dan publish/subscribe")
-    table(["Eksperimen", "Pengamatan aktual", "Makna"], [
-        ["Antrean sama", "6 event dibagi 3 ke worker-A dan 3 ke worker-B; ID tidak tumpang tindih", "Berbagi beban; satu salinan diproses satu worker pada satu waktu"],
-        ["Antrean berbeda", "2 event diterima notification-queue dan audit-queue; masing-masing memproses 2", "Fanout mengirim satu salinan ke setiap antrean terikat"],
-    ], [39 * mm, 69 * mm, 66 * mm])
-    image(EVIDENCE / "competing-consumers.png", max_height=108 * mm,
-          caption="Pembagian enam event pada dua consumer, satu antrean. Screenshot penuh dan log mentah tersedia di folder bukti.")
-    add("prefetch(1) membatasi satu pesan unacked per worker. Pembagian persis 3+3 adalah hasil run ini, bukan jaminan keseimbangan untuk semua waktu pemrosesan. Pada crash, pesan dapat berpindah worker melalui redelivery.")
-    add("Consumer audit memakai program simulasi yang sama dengan argumen audit-queue, bukan database audit produksi.", "Caption10")
-
-    page("6. Crash sebelum ack dan email dua kali")
+    story.append(PageBreak())
+    heading("4.4 Crash Sebelum Ack dan Redelivery")
     crash = manual["crash"]
-    add("Pengguna memulai consumer dengan --crash, lalu mengirim satu request dari folder Postman 05 Crash. Request mendapat 201 Created. Consumer-5556 mencetak email simulasi dan Crash sebelum ack!, lalu berhenti. Tanpa mengirim request baru, pengguna menjalankan consumer biasa dan pesan yang sama diproses ulang.")
-    image(MANUAL / crash["file"], max_height=137 * mm,
-          caption="Screenshot terminal asli pengguna: email pertama sebelum crash dan email kedua setelah restart memiliki messageId sama. Pemrosesan kedua menunjukkan redelivered:true dan diakhiri acked.")
-    add("MessageId: " + escape(crash["messageId"]), "Caption10")
-    table(["Tahap / consumer", "Waktu UTC+7", "Hasil pada log"], [
-        [f"Email pertama / {crash['firstConsumer']}", local_clock(crash["firstEmailAt"]), "redelivered:false; crash sebelum ack"],
-        [f"Email kedua / {crash['secondConsumer']}", local_clock(crash["secondEmailAt"]), "redelivered:true; pesan yang sama"],
-        [f"Ack / {crash['secondConsumer']}", local_clock(crash["ackedAt"]), "kind: acked"],
-    ], [66 * mm, 38 * mm, 70 * mm])
-    add("Set processed hilang saat proses mati sehingga duplikat tidak terdeteksi setelah restart. Broker mengirim ulang pesan yang belum di-ack: at-least-once, bukan jaminan email tepat sekali.")
+    add("Consumer dimulai dengan --crash, lalu satu request pada folder Postman 05 Crash dikirim dan mendapat 201 Created. Consumer-5556 mencetak email simulasi, menampilkan Crash sebelum ack!, lalu berhenti. Tanpa mengirim request baru, consumer biasa dijalankan kembali dan memproses pesan yang sama.")
+    image(MANUAL / crash["file"], "Gambar 4.3 Terminal manual menunjukkan email pertama sebelum crash dan email kedua sesudah restart.")
+    add("MessageId kedua pemrosesan adalah " + escape(crash["messageId"]) + ".", caption)
+    table(["Tahap", "Waktu UTC+7", "Hasil"], [
+        ["Email pertama", local_clock(crash["firstEmailAt"]), "consumer-5556; redelivered:false; crash sebelum ack"],
+        ["Email kedua", local_clock(crash["secondEmailAt"]), "consumer-18608; redelivered:true"],
+        ["Ack", local_clock(crash["ackedAt"]), "consumer-18608; kind: acked"],
+    ], [0.23, 0.26, 0.51])
+    add("Email tercetak dua kali untuk messageId yang sama karena broker belum menerima ack pertama dan Set processed hilang saat restart. Hasil ini menunjukkan perlunya idempotensi tahan restart.")
 
-    page("7. Verifikasi tambahan dan batas konsistensi")
-    table(["Pengujian", "Hasil aktual"], [
+    story.append(PageBreak())
+    heading("4.5 Competing Consumers dan Pub Sub")
+    add("Dua pola ini diperiksa pada run otomatis dengan RabbitMQ asli. Enam event pada satu antrean terbagi antara dua worker. Ketika dua antrean berbeda diikat ke exchange fanout yang sama, setiap antrean memperoleh salinan event.")
+    table(["Eksperimen", "Hasil run otomatis"], [
+        ["Competing consumers", "6 event dibagi 3 ke worker-A dan 3 ke worker-B; ID tidak tumpang tindih."],
+        ["Pub/sub", "2 event diterima notification-queue dan audit-queue; masing-masing memproses 2."],
+    ], [0.33, 0.67])
+    image(EVIDENCE / "competing-consumers.png", "Gambar 4.4 Rekaman otomatis pembagian enam event pada dua worker. Tampilan merupakan halaman rekaman skrip, bukan screenshot terminal.", 90 * mm)
+    add("Prefetch 1 membatasi satu pesan unacked per worker. Pembagian 3+3 adalah hasil run ini, bukan jaminan pembagian selalu seimbang. Consumer audit memakai program simulasi yang sama dengan argumen audit-queue; belum ada database audit produksi.")
+    heading("4.6 Pengujian Tambahan dan Konsistensi")
+    table(["Pengujian", "Hasil"], [
         ["Alur normal", "HTTP 201 diterima sebelum email simulasi selesai."],
-        ["Duplikat dalam proses sama", "MessageId lama di-ack dan dilewati; tidak ada email baru."],
-        ["JSON rusak", "nack(requeue=false); pesan tidak berputar tanpa batas."],
-        ["Publisher terputus", "Management API menutup hanya koneksi AMQP publisher; order tetap 201, event tidak terkirim."],
-        ["Publisher pulih", "Reconnect otomatis; event untuk order baru terkirim, event order saat putus tidak direplay."],
-        ["Suite Lab 09 + Lab 10", f"{stats['tests']} test, {stats['pass']} lulus, {stats['fail']} gagal."],
-    ], [52 * mm, 122 * mm])
-    add("Skenario gangguan publisher tidak mematikan seluruh broker. Unit test juga memeriksa kegagalan koneksi awal, channel error, backpressure, ack/nack, dan struktur event. Test Lab 09 yang tetap lulus mencakup stok, timeout, isolasi kegagalan, API key, gateway, dan frontend.")
-    add("Durable queue dan persistent message melindungi pesan yang sudah diantrekan dengan konfigurasi yang sesuai; keduanya tidak membuat penyimpanan order dan publish menjadi satu transaksi. Kegagalan sebelum publish dapat meninggalkan order tanpa notifikasi. Publisher confirms tidak berarti email sudah terkirim dan tidak menutup celah ini.")
-    add("Untuk produksi: simpan order dan transactional outbox dalam satu transaksi database, relay dengan retry dan confirms, lalu gunakan consumer idempotent. Untuk side effect database, unique (consumer_name, message_id) dan perubahan bisnis harus berada dalam transaksi yang sama, commit sebelum ack. Email eksternal membutuhkan outbox pengiriman dan idempotency key penyedia; tabel processed saja tidak menjamin exactly-once.")
-    add("Perbaikan produksi tersebut adalah rancangan lanjutan, belum fitur implementasi praktikum ini. Consumer sengaja memakai Set di memori untuk memperlihatkan eksperimen crash sesuai panduan.", "Caption10")
+        ["Duplikat pada proses sama", "ID lama di-ack dan dilewati tanpa email baru."],
+        ["Pesan rusak", "JSON tidak valid di-nack tanpa requeue."],
+        ["Publisher terputus", "Order tetap 201; event tidak terkirim. Setelah reconnect, event order baru terkirim."],
+        ["Suite Lab 09 dan Lab 10", f"{stats['pass']} dari {stats['tests']} test lulus; {stats['fail']} gagal."],
+    ], [0.36, 0.64])
+    add("Skenario gangguan publisher menutup hanya koneksi AMQP publisher melalui Management API, bukan seluruh broker. Unit test juga memeriksa kegagalan koneksi awal, channel error, backpressure, dan ack/nack. Delapan skenario integrasi RabbitMQ asli lulus pada run otomatis.")
+    add("Penyimpanan order dan publikasi event belum atomik. Jika RabbitMQ tidak tersedia, order dapat tersimpan tanpa notifikasi. Durable queue, persistent message, dan publisher confirms tidak menutup celah sebelum publikasi; pengembangan lanjutan memerlukan transactional outbox dan consumer idempotent.")
 
-    page("8. Penerapan proyek dan refleksi")
-    table(["Aspek", "Marketplace UMKM"], [
-        ["Interaksi", "Pemberitahuan pesanan baru setelah checkout."],
-        ["Event", "order.created; ID order, snapshot items/harga, quantity, total, status, waktu."],
-        ["Producer", "Order Service, setelah stok direservasi dan order disimpan."],
-        ["Consumer", "Notification Service; subscriber audit opsional pada antrean berbeda."],
-        ["Alasan asinkron", "Email bisa menyusul; consumer email mati tidak perlu membuat checkout gagal. Stok tetap sinkron karena hasilnya dibutuhkan untuk menerima order."],
-    ], [42 * mm, 132 * mm])
-    add("Refleksi (5 kalimat)", "Sub10")
+    chapter("V", "PENUTUP")
+    heading("5.1 Penerapan pada Proyek Marketplace UMKM")
+    add("Pemberitahuan pesanan baru dijadikan asinkron. Order Service menerbitkan order.created dan Notification Service membacanya melalui notification-queue; audit dapat memakai antrean terpisah. Event memuat ID pesanan, snapshot produk dan harga, jumlah, total, status, serta waktu. Notifikasi dapat menyusul tanpa menahan checkout, sedangkan reservasi stok tetap sinkron karena hasilnya menentukan penerimaan pesanan.")
+    heading("5.2 Refleksi")
     add("Jika RabbitMQ mati saat order dibuat, publisher mencatat bahwa event tidak terkirim, sementara order tetap tersimpan dan klien tetap menerima HTTP 201. Hal itu dapat membuat data pesanan dan notifikasi tidak konsisten, sehingga pengembangan selanjutnya memerlukan penyimpanan order bersama outbox dalam satu transaksi serta relay yang mencoba ulang. Consumer yang idempotent harus memakai messageId unik di penyimpanan tahan restart dan mencatat ID beserta side effect database secara atomik sebelum ack, bukan hanya menggunakan Set dalam memori. Untuk email eksternal, diperlukan outbox pengiriman dan dukungan idempotency key dari penyedia karena transaksi database sendiri tidak menjamin email terkirim tepat sekali. Panggilan sinkron tetap lebih tepat untuk reservasi stok dan pengambilan harga saat checkout karena Order Service harus mengetahui hasilnya sebelum menerima pesanan, sedangkan notifikasi dapat diproses kemudian.")
-    add("Sumber dan pengumpulan", "Sub10")
-    add("Bukti manual utama: docs/evidence/lab10/manual/ berisi tujuh screenshot asli, observations.json (transkripsi tampilan), dan SHA256SUMS.txt. Bukti otomatis pelengkap: docs/evidence/lab10/results.json, execution.txt, tests.txt, serta log tiap proses. Kedua sumber memakai waktu, ID, dan vhost berbeda; tidak dianggap satu run.")
-    add("Laporan lengkap: docs/lab10/README.md. Collection manual: docs/postman/lab10.postman_collection.json. Pengumpulan mengikuti panduan sebelum Lab 11.", "Caption10")
+    heading("5.3 Kesimpulan dan Batasan")
+    add("Bukti manual menunjukkan tiga pesan tertahan saat consumer mati, pemrosesan setelah pulih, dan email dua kali akibat crash sebelum ack. Suite otomatis melengkapi verifikasi dengan 75 test dan delapan skenario integrasi yang lulus. Stok, order, dan deduplikasi masih in-memory; transaksi outbox dan idempotensi tahan restart belum diimplementasikan. Pengujian Lab 10 berlangsung lokal melalui Docker; deployment Render yang sudah ada merupakan arsip Lab 09.")
+
+    story.append(PageBreak())
+    heading("DAFTAR PUSTAKA", 0)
     for label, url in [
-        ("RabbitMQ - Work Queues", "https://www.rabbitmq.com/tutorials/tutorial-two-javascript"),
-        ("RabbitMQ - Publish/Subscribe", "https://www.rabbitmq.com/tutorials/tutorial-three-javascript"),
-        ("amqplib - Channel API", "https://amqp-node.github.io/amqplib/channel_api.html"),
+        ("RabbitMQ. Work Queues Tutorial JavaScript.", "https://www.rabbitmq.com/tutorials/tutorial-two-javascript"),
+        ("RabbitMQ. Publish Subscribe Tutorial JavaScript.", "https://www.rabbitmq.com/tutorials/tutorial-three-javascript"),
+        ("amqplib. Channel API Reference.", "https://amqp-node.github.io/amqplib/channel_api.html"),
     ]:
-        add(f'<link href="{url}" color="#177b67">{label}</link>', "Caption10")
-    add("Panduan Praktikum Web Service Lab 10 - Philipus Suryo Subandoro, bahan tugas yang diberikan.", "Caption10")
+        add(f'<link href="{url}" color="black">{label}</link>')
+    add("Subandoro, Philipus Suryo. Panduan Praktikum Web Service Lab 10 Komunikasi Antar Service via Message Queue. Bahan tugas praktikum.")
+
+    story.append(PageBreak())
+    heading("LAMPIRAN SUMBER DAN REPRODUKSI", 0)
+    add("Repository pengumpulan tetap menggunakan repository Lab 09 dengan branch codex/lab10-message-queue. Tautan berikut membuka versi Lab 10 beserta sumber laporan dan bukti:")
+    add('<link href="https://github.com/academicbambang/prakwebservice-lab09-microservices/tree/codex/lab10-message-queue" color="black">Repository Lab 10 Marketplace UMKM</link>.')
+    add("Bukti manual utama berada pada docs/evidence/lab10/manual/, terdiri atas tujuh screenshot asli, observations.json sebagai transkripsi, dan SHA256SUMS.txt untuk pemeriksaan keutuhan. Gambar pada PDF disajikan dalam skala abu-abu; berkas screenshot asli di repository tidak diubah.")
+    add("Bukti otomatis pelengkap terdapat pada docs/evidence/lab10/results.json, execution.txt, tests.txt, dan log tiap proses. Dokumen lengkap serta prosedur manual tersedia pada docs/lab10/README.md; collection Postman berada pada docs/postman/lab10.postman_collection.json.")
+    add("Untuk membangun ulang laporan, jalankan python scripts/build-lab10-report.py menggunakan Python yang memiliki reportlab dan Pillow. Builder membaca bukti yang sudah tersimpan, tidak menjalankan ulang pengujian dan tidak mengubah antrean yang sedang digunakan.")
 
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-
-    def chrome(canvas, doc):
-        canvas.saveState()
-        canvas.setStrokeColor(colors.HexColor("#d1dee6"))
-        canvas.line(18 * mm, 18 * mm, 192 * mm, 18 * mm)
-        canvas.setFont("Body", 8)
-        canvas.setFillColor(MUTED)
-        canvas.drawString(18 * mm, 12 * mm, "LAB 10 | Bambang Herlambang - 5803024019 | Bukti lokal RabbitMQ")
-        canvas.drawRightString(192 * mm, 12 * mm, str(doc.page))
-        canvas.restoreState()
-
-    doc = SimpleDocTemplate(str(OUTPUT), pagesize=(210 * mm, 297 * mm),
-                            rightMargin=18 * mm, leftMargin=18 * mm,
-                            topMargin=19 * mm, bottomMargin=25 * mm,
-                            title="Laporan Praktikum Web Service Sesi 10 - RabbitMQ",
-                            author="Bambang Herlambang")
-    doc.build(story, onFirstPage=chrome, onLaterPages=chrome)
+    doc = FormalDoc(str(OUTPUT), pagesize=(PAGE_W, PAGE_H), leftMargin=LEFT, rightMargin=RIGHT,
+                    topMargin=TOP, bottomMargin=BOTTOM, title="Laporan Praktikum Web Service Sesi 10",
+                    author="Bambang Herlambang")
+    doc.addPageTemplates(PageTemplate(id="Formal", frames=[Frame(LEFT, BOTTOM, WIDTH, HEIGHT,
+                         leftPadding=0, rightPadding=0, topPadding=0, bottomPadding=0)], onPageEnd=footer))
+    doc.multiBuild(story)
+    review = ROOT / "tmp/pdfs/lab10-formal"
+    review.mkdir(parents=True, exist_ok=True)
+    (review / "contents-map.json").write_text(json.dumps(doc.heading_pages, indent=2), encoding="utf-8")
     print(OUTPUT)
+    print(f"Pages: {doc.page}; body starts on physical page {doc.body_start}")
 
 
 if __name__ == "__main__":
