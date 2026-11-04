@@ -4,7 +4,7 @@
 
 Lab 10 melanjutkan repository Lab 09 ini. Order Service tetap mereservasi stok lewat HTTP, lalu menerbitkan `order.created` ke exchange fanout `orders`. Consumer `notification-service` memproses notifikasi simulasi dengan ack manual dan `prefetch(1)` tanpa menahan respons pesanan `201`.
 
-Tautan pengumpulan Lab 10: [branch `codex/lab10-message-queue` pada repository yang sama](https://github.com/academicbambang/prakwebservice-lab09-microservices/tree/codex/lab10-message-queue).
+Tautan pengumpulan Lab 10: [branch `lab10-message-queue` pada repository yang sama](https://github.com/academicbambang/prakwebservice-lab09-microservices/tree/lab10-message-queue).
 
 - [Laporan lengkap, prosedur manual, penerapan proyek, dan refleksi Lab 10](docs/lab10/README.md).
 - [Bukti eksekusi RabbitMQ aktual](docs/evidence/lab10/README.md) dan [halaman hasil](docs/evidence/lab10/index.html).

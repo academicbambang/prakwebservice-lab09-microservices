@@ -328,8 +328,8 @@ def build():
 
     story.append(PageBreak())
     heading("LAMPIRAN SUMBER DAN REPRODUKSI", 0)
-    add("Repository pengumpulan tetap menggunakan repository Lab 09 dengan branch codex/lab10-message-queue. Tautan berikut membuka versi Lab 10 beserta sumber laporan dan bukti:")
-    add('<link href="https://github.com/academicbambang/prakwebservice-lab09-microservices/tree/codex/lab10-message-queue" color="black">Repository Lab 10 Marketplace UMKM</link>.')
+    add("Repository pengumpulan tetap menggunakan repository Lab 09 dengan branch lab10-message-queue. Tautan berikut membuka versi Lab 10 beserta sumber laporan dan bukti:")
+    add('<link href="https://github.com/academicbambang/prakwebservice-lab09-microservices/tree/lab10-message-queue" color="black">Repository Lab 10 Marketplace UMKM</link>.')
     add("Bukti manual utama berada pada docs/evidence/lab10/manual/, terdiri atas tujuh screenshot asli, observations.json sebagai transkripsi, dan SHA256SUMS.txt untuk pemeriksaan keutuhan. Gambar pada PDF disajikan dalam skala abu-abu; berkas screenshot asli di repository tidak diubah.")
     add("Bukti otomatis pelengkap terdapat pada docs/evidence/lab10/results.json, execution.txt, tests.txt, dan log tiap proses. Dokumen lengkap serta prosedur manual tersedia pada docs/lab10/README.md; collection Postman berada pada docs/postman/lab10.postman_collection.json.")
     add("Untuk membangun ulang laporan, jalankan python scripts/build-lab10-report.py menggunakan Python yang memiliki reportlab dan Pillow. Builder membaca bukti yang sudah tersimpan, tidak menjalankan ulang pengujian dan tidak mengubah antrean yang sedang digunakan.")

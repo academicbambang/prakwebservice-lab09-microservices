@@ -6,7 +6,7 @@ Proyek: **Marketplace UMKM (Kelompok D)**. Panduan Lab 10 menetapkan praktikum b
 
 Repository: [prakwebservice-lab09-microservices](https://github.com/academicbambang/prakwebservice-lab09-microservices). Lab 10 dikembangkan di repository Lab 09 yang sama; tidak membuat repository baru. Folder dan bukti Lab 09 tetap tersedia.
 
-Tautan pengumpulan versi Lab 10: [codex/lab10-message-queue](https://github.com/academicbambang/prakwebservice-lab09-microservices/tree/codex/lab10-message-queue).
+Tautan pengumpulan versi Lab 10: [lab10-message-queue](https://github.com/academicbambang/prakwebservice-lab09-microservices/tree/lab10-message-queue).
 
 ## Tujuan dan hasil
 
