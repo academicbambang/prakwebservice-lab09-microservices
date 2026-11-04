@@ -1,4 +1,4 @@
-"""Build a PDF from the actual Lab 10 integration records and screenshots.
+"""Build a PDF from Lab 10 automated records and original manual screenshots.
 
 Requires Python with reportlab and Pillow. Does not run tests or recreate evidence.
 """
@@ -22,6 +22,7 @@ from reportlab.platypus import (
 
 ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE = ROOT / "docs/evidence/lab10"
+MANUAL = EVIDENCE / "manual"
 OUTPUT = ROOT / "output/pdf/laporan-praktikum-sesi-10.pdf"
 INK = colors.HexColor("#163546")
 GREEN = colors.HexColor("#177b67")
@@ -58,6 +59,16 @@ def build():
         stats[key] = int(match.group(1))
     if stats["fail"]:
         raise ValueError("Test failures must be resolved before the report is built")
+    manual = json.loads((MANUAL / "observations.json").read_text(encoding="utf-8"))
+    for name in [manual["dashboard"]["file"], manual["recovery"]["file"],
+                 manual["crash"]["file"], manual["crash"]["postmanFile"],
+                 *(order["postmanFile"] for order in manual["recovery"]["orders"])]:
+        if not (MANUAL / name).is_file():
+            raise FileNotFoundError(MANUAL / name)
+
+    def local_clock(iso_timestamp):
+        stamp = datetime.fromisoformat(iso_timestamp.replace("Z", "+00:00")).astimezone(timezone(timedelta(hours=7)))
+        return stamp.strftime("%H:%M:%S.") + f"{stamp.microsecond // 1000:03d}"
 
     styles = getSampleStyleSheet()
     styles.add(ParagraphStyle(name="BodyText10", fontName="Body", fontSize=10, leading=15,
@@ -121,15 +132,17 @@ def build():
     story.append(Spacer(1, 8 * mm))
     table(["Verifikasi", "Hasil aktual"], [
         ["Suite otomatis Lab 09 + Lab 10", f"{stats['pass']}/{stats['tests']} lulus, {stats['fail']} gagal"],
-        ["Integrasi RabbitMQ asli", "8 skenario lulus; seluruh proses demo sudah ditutup"],
+        ["Integrasi RabbitMQ asli", "8 skenario lulus pada run otomatis"],
         ["Broker", f"RabbitMQ {result['broker']['rabbitmqVersion']}; Docker, volume persisten"],
-        ["Waktu awal run", local.strftime("%d-%m-%Y %H:%M:%S") + " UTC+7"],
+        ["Waktu awal run otomatis", local.strftime("%d-%m-%Y %H:%M:%S") + " UTC+7"],
+        ["Bukti manual pengguna", "04-11-2026, 17:13-17:18 UTC+7; vhost /; dashboard dan terminal asli"],
     ], [65 * mm, 109 * mm])
     add("Repository yang sama dengan Lab 09:")
     add('<link href="https://github.com/academicbambang/prakwebservice-lab09-microservices" color="#177b67">github.com/academicbambang/prakwebservice-lab09-microservices</link>', "Caption10")
     add('<link href="https://github.com/academicbambang/prakwebservice-lab09-microservices/tree/codex/lab10-message-queue" color="#177b67">Versi pengumpulan: branch codex/lab10-message-queue</link>', "Caption10")
     add("Ringkasan", "Sub10")
     add("Order Service tetap memastikan stok melalui HTTP, lalu menerbitkan order.created ke RabbitMQ. Consumer memproses email simulasi secara terpisah. Pengujian membuktikan antrean menahan pesan ketika consumer mati, membagi beban antarkerja, menyebarkan salinan melalui fanout, serta mengirim ulang pesan yang belum di-ack.")
+    add("Bukti utama consumer mati/pulih dan crash memakai screenshot manual pengguna. Hasil competing consumers, pub/sub, dan verifikasi tambahan berasal dari run otomatis yang terpisah.", "Caption10")
     add("Bukti lokal ini tidak menyatakan bahwa Lab 10 sudah dideploy ke Render. URL dan bukti deployment lama di repository adalah arsip Lab 09.", "Caption10")
 
     page("1. Arsitektur dan batas service")
@@ -158,17 +171,26 @@ def build():
     add("Data katalog, order, dan Set processed masih in-memory. Consumer tidak terhubung ke SMTP. Detail perintah eksperimen dan konfigurasi terdapat pada docs/lab10/README.md.", "Caption10")
 
     page("3. Consumer mati: Ready = 3")
-    add("Setelah queue terikat, hanya Notification Service dihentikan. Tiga order quantity 1 tetap menerima HTTP 201. Statistik broker menunjukkan Ready=3, Unacked=0, Consumers=0; publisher, order, gateway, dan katalog tetap berjalan.")
-    image(EVIDENCE / "dashboard-ready-3.png", max_height=164 * mm,
-          caption="Screenshot RabbitMQ Management UI asli saat consumer mati. Virtual host terisolasi run ini ditampilkan di dashboard.")
-    add("Virtual host run: " + escape(result["vhost"]), "Caption10")
-    add("Pada prosedur manual, dashboard memakai vhost /; demo otomatis memakai vhost baru agar tidak mencampur data dengan pengujian pengguna. Screenshot diambil sebelum consumer pemulihan dijalankan.")
+    add("Pada uji manual pengguna, hanya Notification Service dihentikan. Tiga request pada folder Postman 02 Consumer mati masing-masing menghasilkan HTTP 201 Created. Gateway, Order Service, Catalog Service, dan RabbitMQ tetap berjalan.")
+    image(MANUAL / manual["dashboard"]["file"], max_height=145 * mm,
+          caption="Screenshot manual asli pengguna: notification-queue pada vhost /, Ready=3, Unacked=0, Consumers=0. Dashboard diperbarui 4 November 2026 pukul 17:13:11 UTC+7.")
+    table(["Pengamatan manual", "Nilai yang terlihat"], [
+        ["Antrean / virtual host", "notification-queue / vhost /"],
+        ["Ready / Unacked / Consumers", "3 / 0 / 0"],
+        ["Respons Postman", "Order 1, Order 2, dan Order 3 masing-masing 201 Created"],
+    ], [65 * mm, 109 * mm])
+    add("Dropdown global masih All, tetapi judul dan URL menunjukkan detail antrean pada virtual host /. Statistik pada halaman ini adalah milik antrean tersebut. Screenshot disalin utuh dari lampiran pengguna.", "Caption10")
 
     page("4. Consumer kembali: pesan tertahan diproses")
-    add("Consumer dinyalakan kembali dan menerima tiga event yang tertahan. Ketiganya diproses dan di-ack, dengan ID yang sama seperti tiga order ketika consumer mati. Setelah selesai, Ready=0 dan Unacked=0.")
-    image(EVIDENCE / "consumer-recovered.png", max_height=177 * mm,
-          caption="Tangkapan halaman rekaman log proses aktual; bukan screenshot terminal. Setiap email simulasi diikuti ack.")
-    add("Pengirim dan penerima tidak harus aktif bersamaan jika broker aktif dan queue/binding telah dibuat. Exchange sendiri bukan tempat penyimpanan: tanpa antrean terikat, pesan fanout tidak dapat ditahan.")
+    add("Pengguna menjalankan kembali npm run start:notification. Consumer-18824 menerima ketiga event tertahan, mencetak tiga email simulasi, dan memberikan ack untuk setiap pesan. OrderId pada terminal cocok dengan tiga respons Postman sebelumnya.")
+    image(MANUAL / manual["recovery"]["file"], max_height=140 * mm,
+          caption="Screenshot terminal VS Code asli pengguna. Ketiga log email terkirim (simulasi) masing-masing diikuti kind: acked.")
+    table(["Pesanan yang sama dengan Postman", "Email / ack (UTC+7)"], [
+        [entry["orderId"], f"{local_clock(entry['emailAt'])} / {local_clock(entry['ackedAt'])}"]
+        for entry in manual["recovery"]["orders"]
+    ], [110 * mm, 64 * mm])
+    add("Waktu pada tabel adalah transkripsi screenshot terminal, dikonversi dari UTC (akhiran Z) ke UTC+7. Bukti manual pemulihan adalah tiga email dan tiga ack; screenshot dashboard sesudah pemulihan tidak disertakan.", "Caption10")
+    add("Pengirim dan penerima tidak harus aktif bersamaan jika broker aktif dan queue/binding telah dibuat. Exchange sendiri tidak menyimpan pesan tanpa antrean terikat.")
 
     page("5. Competing consumers dan publish/subscribe")
     table(["Eksperimen", "Pengamatan aktual", "Makna"], [
@@ -181,12 +203,17 @@ def build():
     add("Consumer audit memakai program simulasi yang sama dengan argumen audit-queue, bukan database audit produksi.", "Caption10")
 
     page("6. Crash sebelum ack dan email dua kali")
-    crash = next(entry for entry in result["scenarios"] if entry["id"] == "crash-redelivery")["data"]
-    add("Semua consumer notification-queue dihentikan, lalu satu consumer dimulai dengan --crash. Satu order dibuat; consumer mencetak email simulasi lalu keluar dengan kode 1 sebelum ack. Ketika consumer biasa dimulai kembali, pesan yang sama dikirim ulang.")
-    image(EVIDENCE / "crash-redelivery.png", max_height=170 * mm,
-          caption="Dua log email memiliki messageId dan orderId sama. Pemrosesan kedua menunjukkan redelivered=true dan kemudian ack.")
+    crash = manual["crash"]
+    add("Pengguna memulai consumer dengan --crash, lalu mengirim satu request dari folder Postman 05 Crash. Request mendapat 201 Created. Consumer-5556 mencetak email simulasi dan Crash sebelum ack!, lalu berhenti. Tanpa mengirim request baru, pengguna menjalankan consumer biasa dan pesan yang sama diproses ulang.")
+    image(MANUAL / crash["file"], max_height=137 * mm,
+          caption="Screenshot terminal asli pengguna: email pertama sebelum crash dan email kedua setelah restart memiliki messageId sama. Pemrosesan kedua menunjukkan redelivered:true dan diakhiri acked.")
     add("MessageId: " + escape(crash["messageId"]), "Caption10")
-    add("Set processed hilang saat proses mati sehingga duplikat tidak terdeteksi setelah restart. Broker memberi redelivery untuk pesan yang belum di-ack: at-least-once, bukan jaminan email tepat sekali.")
+    table(["Tahap / consumer", "Waktu UTC+7", "Hasil pada log"], [
+        [f"Email pertama / {crash['firstConsumer']}", local_clock(crash["firstEmailAt"]), "redelivered:false; crash sebelum ack"],
+        [f"Email kedua / {crash['secondConsumer']}", local_clock(crash["secondEmailAt"]), "redelivered:true; pesan yang sama"],
+        [f"Ack / {crash['secondConsumer']}", local_clock(crash["ackedAt"]), "kind: acked"],
+    ], [66 * mm, 38 * mm, 70 * mm])
+    add("Set processed hilang saat proses mati sehingga duplikat tidak terdeteksi setelah restart. Broker mengirim ulang pesan yang belum di-ack: at-least-once, bukan jaminan email tepat sekali.")
 
     page("7. Verifikasi tambahan dan batas konsistensi")
     table(["Pengujian", "Hasil aktual"], [
@@ -213,7 +240,8 @@ def build():
     add("Refleksi (5 kalimat)", "Sub10")
     add("Jika RabbitMQ mati saat order dibuat, publisher mencatat bahwa event tidak terkirim, sementara order tetap tersimpan dan klien tetap menerima HTTP 201. Hal itu dapat membuat data pesanan dan notifikasi tidak konsisten, sehingga pengembangan selanjutnya memerlukan penyimpanan order bersama outbox dalam satu transaksi serta relay yang mencoba ulang. Consumer yang idempotent harus memakai messageId unik di penyimpanan tahan restart dan mencatat ID beserta side effect database secara atomik sebelum ack, bukan hanya menggunakan Set dalam memori. Untuk email eksternal, diperlukan outbox pengiriman dan dukungan idempotency key dari penyedia karena transaksi database sendiri tidak menjamin email terkirim tepat sekali. Panggilan sinkron tetap lebih tepat untuk reservasi stok dan pengambilan harga saat checkout karena Order Service harus mengetahui hasilnya sebelum menerima pesanan, sedangkan notifikasi dapat diproses kemudian.")
     add("Sumber dan pengumpulan", "Sub10")
-    add("Laporan lengkap: docs/lab10/README.md. Bukti aktual: docs/evidence/lab10/results.json, execution.txt, tests.txt, screenshot, dan log tiap proses. Collection manual: docs/postman/lab10.postman_collection.json. Pengumpulan mengikuti panduan sebelum Lab 11.")
+    add("Bukti manual utama: docs/evidence/lab10/manual/ berisi tujuh screenshot asli, observations.json (transkripsi tampilan), dan SHA256SUMS.txt. Bukti otomatis pelengkap: docs/evidence/lab10/results.json, execution.txt, tests.txt, serta log tiap proses. Kedua sumber memakai waktu, ID, dan vhost berbeda; tidak dianggap satu run.")
+    add("Laporan lengkap: docs/lab10/README.md. Collection manual: docs/postman/lab10.postman_collection.json. Pengumpulan mengikuti panduan sebelum Lab 11.", "Caption10")
     for label, url in [
         ("RabbitMQ - Work Queues", "https://www.rabbitmq.com/tutorials/tutorial-two-javascript"),
         ("RabbitMQ - Publish/Subscribe", "https://www.rabbitmq.com/tutorials/tutorial-three-javascript"),

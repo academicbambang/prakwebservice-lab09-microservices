@@ -160,7 +160,19 @@ Jika RabbitMQ belum tersedia atau koneksi/channel putus, publisher mencoba terhu
 
 Consumer memakai manual ack setelah simulasi email; JSON/event/messageId tidak valid di-nack dengan `requeue=false` agar tidak menjadi poison-message loop. Belum ada dead-letter queue. Consumer keluar jika koneksi broker putus dan perlu dijalankan ulang; publisher reconnect otomatis. Simulator tidak memakai SMTP, database persisten, atau transactional outbox.
 
-## Hasil pengujian dan bukti
+## Bukti manual utama untuk pengumpulan
+
+Pengguna mengulangi skenario melalui Postman, dashboard RabbitMQ, dan terminal VS Code pada **4 November 2026**, menggunakan **virtual host `/`** dan gateway `http://127.0.0.1:8080`. Screenshot asli disimpan utuh pada [folder bukti manual](../evidence/lab10/manual/README.md) dan dipakai dalam PDF sebagai bukti utama butir (2) dan (3).
+
+| Butir | Hasil yang terlihat | Bukti manual |
+| --- | --- | --- |
+| (2) Consumer mati | Tiga order mendapat `201`; dashboard menunjukkan Ready=3, Unacked=0, Consumers=0 | [Dashboard](../evidence/lab10/manual/dashboard-ready-3.png) |
+| (2) Consumer pulih | Consumer-18824 memproses ketiga order yang sama, masing-masing mencetak email simulasi dan ack | [Terminal pemulihan](../evidence/lab10/manual/consumer-recovered.png) |
+| (3) Crash sebelum ack | Consumer-5556 mencetak email lalu crash; consumer-18608 mencetak email lagi untuk messageId sama dengan `redelivered:true`, lalu ack | [Terminal crash dan restart](../evidence/lab10/manual/crash-redelivery.png) |
+
+Pesanan pemulihan memiliki ID `ord-bd26a0b2-c7cb-46af-ad4d-01b98781f94c`, `ord-6719eaac-ba69-42f9-8db5-f9abebf2ccea`, dan `ord-4d7c4a99-27bb-4202-80fc-d05d3e6e0c4c`. ID tersebut cocok antara screenshot Postman dan log terminal. Pada uji crash, messageId `order-ord-be4655b1-d9ce-439c-8849-f709e063c999` mencetak email pertama pukul **17:18:05.452 UTC+7**, kemudian email kedua pukul **17:18:51.502 UTC+7** setelah restart. Rincian timestamp, screenshot Postman, dan asal berkas dicatat pada README bukti manual; nilai JSON manual merupakan transkripsi screenshot.
+
+## Hasil pengujian otomatis dan reproduksi
 
 Jalankan:
 
@@ -193,7 +205,7 @@ Demo membutuhkan Management API lokal dengan izin membuat vhost (akun demo defau
 
 Skenario terakhir menutup **hanya koneksi AMQP publisher melalui Management API**, bukan mematikan seluruh RabbitMQ. Ini menguji celah event hilang saat transport publisher tidak tersedia dan pemulihan koneksi. Penanganan koneksi awal yang gagal juga diuji dalam unit test. [Log suite](../evidence/lab10/tests.txt) memuat pengujian Lab 09 dan Lab 10; [JSON integrasi](../evidence/lab10/results.json) serta [log lengkap](../evidence/lab10/execution.txt) merupakan sumber angka di laporan.
 
-Screenshot dashboard adalah UI RabbitMQ asli. Screenshot log lainnya adalah tampilan browser atas log aktual yang disimpan skrip, bukan screenshot terminal atau Postman; log mentah tiap proses juga disertakan. Tidak ada kredensial broker/API key pada bukti. Screenshot harus direkam ulang bersama JSON/TXT dari satu run yang sama; menjalankan demo tanpa `:evidence` tidak memperbarui PNG.
+Tabel pengujian otomatis di atas merujuk arsip run skrip, terpisah dari bukti manual utama. Screenshot dashboard otomatis adalah UI RabbitMQ asli; screenshot log otomatis merupakan tampilan browser atas log aktual yang disimpan skrip, dan log mentah tiap proses juga disertakan. Tidak ada kredensial broker/API key pada bukti. Screenshot otomatis harus direkam ulang bersama JSON/TXT dari satu run yang sama; menjalankan demo tanpa `:evidence` tidak memperbarui PNG. Bukti manual tidak ditimpa oleh perintah demo tersebut.
 
 ## Penerapan ke proyek Marketplace UMKM
 

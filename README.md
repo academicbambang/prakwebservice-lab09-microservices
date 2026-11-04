@@ -8,6 +8,7 @@ Tautan pengumpulan Lab 10: [branch `codex/lab10-message-queue` pada repository y
 
 - [Laporan lengkap, prosedur manual, penerapan proyek, dan refleksi Lab 10](docs/lab10/README.md).
 - [Bukti eksekusi RabbitMQ aktual](docs/evidence/lab10/README.md) dan [halaman hasil](docs/evidence/lab10/index.html).
+- [Screenshot manual Postman, dashboard Ready=3, pemulihan consumer, dan crash/redelivery](docs/evidence/lab10/manual/README.md) menjadi bukti utama pada PDF terbaru.
 - [Diagram Lab 10](docs/lab10/arsitektur.png) dan [sumber Mermaid](docs/lab10/arsitektur.mmd).
 - [Laporan PDF Lab 10](output/pdf/laporan-praktikum-sesi-10.pdf).
 

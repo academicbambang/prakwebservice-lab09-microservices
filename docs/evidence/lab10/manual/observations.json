@@ -1,0 +1,57 @@
+{
+  "source": "Screenshot asli yang dikirim pengguna dalam chat; nilai berikut ditranskripsikan dari tampilan, bukan ekspor log mesin.",
+  "date": "2026-11-04",
+  "timezone": "UTC+7",
+  "vhost": "/",
+  "queue": "notification-queue",
+  "gateway": "http://127.0.0.1:8080",
+  "dashboard": {
+    "file": "dashboard-ready-3.png",
+    "refreshedAtLocal": "2026-11-04 17:13:11",
+    "ready": 3,
+    "unacked": 0,
+    "consumers": 0
+  },
+  "recovery": {
+    "file": "consumer-recovered.png",
+    "consumer": "consumer-18824",
+    "orders": [
+      {
+        "orderId": "ord-bd26a0b2-c7cb-46af-ad4d-01b98781f94c",
+        "postmanFile": "postman-order-1.png",
+        "httpStatus": 201,
+        "emailAt": "2026-11-04T10:14:08.914Z",
+        "ackedAt": "2026-11-04T10:14:08.915Z"
+      },
+      {
+        "orderId": "ord-6719eaac-ba69-42f9-8db5-f9abebf2ccea",
+        "postmanFile": "postman-order-2.png",
+        "httpStatus": 201,
+        "emailAt": "2026-11-04T10:14:09.929Z",
+        "ackedAt": "2026-11-04T10:14:09.929Z"
+      },
+      {
+        "orderId": "ord-4d7c4a99-27bb-4202-80fc-d05d3e6e0c4c",
+        "postmanFile": "postman-order-3.png",
+        "httpStatus": 201,
+        "emailAt": "2026-11-04T10:14:10.939Z",
+        "ackedAt": "2026-11-04T10:14:10.940Z"
+      }
+    ]
+  },
+  "crash": {
+    "file": "crash-redelivery.png",
+    "postmanFile": "postman-crash-order.png",
+    "httpStatus": 201,
+    "orderId": "ord-be4655b1-d9ce-439c-8849-f709e063c999",
+    "messageId": "order-ord-be4655b1-d9ce-439c-8849-f709e063c999",
+    "firstConsumer": "consumer-5556",
+    "firstEmailAt": "2026-11-04T10:18:05.452Z",
+    "firstRedelivered": false,
+    "crashAt": "2026-11-04T10:18:05.452Z",
+    "secondConsumer": "consumer-18608",
+    "secondEmailAt": "2026-11-04T10:18:51.502Z",
+    "secondRedelivered": true,
+    "ackedAt": "2026-11-04T10:18:51.503Z"
+  }
+}

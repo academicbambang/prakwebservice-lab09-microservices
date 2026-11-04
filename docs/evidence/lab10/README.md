@@ -1,5 +1,13 @@
 # Bukti aktual Lab 10
 
+## Bukti manual utama
+
+Laporan PDF sekarang memakai [screenshot manual pengguna](manual/README.md) untuk butir (2) dan (3): [dashboard Ready=3](manual/dashboard-ready-3.png), [log pemulihan consumer](manual/consumer-recovered.png), serta [crash dan email dua kali](manual/crash-redelivery.png). Keempat screenshot Postman pendukung, pencocokan orderId, waktu lokal, dan hash berkas tersedia di folder `manual/`.
+
+Bukti manual diambil 4 November 2026 pada vhost `/`, sekitar pukul 17:13-17:18 UTC+7. Bukti otomatis di bawah memakai vhost `lab10-...` dan eksekusi tersendiri. Screenshot manual adalah dashboard/terminal/Postman asli; screenshot log otomatis merupakan halaman browser atas rekaman skrip.
+
+## Arsip pengujian otomatis
+
 Seluruh hasil berasal dari RabbitMQ Docker asli dan proses katalog, pesanan, gateway, serta consumer Node.js terpisah. Demo dijalankan dengan `npm run test:lab10:evidence`. Run final, timestamp, versi broker, vhost, dan delapan hasil skenario dicatat pada [`results.json`](results.json); status akhir harus `passed: true`.
 
 ## Berkas pengumpulan
