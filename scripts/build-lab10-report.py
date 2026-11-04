@@ -107,10 +107,11 @@ class Cover(Flowable):
         canvas.setFont("Body", 12)
         canvas.drawString(20 * mm, self.height - 170 * mm, "Bambang Herlambang")
         canvas.drawRightString(WIDTH - 20 * mm, self.height - 170 * mm, "5803024019")
-        line("PROGRAM STUDI INFORMATIKA", 207, 13, True)
-        line("FAKULTAS TEKNIK", 215, 13, True)
-        line("UNIVERSITAS KATOLIK WIDYA MANDALA SURABAYA", 223, 12, True)
-        line("2026", 231, 13, True)
+        line("PROGRAM STUDI INFORMATIKA", 207, 12, True)
+        line("FAKULTAS TEKNIK", 215, 12, True)
+        line("UNIVERSITAS KATOLIK WIDYA MANDALA", 223, 12, True)
+        line("SURABAYA", 231, 12, True)
+        line("2026", 239, 12, True)
 
 
 def local_clock(value):
