@@ -1,6 +1,6 @@
 # Lab 11 — Dokumentasi API Otomatis
 
-Versi siap dibaca/dicetak: [PDF laporan terbaru, 16 halaman](<../../output/pdf/Laporan Praktikum Web Service Sesi 11.pdf>). PDF revisi pengguna menempatkan screenshot beserta penjelasan pada bagian pembahasan dan menambahkan screenshot akhir Swagger Editor. [main.tex](../latex-lab11/main.tex) dan [ZIP Overleaf](../../output/latex/laporan-praktikum-sesi-11-overleaf.zip), dengan [petunjuk kompilasi](../latex-lab11/README.md), masih merupakan sumber versi awal 14 halaman dengan lampiran landscape; keduanya belum disinkronkan dengan revisi PDF terbaru.
+Versi siap dibaca/dicetak: [PDF laporan terbaru, 19 halaman](<../../output/pdf/Laporan Praktikum Web Service Sesi 11.pdf>). Screenshot revisi pengguna dipertahankan dan Bagian 6 diperluas dengan tiga endpoint Auth + Gateway. [main.tex revisi](../latex-lab11/revision/main.tex) dan [ZIP Overleaf](../../output/latex/laporan-praktikum-sesi-11-overleaf.zip) sudah disinkronkan; lihat [petunjuk kompilasi](../latex-lab11/revision/README.md). Sumber revisi menggunakan PDF dasar untuk mempertahankan halaman awal karena sumber LaTeX revisi pengguna tidak tersedia.
 
 Sumber tugas: [Lab 11 Web Service](https://webservice.philipus.my.id/praktikum/lab-11). Implementasi melanjutkan repository Lab 09, termasuk perubahan Lab 10 yang sudah ada. Lab 10 bukan prasyarat menjalankan dokumentasi.
 
@@ -84,7 +84,7 @@ Langkah reproduksi impor manual:
 
 Bagian individual Bambang adalah **Auth + Gateway**, berdasarkan dokumen serah-terima proyek. [OpenAPI khusus proyek](../proyek-auth-service.openapi.yaml) kini mendokumentasikan tiga endpoint Auth yang sudah ada di kode proyek: POST `/auth/token`, GET `/.well-known/jwks.json`, dan GET `/auth/me`. Skema form token, header/JWT, respons sukses, error envelope dan kode error disertakan. [Dokumen pendamping](penerapan-proyek-auth-gateway.md) menjelaskan scope, database akun, routing gateway, perbedaan port dengan praktikum toko, dan batas verifikasi. Tiga rute sama dengan kontrak proyek pada commit yang dicatat dalam [manifest sumber](proyek-auth-source.json).
 
-Dokumen Auth ini terpisah dari kontrak produk/pesanan praktikum dan tidak mengganti root `openapi.json` toko. Validasi spesifikasi dan empat tes Auth/Gateway terpilih lulus lokal; tidak ada deployment atau perubahan kode proyek kelompok dalam pekerjaan dokumentasi ini. Dokumen baru melengkapi bagian proyek pada PDF 16 halaman yang sudah ada; PDF dan ZIP LaTeX tidak dikompilasi ulang pada pembaruan dokumentasi Auth ini. Anggota lain tetap menyiapkan dokumentasi service masing-masing.
+Dokumen Auth ini terpisah dari kontrak produk/pesanan praktikum dan tidak mengganti root `openapi.json` toko. Validasi spesifikasi dan empat tes Auth/Gateway terpilih lulus lokal; tidak ada deployment atau perubahan kode proyek kelompok dalam pekerjaan dokumentasi ini. Kontrak Auth sudah dimasukkan ke Bagian 6 PDF terbaru (19 halaman), lengkap dengan skema request, respons, dan kode error. PDF dan ZIP LaTeX sudah dikompilasi ulang. Anggota lain tetap menyiapkan dokumentasi service masing-masing.
 
 ## Refleksi (5 kalimat)
 

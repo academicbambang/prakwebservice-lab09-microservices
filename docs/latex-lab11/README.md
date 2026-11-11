@@ -1,6 +1,8 @@
 # LaTeX laporan Praktikum Web Service Sesi 11
 
-**Status sumber:** folder ini dan ZIP Overleaf menghasilkan versi awal 14 halaman. PDF terbaru yang direvisi pengguna adalah [Laporan Praktikum Web Service Sesi 11.pdf](<../../output/pdf/Laporan Praktikum Web Service Sesi 11.pdf>) (16 halaman); sumber LaTeX revisi tersebut belum disertakan. Jangan menganggap hasil build berikut identik dengan PDF terbaru. Build tetap memakai nama output lama agar tidak menimpa PDF revisi pengguna.
+**Versi terbaru:** [PDF 19 halaman](<../../output/pdf/Laporan Praktikum Web Service Sesi 11.pdf>) memuat Bagian 6 Auth + Gateway. Gunakan [sumber revisi dan petunjuk build](revision/README.md) atau [ZIP Overleaf terbaru](../../output/latex/laporan-praktikum-sesi-11-overleaf.zip). Sumber revisi mempertahankan halaman awal melalui PDF dasar revisi pengguna dan menyusun ulang halaman akhir dengan LaTeX.
+
+**Arsip versi awal:** `main.tex` dan instruksi di bawah menghasilkan versi awal 14 halaman, bukan PDF terbaru. Build lama memakai nama output berbeda agar tidak menimpa PDF revisi.
 
 Sumber utama: `main.tex`. Laporan memuat implementasi OpenAPI, langkah menjalankan, hasil pengujian, drift, validasi/impor, refleksi lima kalimat, serta sembilan screenshot manual. Lampiran menggunakan halaman landscape agar screenshot lebih mudah dibaca. Tidak ada API key pada gambar yang disertakan.
 

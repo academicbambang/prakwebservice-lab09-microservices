@@ -5,7 +5,7 @@
 Lab 11 memakai **repository Lab 09 yang sama**, sesuai [panduan praktikum](https://webservice.philipus.my.id/praktikum/lab-11). Folder `catalog-service` berperan sebagai product-service. Anotasi `@openapi` pada kode kedua service menghasilkan spesifikasi dengan `swagger-jsdoc`; gateway mengambil spesifikasi saat `/openapi.json` diminta, menambahkan prefix, menggabungkan komponen, lalu menampilkan Swagger UI. RabbitMQ dari Lab 10 tidak wajib untuk Lab 11.
 
 - [Laporan, hasil pengujian, penyesuaian, dan refleksi Lab 11](docs/lab11/README.md).
-- [Laporan PDF Sesi 11 terbaru, 16 halaman](<output/pdf/Laporan Praktikum Web Service Sesi 11.pdf>). [Sumber LaTeX awal](docs/latex-lab11/main.tex) dan [ZIP Overleaf awal](output/latex/laporan-praktikum-sesi-11-overleaf.zip) menghasilkan versi 14 halaman; belum disinkronkan dengan revisi PDF terbaru.
+- [Laporan PDF Sesi 11 terbaru, 19 halaman](<output/pdf/Laporan Praktikum Web Service Sesi 11.pdf>) sudah memuat tiga endpoint Auth + Gateway pada Bagian 6. [Sumber LaTeX revisi](docs/latex-lab11/revision/main.tex), [ZIP Overleaf](output/latex/laporan-praktikum-sesi-11-overleaf.zip), dan [petunjuk build](docs/latex-lab11/revision/README.md) sudah disinkronkan. Halaman awal dipertahankan melalui PDF dasar revisi pengguna.
 - [OpenAPI gabungan untuk dikumpulkan](openapi.json) dan [koleksi Postman hasil konversi](docs/postman/lab11.postman_collection.json).
 - [Screenshot dan bukti aktual Lab 11](docs/evidence/lab11/README.md).
 - [Bukti manual utama: Swagger, drift, Swagger Editor, dan Postman 200 OK](docs/evidence/lab11/manual/README.md).
