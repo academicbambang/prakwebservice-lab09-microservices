@@ -1,5 +1,7 @@
 # Lab 11 — Dokumentasi API Otomatis
 
+Versi siap dibaca/dicetak: [PDF laporan](../../output/pdf/laporan-praktikum-sesi-11.pdf). Sumber tersedia sebagai [main.tex](../latex-lab11/main.tex) dan [ZIP siap Overleaf](../../output/latex/laporan-praktikum-sesi-11-overleaf.zip), dengan [petunjuk kompilasi](../latex-lab11/README.md). PDF menyertakan sembilan screenshot manual pada lampiran landscape.
+
 Sumber tugas: [Lab 11 Web Service](https://webservice.philipus.my.id/praktikum/lab-11). Implementasi melanjutkan repository Lab 09, termasuk perubahan Lab 10 yang sudah ada. Lab 10 bukan prasyarat menjalankan dokumentasi.
 
 **Pembaruan bukti: 11 November 2026.** Pengguna telah menyelesaikan pengambilan screenshot manual gateway, respons 409 beserta dokumentasinya, drift sebelum/sesudah, impor Swagger Editor, dan impor OpenAPI ke Postman dengan GET produk 200 OK. [Galeri bukti manual](../evidence/lab11/manual/README.md) menjadi bukti utama pengumpulan; [manifest SHA-256](../evidence/lab11/manual/verification.json) mencatat asal file dan integritas gambar. Semua PNG disalin utuh tanpa perubahan piksel.

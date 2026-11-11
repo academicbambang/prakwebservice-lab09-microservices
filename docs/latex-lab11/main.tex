@@ -1,0 +1,230 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[left=2.2cm,right=2.2cm,top=2cm,bottom=2cm]{geometry}
+\usepackage{graphicx,booktabs,tabularx,array,xcolor}
+\usepackage{microtype,fancyhdr,titlesec,enumitem,caption,listings,xurl,pdflscape}
+\usepackage[unicode,hidelinks]{hyperref}
+\hypersetup{pdftitle={Laporan Praktikum Web Service Sesi 11 - Dokumentasi API Otomatis},pdfauthor={Bambang Herlambang},pdfsubject={OpenAPI, Swagger, drift, dan impor Postman}}
+\graphicspath{{images/}}
+\pagestyle{fancy}\fancyhf{}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\setlength{\headheight}{14pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\setlength{\emergencystretch}{3em}
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+\titlespacing*{\section}{0pt}{10pt}{6pt}
+\titlespacing*{\subsection}{0pt}{7pt}{4pt}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\renewcommand{\arraystretch}{1.15}
+\setlist{nosep,leftmargin=1.5em,topsep=3pt}
+\renewcommand{\figurename}{Gambar}
+\captionsetup{font=small,labelfont=bf,labelsep=period,justification=raggedright,singlelinecheck=false}
+\newcommand{\code}[1]{{\small\texttt{\detokenize{#1}}}}
+\newcommand{\branchurl}{https://github.com/academicbambang/prakwebservice-lab09-microservices/tree/lab11-openapi}
+\definecolor{listingbg}{gray}{0.96}
+\lstset{basicstyle=\small\ttfamily,backgroundcolor=\color{listingbg},frame=single,breaklines=true,columns=fullflexible,keepspaces=true,showstringspaces=false,aboveskip=6pt,belowskip=6pt}
+\newcommand{\evidencepage}[4]{%
+  \clearpage
+  \section*{#1}
+  #3\par
+  \vspace{4pt}
+  \begin{center}
+  \includegraphics[width=\linewidth,height=0.76\textheight,keepaspectratio]{#2}
+  \end{center}
+  \vspace{-5pt}
+  \captionof{figure}{#4}
+}
+\begin{document}
+\hypersetup{pageanchor=false}
+\begin{titlepage}
+\centering
+{\bfseries LAPORAN PRAKTIKUM WEB SERVICE\par}
+\vspace{0.7cm}
+{\Large\bfseries SESI 11\par}
+\vspace{0.2cm}
+{\large\bfseries DOKUMENTASI API OTOMATIS\par}
+{\large\bfseries (OPENAPI/SWAGGER)\par}
+\vspace{0.8cm}
+\includegraphics[width=6.5cm,height=6.5cm,keepaspectratio]{logo-ukwms.png}\par
+\vspace{0.7cm}
+{\bfseries DISUSUN OLEH\par}
+\vspace{0.25cm}
+Bambang Herlambang\par
+NRP 5803024019\par
+\vspace{0.35cm}
+11 November 2026\par
+\vfill
+{\bfseries PROGRAM STUDI INFORMATIKA\par
+FAKULTAS TEKNIK\par
+UNIVERSITAS KATOLIK WIDYA MANDALA\par
+SURABAYA\par
+2026\par}
+\end{titlepage}
+\hypersetup{pageanchor=true}
+\setcounter{page}{1}
+
+\section{Tujuan dan ruang lingkup}
+Praktikum Sesi 11 menghasilkan dokumentasi OpenAPI dari anotasi kode pada layanan produk dan pesanan, menggabungkannya melalui gateway, serta menguji kesesuaian respons terhadap kontrak. Eksperimen drift memperlihatkan perbedaan antara field respons dan skema, kemudian memperbaikinya. Spesifikasi hasil gateway divalidasi dan diimpor ke Postman.
+
+Pengerjaan menggunakan repository Lab 09 yang sama, melalui branch \code{lab11-openapi} yang melanjutkan branch Lab 10. Folder \code{catalog-service} berperan sebagai product-service. RabbitMQ dari Lab 10 tidak wajib dijalankan untuk Lab 11; peringatan broker tidak tersedia tidak menghalangi dokumentasi HTTP.
+
+\textbf{Repository pengumpulan:}\par
+\url{https://github.com/academicbambang/prakwebservice-lab09-microservices/tree/lab11-openapi}
+
+\section{Arsitektur dan implementasi dokumentasi}
+\begin{lstlisting}
+Browser --> gateway :8080/docs/
+               GET /openapi.json (agregasi saat diminta)
+                 +--> catalog-service :3000/openapi.json
+                 +--> order-service   :3001/openapi.json
+Kedua service juga menyediakan /docs/ masing-masing.
+\end{lstlisting}
+
+Anotasi YAML \code{@openapi} terdapat pada \code{catalog-service/app.js} dan \code{order-service/app.js}. Paket \code{swagger-jsdoc} membacanya melalui \code{apis: [__filename]} dengan \code{failOnErrors: true}; Swagger UI disajikan oleh setiap service. Perubahan anotasi memerlukan restart service.
+
+Gateway mengambil spesifikasi kedua service secara paralel pada setiap permintaan \code{/openapi.json}, dengan timeout dua detik per sumber. Path diberi prefix \code{/product-service} dan \code{/order-service}; server gabungan memakai \code{/} agar Try it out mengarah ke origin gateway. Komponen dan referensi lokal diberi namespace \code{catalog_} dan \code{order_} untuk mencegah benturan nama.
+
+Rute dokumentasi dipasang sebelum proxy dan rate limiter. Kontrak gabungan memuat API key/401, kuota/429, dan kegagalan proxy/502. Jika satu sumber dokumentasi mati, sumber sehat tetap ditampilkan dan status sumber dilaporkan pada \code{x-documentation-sources}. Spesifikasi parsial tidak menyatakan seluruh sistem sehat.
+
+\begin{tabularx}{\linewidth}{@{}lYY@{}}
+\toprule
+Layanan & Spesifikasi & Dokumentasi interaktif\\
+\midrule
+Katalog :3000 & \code{/openapi.json} & \code{/docs/}\\
+Pesanan :3001 & \code{/openapi.json} & \code{/docs/}\\
+Gateway :8080 & \code{/openapi.json} gabungan & \code{/docs/} gabungan\\
+\bottomrule
+\end{tabularx}
+
+\clearpage
+\section{Cara menjalankan dan konfigurasi}
+Gunakan Node.js versi 22 atau lebih baru. Dari root repository:
+\begin{lstlisting}
+npm ci
+npm run setup
+npm start
+\end{lstlisting}
+Launcher memulai katalog pada port 3000, pesanan pada 3001, dan gateway pada 8080. Setelah ketiganya siap, buka \url{http://127.0.0.1:8080/docs/}. Perintah setup membuat API key lokal pada \code{gateway/.env}; masukkan nilainya melalui tombol Authorize untuk pesanan dan reservasi stok. Nilai key tidak dimasukkan ke laporan atau repository.
+
+\begin{tabularx}{\linewidth}{@{}lY@{}}
+\toprule
+Variabel & Kegunaan\\
+\midrule
+\code{PORT}, \code{HOST} & Port gateway (default 8080) dan alamat bind.\\
+\code{CATALOG_PORT}, \code{ORDER_PORT} & Port backend (default 3000 dan 3001).\\
+\code{CATALOG_SERVICE_URL} & Origin katalog untuk gateway dan pemanggilan oleh order.\\
+\code{ORDER_SERVICE_URL} & Origin layanan pesanan untuk gateway.\\
+\code{API_KEY}, \code{API_KEY_SHA256} & Key atau alternatif hash key untuk autentikasi gateway.\\
+\code{TRUST_PROXY} & Jumlah proxy tepercaya; default 0 untuk akses lokal.\\
+\code{PRODUCT_DOC_URL}, \code{ORDER_DOC_URL} & Override URL penuh spesifikasi; default mengikuti origin service.\\
+\code{AMQP_URL}, \code{ORDER_EXCHANGE} & Konfigurasi event Lab 10, opsional untuk Lab 11.\\
+\bottomrule
+\end{tabularx}
+
+\subsection{Contoh permintaan pesanan}
+Pada POST \code{/order-service/orders}, klik Try it out dan isi:
+\begin{lstlisting}
+{"customerName":"Praktikum Lab 11",
+ "items":[{"productId":"prod-001","quantity":2}]}
+\end{lstlisting}
+Respons sukses adalah 201. GET \code{/product-service/products/prod-001} dipakai untuk memeriksa stok. Data berada di memori dan kembali ke seed saat service di-restart.
+
+\subsection{Penyesuaian terhadap contoh panduan}
+ID produk pada repo berbentuk string \code{prod-001}, bukan integer 1. Body pesanan memakai customerName dan array items; jumlah setiap item bernama quantity dan dibatasi 1--100. Karena itu quantity 100 dipakai untuk menguji stok tidak cukup (409), sedangkan 999 menghasilkan input tidak valid (400). Respons menggunakan envelope \code{data}, dengan field service pada daftar. Field category sudah tersedia sejak Lab 09; eksperimen drift dilakukan dengan menghapus sementara anotasinya, bukan menambah field data baru.
+
+\clearpage
+\section{Hasil pengujian dan eksperimen drift}
+\subsection{Demo otomatis yang telah direkam}
+Demo membuka Swagger UI dan menggunakan Try it out/Execute. Rekaman asli tersedia pada \code{docs/evidence/lab11/results.json}; waktu eksekusi tercatat 11 November 2026 pukul 08:13 UTC (15:13 UTC+7).
+
+\begin{tabularx}{\linewidth}{@{}YcY@{}}
+\toprule
+Skenario & HTTP & Hasil aktual\\
+\midrule
+prod-001, quantity 2 & 201 & Pesanan tersimpan; stok 40 menjadi 38.\\
+prod-001, quantity 100 & 409 & Stok tidak cukup; tersedia 38 setelah order sukses.\\
+prod-099, quantity 2 & 404 & Produk tidak ditemukan.\\
+quantity 999 & 400 & Melanggar batas input quantity 1--100.\\
+Katalog dihentikan & 503 & Layanan pesanan melaporkan dependensi tidak tersedia.\\
+\bottomrule
+\end{tabularx}
+
+Semua respons pesanan yang direkam lolos validasi skema AJV terhadap spesifikasi yang telah di-dereference. Spesifikasi lolos Swagger Parser. Verifikasi lokal menghasilkan \textbf{78 dari 78 tes lulus}; CI pada pembaruan bukti manual juga sukses. Tiga tes regresi baru mencakup field produk yang belum didokumentasikan, benturan nama komponen/pengambilan ulang spesifikasi, serta sumber dokumentasi yang gagal.
+
+\subsection{Bukti manual respons 409}
+Sesi manual menghasilkan 409 Conflict dengan pesan stok tersedia \textbf{40} (Gambar 2), dan kontrak endpoint memuat status 409 (Gambar 3). Angka 40 berasal dari sesi manual terpisah, sedangkan angka 38 pada tabel berasal dari demo otomatis setelah order quantity 2. Contoh \code{available: 0} pada dokumentasi adalah contoh statis, bukan hasil request manual.
+
+\subsection{Drift sebelum dan sesudah diperbaiki}
+Pada skema Product dalam \code{catalog-service/app.js}, anotasi category dihapus sementara dari required, properties, dan example. Setelah file disimpan dan aplikasi di-restart, GET produk tetap mengembalikan \code{category: kuliner} (Gambar 4), tetapi skema \code{catalog_Product} hanya berisi id, name, price, stock, dan seller (Gambar 5). Perbedaan ini membuktikan drift pada skema.
+
+Ketiga bagian anotasi kemudian dikembalikan, aplikasi di-restart, dan Swagger di-refresh. Category bertipe string serta contoh category kembali muncul (Gambar 6). Kode final sudah memiliki property, required, dan example category. Contoh respons yang ditulis terpisah pada endpoint masih dapat memuat category selama eksperimen; pembuktian drift berfokus pada skema Product.
+
+OpenAPI pada dasarnya mengizinkan properti tambahan sehingga validasi biasa belum tentu menolak field respons yang belum didokumentasikan. Pencegahannya meliputi tinjauan perubahan skema, pengujian kelengkapan field/kontrak pada CI, dan penggunaan sumber skema bersama. Eksperimen ini sengaja dibuat untuk praktikum, bukan temuan bug category pada kode awal.
+
+\clearpage
+\section{Validasi OpenAPI dan impor Postman}
+Ekspor gateway disimpan sebagai \code{openapi.json} pada root setelah anotasi dipulihkan. Isinya sama secara struktural dengan \code{gateway/openapi.json}. Swagger Parser lokal menyatakan spesifikasi OpenAPI 3.0.3 valid. Swagger Editor berhasil memuat judul Lab 11 dan merender endpoint (Gambar 7); tidak terlihat panel error pada screenshot tersebut.
+
+Pada Postman, pengguna mengimpor file OpenAPI langsung menggunakan opsi \textit{OpenAPI 3.0 Specification with a Postman Collection} (Gambar 8). Request \textit{Daftar dan cari produk} dibuka dari koleksi Lab 11; baseUrl diatur ke \url{http://127.0.0.1:8080}, lalu filter category dan search dinonaktifkan. Tombol Send menghasilkan \textbf{200 OK} dan JSON daftar produk (Gambar 9).
+
+Koleksi JSON hasil konverter juga tersedia sebagai:
+\begin{quote}
+\code{docs/postman/lab11.postman_collection.json}
+\end{quote}
+Bukti manual berasal dari impor OpenAPI langsung, bukan impor koleksi tambahan tersebut. Status impor yang belum diverifikasi pada rekaman demo otomatis dipertahankan sebagai riwayat saat demo dijalankan. Status terbaru dan SHA-256 screenshot tersimpan dalam \code{verification.json} pada folder \code{docs/evidence/lab11/manual/}.
+
+\section{Penerapan ke proyek dan batasan}
+Katalog mendokumentasikan minimal tiga endpoint REST: GET \code{/products}, GET \code{/products/{id}}, dan POST reservasi produk. Pesanan memiliki POST \code{/orders}, GET \code{/orders}, dan GET detail pesanan. Parameter, skema request/response, dan kode error tercantum dalam anotasi. Domain marketplace UMKM dapat menjadi referensi dokumentasi proyek kelompok; penerapan setiap anggota ke service pada repo proyek terpisah belum diklaim selesai oleh laporan ini.
+
+Seluruh hasil yang ditampilkan merupakan eksekusi lokal. Laporan tidak menyatakan deployment publik Lab 09 telah diperbarui. Audit runtime pada sesi verifikasi melaporkan nol kerentanan; alat konversi Postman sebagai devDependency masih memiliki temuan transitif dan hanya dipakai pada spesifikasi repo sendiri.
+
+\section{Refleksi}
+Pendekatan code-first memudahkan pengembang menjaga dokumentasi dekat dengan handler dan menghasilkan Swagger UI dari kode yang sudah berjalan. Dibanding contract-first pada Lab 03, pendekatan ini lebih cepat diterapkan pada service lama, tetapi kontrak baru diketahui setelah implementasi dan anotasi masih dapat tertinggal. Eksperimen category menunjukkan bahwa generator membaca anotasi, bukan memahami seluruh perubahan objek respons, sehingga code-first mengurangi tetapi tidak menghilangkan drift. Tim dapat mencegah drift melalui tinjauan perubahan skema, pengujian kontrak pada CI, pemeriksaan field respons, dan aturan bahwa perubahan endpoint harus disertai perubahan dokumentasi. Event \code{order.created} dari Lab 10 sebaiknya didokumentasikan dengan AsyncAPI yang menjelaskan broker RabbitMQ, exchange/channel, payload, producer, consumer, serta perilaku ack/redelivery, karena OpenAPI mendeskripsikan kontrak HTTP dan tidak mencakup alur event tersebut.
+
+\subsection*{Sumber dan lokasi bukti}
+Panduan: \url{https://webservice.philipus.my.id/praktikum/lab-11}. Laporan Markdown: \code{docs/lab11/README.md}. Bukti utama: \code{docs/evidence/lab11/manual/}. Semua screenshot lampiran adalah PNG asli pengguna pada 11 November 2026, ditampilkan tanpa perubahan isi; gambar yang menampilkan API key tidak dimasukkan.
+
+\clearpage
+\begin{landscape}
+\evidencepage{Lampiran 1. Dokumentasi gabungan gateway}{01-swagger-groups.png}
+{Gateway lokal menampilkan Products dan Orders beserta prefix service masing-masing.}
+{Dua grup endpoint pada gateway. Sumber: Screenshot (1964).png.}
+
+\evidencepage{Lampiran 2. Respons aktual 409}{02-swagger-409-response.png}
+{Try it out menghasilkan 409 Conflict untuk quantity 100; pesan aktual menyatakan stok tersedia 40.}
+{Respons aktual 409 pada sesi manual. Sumber: Screenshot (1973).png.}
+
+\evidencepage{Lampiran 3. Dokumentasi respons 409}{02-swagger-409-documentation.png}
+{Kontrak endpoint mendokumentasikan 409 sebagai stok tidak cukup. Nilai available 0 merupakan contoh dokumentasi.}
+{Status 409 pada daftar respons yang didokumentasikan. Sumber: Screenshot (1974).png.}
+
+\evidencepage{Lampiran 4. Respons produk saat drift}{03-drift-before-response.png}
+{GET produk melalui Swagger menghasilkan 200 dan tetap memuat category meskipun anotasi skema sementara dihapus.}
+{Field category tetap ada pada respons nyata. Sumber: Screenshot (1978).png.}
+
+\evidencepage{Lampiran 5. Skema sebelum perbaikan}{03-drift-before-schema.png}
+{Skema catalog\_Product tidak memiliki category, berbeda dari respons nyata pada Gambar 4.}
+{Skema Product saat terjadi drift. Sumber: Screenshot (1983).png.}
+
+\evidencepage{Lampiran 6. Skema sesudah perbaikan}{04-drift-after-schema.png}
+{Setelah anotasi dipulihkan dan service di-restart, category bertipe string serta contohnya kembali tercantum.}
+{Skema Product setelah perbaikan anotasi. Sumber: Screenshot (1984).png.}
+
+\evidencepage{Lampiran 7. Swagger Editor}{05-swagger-editor.png}
+{Spesifikasi Lab 11 diimpor dan dirender pada Swagger Editor; tidak terlihat panel error pada screenshot.}
+{Impor dan tampilan spesifikasi pada Swagger Editor. Sumber: Screenshot (1985).png.}
+
+\evidencepage{Lampiran 8. Impor OpenAPI ke Postman}{06-postman-import.png}
+{Dialog mengenali OpenAPI 3.0 serta nama koleksi Lab 11; keberhasilan request sesudah impor ditunjukkan Gambar 9.}
+{Dialog impor file OpenAPI langsung ke Postman. Sumber: Screenshot (1986).png.}
+
+\evidencepage{Lampiran 9. Request Postman berhasil}{07-postman-200.png}
+{Request GET produk dari koleksi hasil impor menghasilkan 200 OK dan daftar produk dengan category.}
+{Hasil aktual Postman sesudah impor OpenAPI. Sumber: Screenshot (1990).png.}
+\end{landscape}
+\end{document}
