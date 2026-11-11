@@ -9,6 +9,7 @@ Lab 11 memakai **repository Lab 09 yang sama**, sesuai [panduan praktikum](https
 - [OpenAPI gabungan untuk dikumpulkan](openapi.json) dan [koleksi Postman hasil konversi](docs/postman/lab11.postman_collection.json).
 - [Screenshot dan bukti aktual Lab 11](docs/evidence/lab11/README.md).
 - [Bukti manual utama: Swagger, drift, Swagger Editor, dan Postman 200 OK](docs/evidence/lab11/manual/README.md).
+- Penerapan individual Bambang untuk **Auth + Gateway**: [OpenAPI tiga endpoint Auth](docs/proyek-auth-service.openapi.yaml) dan [penjelasan kontrak/provenance](docs/lab11/penerapan-proyek-auth-gateway.md). Dokumen terpisah ini melengkapi bagian proyek pada PDF.
 - Branch pengumpulan: `lab11-openapi`; perubahan ini belum menyatakan deployment publik Lab 09 telah diperbarui.
 
 Jalankan dari root dengan Node.js >=22:

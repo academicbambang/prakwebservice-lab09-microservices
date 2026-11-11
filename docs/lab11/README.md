@@ -82,7 +82,9 @@ Langkah reproduksi impor manual:
 
 ## Penerapan ke proyek dan cakupan endpoint
 
-Implementasi ini menggunakan domain marketplace UMKM sehingga kontrak produk/pesanan langsung dapat menjadi referensi dokumentasi service proyek. Katalog mendokumentasikan minimal tiga endpoint REST: GET `/products`, GET `/products/{id}`, POST `/products/{id}/reserve` (ditambah reservasi batch dan GraphQL). Pesanan juga memiliki tiga endpoint: POST `/orders`, GET `/orders`, GET `/orders/{id}`. Skema request, response, parameter path, dan kode error ada pada anotasi service. Ini bukti implementasi pada repo praktikum; perubahan atau deployment pada repository proyek kelompok terpisah tidak diklaim. Masing-masing anggota tetap perlu memetakan dan memverifikasi kontrak pada service proyek yang menjadi tanggung jawabnya untuk dokumen individual UAS.
+Bagian individual Bambang adalah **Auth + Gateway**, berdasarkan dokumen serah-terima proyek. [OpenAPI khusus proyek](../proyek-auth-service.openapi.yaml) kini mendokumentasikan tiga endpoint Auth yang sudah ada di kode proyek: POST `/auth/token`, GET `/.well-known/jwks.json`, dan GET `/auth/me`. Skema form token, header/JWT, respons sukses, error envelope dan kode error disertakan. [Dokumen pendamping](penerapan-proyek-auth-gateway.md) menjelaskan scope, database akun, routing gateway, perbedaan port dengan praktikum toko, dan batas verifikasi. Tiga rute sama dengan kontrak proyek pada commit yang dicatat dalam [manifest sumber](proyek-auth-source.json).
+
+Dokumen Auth ini terpisah dari kontrak produk/pesanan praktikum dan tidak mengganti root `openapi.json` toko. Validasi spesifikasi dan empat tes Auth/Gateway terpilih lulus lokal; tidak ada deployment atau perubahan kode proyek kelompok dalam pekerjaan dokumentasi ini. Dokumen baru melengkapi bagian proyek pada PDF 16 halaman yang sudah ada; PDF dan ZIP LaTeX tidak dikompilasi ulang pada pembaruan dokumentasi Auth ini. Anggota lain tetap menyiapkan dokumentasi service masing-masing.
 
 ## Refleksi (5 kalimat)
 
@@ -94,4 +96,4 @@ Pendekatan code-first memudahkan pengembang menjaga dokumentasi dekat dengan han
 - Screenshot gateway dua grup endpoint, respons 409 beserta dokumentasinya, serta drift sebelum/sesudah: [daftar bukti](../evidence/lab11/README.md).
 - Commit mengecualikan node_modules, file .env, dan API key.
 - Impor manual Swagger Editor dan Postman telah dilengkapi; bukti utama tersedia di [folder manual](../evidence/lab11/manual/README.md).
-- Penerapan tiap anggota ke service repository proyek masing-masing tetap berada di luar perubahan repository praktikum ini.
+- Dokumentasi minimal tiga endpoint Auth untuk bagian Bambang tersedia pada [penerapan Auth + Gateway](penerapan-proyek-auth-gateway.md). Publikasi ke repository proyek terpisah dan deployment tidak dilakukan oleh pembaruan ini.

@@ -1,0 +1,36 @@
+{
+  "project": "umkm-marketplace",
+  "projectHead": "4a69c545400b1e6631ddb888f7ab9e6e12b8edac",
+  "selectedRoutesMatchCommittedContract": {
+    "/auth/token": true,
+    "/.well-known/jwks.json": true,
+    "/auth/me": true
+  },
+  "scope": "Documentation snapshot of three existing Auth endpoints; no production request or deployment performed",
+  "sources": [
+    {
+      "path": "services/auth/openapi.yaml",
+      "sha256": "12d2d2965ca27f74af4785b881244b0739b75244de6d337341c64927d7d38c31"
+    },
+    {
+      "path": "services/auth/src/index.ts",
+      "sha256": "eda0733f8676d3fd83c13fb689802021a9ee763cf454085e9bd558b02b8fbf73"
+    },
+    {
+      "path": "services/auth/src/onboarding.ts",
+      "sha256": "5be7ae2628c1ee8c1a988dd7b998bb18a323bcd8e3602ca357ba78a30a7ef77f"
+    },
+    {
+      "path": "services/auth/src/accounts.ts",
+      "sha256": "b1b1a7d4ff048a2c5307d74e5c587bb9043de004456ebb55d808f684c39aa266"
+    },
+    {
+      "path": "packages/security/src/index.ts",
+      "sha256": "65bf81f77a62ccb583ffb32c096b6a57ea8d28fc30108a685032f21a79994e3b"
+    },
+    {
+      "path": "gateway/src/index.ts",
+      "sha256": "34661e82ce95ba435842088aafba1b1a8f696c2f34098d863965c5bafb11247a"
+    }
+  ]
+}

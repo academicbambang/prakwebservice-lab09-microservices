@@ -1,0 +1,553 @@
+openapi: 3.0.3
+info:
+  title: Auth Service - Marketplace UMKM Lokal - Bambang Herlambang
+  version: 0.3.0
+  description: Penerapan Lab 11 untuk komponen Auth + Gateway milik Bambang Herlambang (5803024019). Dokumentasi
+    tiga endpoint Auth diturunkan dari kontrak dan kode proyek, bukan rancangan endpoint register/login password
+    baru. Server pada file ini adalah Auth lokal langsung, terpisah dari port praktikum toko. Routing gateway
+    proyek dijelaskan pada dokumen pendamping. Validasi OpenAPI tidak sama dengan bukti deployment atau pengujian
+    online. Jangan memasukkan secret client, JWT aktif, atau private signing key ke file ini.
+servers:
+- url: http://127.0.0.1:3001
+  description: Auth proyek lokal langsung; bukan order-service praktikum toko
+tags:
+- name: Identity
+  description: Token layanan, JWKS publik, dan profil akun terverifikasi
+x-owner:
+  name: Bambang Herlambang
+  studentId: '5803024019'
+  component: Auth + Gateway
+paths:
+  /auth/token:
+    post:
+      operationId: issueClientToken
+      tags:
+      - Identity
+      summary: Menerbitkan JWT untuk client layanan yang terdaftar
+      description: Scope harus terdaftar untuk client pada registry server. Selain read:catalog, client order-service
+        dapat meminta reserve:stock, commit:stock dan release:stock jika masing-masing diberikan pada registry.
+        Client lain tidak dapat menerima scope reservasi. Scope yang tidak disebutkan tetap default read:catalog;
+        tidak ada pemberian seluruh scope secara otomatis. Secret diverifikasi terhadap hash, tanpa password
+        grant.
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ClientCredentialsRequest'
+            example:
+              grant_type: client_credentials
+              client_id: order-service
+              client_secret: GANTI_DENGAN_SECRET_CLIENT_LOKAL
+              scope: read:catalog
+      responses:
+        '200':
+          description: JWT role service dengan scope terbatas; Cache-Control no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientTokenResponse'
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                - no-store
+            X-Correlation-ID:
+              schema:
+                type: string
+                format: uuid
+        '400':
+          description: Grant, scope atau parameter berulang tidak valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  code: INVALID_SCOPE
+                  message: Grant, scope atau parameter berulang tidak valid
+                  correlationId: 00000000-0000-4000-8000-000000000002
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                - no-store
+            X-Correlation-ID:
+              schema:
+                type: string
+                format: uuid
+        '401':
+          description: Client atau secret tidak valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  code: INVALID_CLIENT
+                  message: Client atau secret tidak valid
+                  correlationId: 00000000-0000-4000-8000-000000000002
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                - no-store
+            X-Correlation-ID:
+              schema:
+                type: string
+                format: uuid
+        '413':
+          description: Body melebihi 4096 byte
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  code: BODY_TOO_LARGE
+                  message: Body melebihi 4096 byte
+                  correlationId: 00000000-0000-4000-8000-000000000002
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                - no-store
+            X-Correlation-ID:
+              schema:
+                type: string
+                format: uuid
+        '415':
+          description: Content-Type bukan application/x-www-form-urlencoded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  code: UNSUPPORTED_MEDIA_TYPE
+                  message: Content-Type bukan application/x-www-form-urlencoded
+                  correlationId: 00000000-0000-4000-8000-000000000002
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                - no-store
+            X-Correlation-ID:
+              schema:
+                type: string
+                format: uuid
+        '500':
+          description: Kesalahan internal tanpa stack trace atau secret
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  code: INTERNAL_ERROR
+                  message: Kesalahan internal tanpa stack trace atau secret
+                  correlationId: 00000000-0000-4000-8000-000000000002
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                - no-store
+            X-Correlation-ID:
+              schema:
+                type: string
+                format: uuid
+      security: []
+      parameters:
+      - in: header
+        name: X-Correlation-ID
+        required: false
+        description: UUID valid diteruskan; nilai tidak valid diganti server dengan UUID baru.
+        schema:
+          type: string
+          format: uuid
+  /.well-known/jwks.json:
+    get:
+      operationId: getPublicJwks
+      tags:
+      - Identity
+      summary: Mendapatkan public signing key JWT
+      responses:
+        '200':
+          description: JWKS publik; private RSA parameters tidak pernah dikembalikan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicJwks'
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                - no-store
+            X-Correlation-ID:
+              schema:
+                type: string
+                format: uuid
+        '500':
+          description: Kesalahan internal tanpa stack trace atau secret
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  code: INTERNAL_ERROR
+                  message: Kesalahan internal tanpa stack trace atau secret
+                  correlationId: 00000000-0000-4000-8000-000000000002
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                - no-store
+            X-Correlation-ID:
+              schema:
+                type: string
+                format: uuid
+      security: []
+      parameters:
+      - in: header
+        name: X-Correlation-ID
+        required: false
+        description: UUID valid diteruskan; nilai tidak valid diganti server dengan UUID baru.
+        schema:
+          type: string
+          format: uuid
+  /auth/me:
+    get:
+      operationId: getOwnProfile
+      tags:
+      - Identity
+      summary: Membaca profil akun sendiri
+      description: Identitas ditentukan dari JWT terverifikasi, bukan parameter pengguna. Memerlukan akun aktif
+        di database Auth dan scope read:catalog. Tidak mengembalikan Google subject atau kredensial. Tidak
+        menerima query parameter apa pun; query tambahan mendapat 400 BAD_REQUEST. Token role service tidak
+        boleh membaca profil pengguna.
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Profil pemilik token dari database Auth
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OwnProfile'
+              example:
+                id: 00000000-0000-4000-8000-000000000001
+                email: buyer@example.test
+                displayName: Pengguna Contoh
+                role: buyer
+                status: ACTIVE
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                - no-store
+            X-Correlation-ID:
+              schema:
+                type: string
+                format: uuid
+        '400':
+          description: Query parameter tidak didukung; BAD_REQUEST.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  code: BAD_REQUEST
+                  message: Query parameter tidak didukung; BAD_REQUEST.
+                  correlationId: 00000000-0000-4000-8000-000000000002
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                - no-store
+            X-Correlation-ID:
+              schema:
+                type: string
+                format: uuid
+        '401':
+          description: JWT pengguna tidak ada, invalid atau expired; UNAUTHENTICATED.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  code: UNAUTHENTICATED
+                  message: JWT pengguna tidak ada, invalid atau expired; UNAUTHENTICATED.
+                  correlationId: 00000000-0000-4000-8000-000000000002
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                - no-store
+            X-Correlation-ID:
+              schema:
+                type: string
+                format: uuid
+        '403':
+          description: Role/scope tidak sesuai atau akun tidak ACTIVE/tidak ditemukan; FORBIDDEN.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  code: FORBIDDEN
+                  message: Role/scope tidak sesuai atau akun tidak ACTIVE/tidak ditemukan; FORBIDDEN.
+                  correlationId: 00000000-0000-4000-8000-000000000002
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                - no-store
+            X-Correlation-ID:
+              schema:
+                type: string
+                format: uuid
+        '503':
+          description: AUTH_STORAGE bukan postgres atau penyimpanan Auth belum tersedia; SERVICE_UNAVAILABLE.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  code: SERVICE_UNAVAILABLE
+                  message: AUTH_STORAGE bukan postgres atau penyimpanan Auth belum tersedia; SERVICE_UNAVAILABLE.
+                  correlationId: 00000000-0000-4000-8000-000000000002
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                - no-store
+            X-Correlation-ID:
+              schema:
+                type: string
+                format: uuid
+        '500':
+          description: Kesalahan internal tanpa stack trace atau secret
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  code: INTERNAL_ERROR
+                  message: Kesalahan internal tanpa stack trace atau secret
+                  correlationId: 00000000-0000-4000-8000-000000000002
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                - no-store
+            X-Correlation-ID:
+              schema:
+                type: string
+                format: uuid
+      x-required-scope: read:catalog
+      x-storage-required: postgres
+      parameters:
+      - in: header
+        name: X-Correlation-ID
+        required: false
+        description: UUID valid diteruskan; nilai tidak valid diganti server dengan UUID baru.
+        schema:
+          type: string
+          format: uuid
+components:
+  schemas:
+    ClientTokenResponse:
+      allOf:
+      - $ref: '#/components/schemas/TokenResponse'
+      - type: object
+        required:
+        - scope
+        properties:
+          scope:
+            type: string
+            description: Scope yang diminta dan diizinkan, dipisahkan satu spasi tanpa duplikasi.
+    TokenResponse:
+      type: object
+      required:
+      - access_token
+      - token_type
+      - expires_in
+      properties:
+        access_token:
+          type: string
+          description: JWT aplikasi RS256
+        token_type:
+          type: string
+          enum:
+          - Bearer
+        expires_in:
+          type: integer
+          enum:
+          - 900
+    ErrorResponse:
+      type: object
+      required:
+      - error
+      properties:
+        error:
+          type: object
+          required:
+          - code
+          - message
+          - correlationId
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            correlationId:
+              type: string
+              format: uuid
+      example:
+        error:
+          code: UNAUTHENTICATED
+          message: Token tidak valid atau kedaluwarsa
+          correlationId: 00000000-0000-4000-8000-000000000002
+    ClientCredentialsRequest:
+      type: object
+      required:
+      - grant_type
+      - client_id
+      - client_secret
+      properties:
+        grant_type:
+          type: string
+          enum:
+          - client_credentials
+        client_id:
+          type: string
+        client_secret:
+          type: string
+          format: password
+        scope:
+          type: string
+          minLength: 1
+          maxLength: 1000
+          default: read:catalog
+          description: Daftar scope dipisahkan spasi; contoh reserve:stock commit:stock release:stock untuk
+            order-service.
+    OwnProfile:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - email
+      - displayName
+      - role
+      - status
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+          format: email
+        displayName:
+          type: string
+        role:
+          type: string
+          enum:
+          - buyer
+          - seller
+          - admin
+        status:
+          type: string
+          enum:
+          - ACTIVE
+    PublicJwks:
+      type: object
+      required:
+      - keys
+      properties:
+        keys:
+          type: array
+          items:
+            type: object
+            required:
+            - kty
+            - kid
+            - n
+            - e
+            - alg
+            - use
+            properties:
+              kty:
+                type: string
+                enum:
+                - RSA
+              kid:
+                type: string
+              n:
+                type: string
+              e:
+                type: string
+              alg:
+                type: string
+                enum:
+                - RS256
+              use:
+                type: string
+                enum:
+                - sig
+  responses:
+    InternalError:
+      description: Kesalahan internal tanpa stack trace atau secret
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    BadRequest:
+      description: Schema, ID atau cursor invalid; kode BAD_REQUEST. Field tambahan ditolak.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthenticated:
+      description: JWT tidak ada, invalid atau expired; kode UNAUTHENTICATED.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: Role/scope tidak sesuai atau pengguna tidak ACTIVE; kode FORBIDDEN. Pemeriksaan admin dilakukan
+        sebelum lookup objek.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unavailable:
+      description: Database atau dependensi belum tersedia; kode SERVICE_UNAVAILABLE. Fail closed; tidak kembali
+        ke registry JSON saat database gagal.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
