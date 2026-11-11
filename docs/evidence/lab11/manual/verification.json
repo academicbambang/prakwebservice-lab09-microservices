@@ -1,0 +1,89 @@
+{
+  "recordedAt": "2026-11-11T09:02:36.787517+00:00",
+  "captureDate": "2026-11-11",
+  "captureTimezone": "Asia/Bangkok",
+  "source": "Screenshots captured manually by the user; inspected by assistant",
+  "imageHandling": "Original PNG bytes copied without cropping, redaction, or other pixel changes",
+  "status": {
+    "gatewayGroups": "verified by screenshot",
+    "swagger409": "verified by actual response screenshot; available stock 40",
+    "driftBefore": "response contains category while Product schema omits it",
+    "driftAfter": "Product schema contains category and example",
+    "swaggerEditor": "imported and rendered; no visible error panel in screenshot; local Swagger Parser validation recorded separately",
+    "postman": "OpenAPI import and GET products 200 OK verified by screenshots"
+  },
+  "files": [
+    {
+      "file": "01-swagger-groups.png",
+      "source": "Screenshot (1964).png",
+      "sha256": "084b9d1a3b4c6b06fa57bd6c2f0183ae9548a11bca8bd720dc520c48e53a5927",
+      "bytes": 268492,
+      "sourceLastWriteTimeUtc": "2026-11-11T08:21:05.052866+00:00",
+      "description": "Gateway menampilkan grup Products dan Orders"
+    },
+    {
+      "file": "02-swagger-409-response.png",
+      "source": "Screenshot (1973).png",
+      "sha256": "8533f482af8b142aa72b75f94a468e86b4763b9806ccfaec6893240584eab34e",
+      "bytes": 219257,
+      "sourceLastWriteTimeUtc": "2026-11-11T08:28:48.515468+00:00",
+      "description": "Server response aktual 409 Conflict; stok tersedia 40"
+    },
+    {
+      "file": "02-swagger-409-documentation.png",
+      "source": "Screenshot (1974).png",
+      "sha256": "82681bd1c1db039bf9d73bcfd73ca3f856704e86e61acd679f36da9b9b26eda6",
+      "bytes": 206786,
+      "sourceLastWriteTimeUtc": "2026-11-11T08:28:57.289424+00:00",
+      "description": "Daftar respons endpoint mendokumentasikan status 409"
+    },
+    {
+      "file": "03-drift-before-response.png",
+      "source": "Screenshot (1978).png",
+      "sha256": "894c6f17de21b9f37ec8460c1d07c7556fb6be4b294b85b6fdf266308b8b77e3",
+      "bytes": 206186,
+      "sourceLastWriteTimeUtc": "2026-11-11T08:38:40.729746+00:00",
+      "description": "GET produk 200 memuat category pada respons aktual"
+    },
+    {
+      "file": "03-drift-before-schema.png",
+      "source": "Screenshot (1983).png",
+      "sha256": "65c9c61bef19d2b102ed7eceaa870a96ec263621ff9d6113eee228b55047ace6",
+      "bytes": 195499,
+      "sourceLastWriteTimeUtc": "2026-11-11T08:42:44.593795+00:00",
+      "description": "Skema catalog_Product tidak mendeskripsikan category"
+    },
+    {
+      "file": "04-drift-after-schema.png",
+      "source": "Screenshot (1984).png",
+      "sha256": "96569d564850d8d220ded5ac5a0d394a4d79801220bad942b3ae227fc5948716",
+      "bytes": 198493,
+      "sourceLastWriteTimeUtc": "2026-11-11T08:45:56.287776+00:00",
+      "description": "Skema catalog_Product kembali memuat category bertipe string"
+    },
+    {
+      "file": "05-swagger-editor.png",
+      "source": "Screenshot (1985).png",
+      "sha256": "32bd3799a371b784174243b7930b71a77db9218c2d1839ef16bcbd29dcfdc128",
+      "bytes": 411752,
+      "sourceLastWriteTimeUtc": "2026-11-11T08:49:28.789916+00:00",
+      "description": "OpenAPI Lab 11 dimuat di Swagger Editor; tidak terlihat panel error pada screenshot"
+    },
+    {
+      "file": "06-postman-import.png",
+      "source": "Screenshot (1986).png",
+      "sha256": "36ebbd8bb4be4ace80aea7c2b2c36845f45f6009c747ee70295f663166dc0922",
+      "bytes": 411716,
+      "sourceLastWriteTimeUtc": "2026-11-11T08:50:26.088519+00:00",
+      "description": "Dialog impor mengenali OpenAPI 3.0.3 dan koleksi Lab 11"
+    },
+    {
+      "file": "07-postman-200.png",
+      "source": "Screenshot (1990).png",
+      "sha256": "959883bc96aef16cccfee76be8b82424d3a448b3b7ddc8713b38047236ff8541",
+      "bytes": 367000,
+      "sourceLastWriteTimeUtc": "2026-11-11T08:53:18.002287+00:00",
+      "description": "Koleksi hasil impor menjalankan GET produk dengan hasil 200 OK"
+    }
+  ]
+}

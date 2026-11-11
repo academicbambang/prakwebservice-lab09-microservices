@@ -7,6 +7,7 @@ Lab 11 memakai **repository Lab 09 yang sama**, sesuai [panduan praktikum](https
 - [Laporan, hasil pengujian, penyesuaian, dan refleksi Lab 11](docs/lab11/README.md).
 - [OpenAPI gabungan untuk dikumpulkan](openapi.json) dan [koleksi Postman hasil konversi](docs/postman/lab11.postman_collection.json).
 - [Screenshot dan bukti aktual Lab 11](docs/evidence/lab11/README.md).
+- [Bukti manual utama: Swagger, drift, Swagger Editor, dan Postman 200 OK](docs/evidence/lab11/manual/README.md).
 - Branch pengumpulan: `lab11-openapi`; perubahan ini belum menyatakan deployment publik Lab 09 telah diperbarui.
 
 Jalankan dari root dengan Node.js >=22:
@@ -35,7 +36,7 @@ Pada Swagger gateway, isi key lokal lewat **Authorize**, lalu jalankan POST `/or
 
 Uji stok habis memakai `quantity:100` (409), produk tidak ada memakai `prod-099` (404), dan matikan katalog untuk 503. `quantity:999` menghasilkan 400 karena batas input repo ini 1–100. Periksa stok dengan GET `/product-service/products/prod-001`. Dokumentasi tetap publik; pesanan dan reservasi tetap memerlukan key. Setiap service memakai state memori yang kembali ke seed setelah restart.
 
-Verifikasi ulang: `npm test`, kemudian hentikan stack lokal agar port 8080 kosong dan jalankan `npm run test:lab11`. Demo memakai backend berport dinamis dan gateway 8080, membuka Chromium, menekan Try it out, membuat screenshot, memvalidasi spesifikasi/respons, mengekspor OpenAPI dan koleksi, lalu menutup seluruh service demonya. Demo mengubah stok hanya pada instance terisolasi. Impor UI Postman dan Swagger Editor masih memerlukan verifikasi manual karena izin akses kedua UI ditolak pada sesi pengerjaan ini.
+Verifikasi ulang: `npm test`, kemudian hentikan stack lokal agar port 8080 kosong dan jalankan `npm run test:lab11`. Demo memakai backend berport dinamis dan gateway 8080, membuka Chromium, menekan Try it out, membuat screenshot, memvalidasi spesifikasi/respons, mengekspor OpenAPI dan koleksi, lalu menutup seluruh service demonya. Demo mengubah stok hanya pada instance terisolasi. Pengguna telah melengkapi impor OpenAPI melalui Swagger Editor dan Postman secara manual pada 11 November 2026; [bukti Postman menunjukkan GET produk 200 OK](docs/evidence/lab11/manual/07-postman-200.png). Screenshot manual menjadi bukti utama, sedangkan rekaman demo otomatis tetap menjadi bukti pendukung yang terpisah.
 
 
 ## Lab 10: komunikasi asinkron dengan RabbitMQ
