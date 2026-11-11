@@ -1,4 +1,5 @@
 node_modules/
+catalog-service/app.lab11-drift.local.cjs
 .env
 .env.*
 !.env.example

@@ -1,4 +1,42 @@
-# Lab 09–10: Microservices Marketplace UMKM
+# Lab 09–11: Microservices Marketplace UMKM
+
+## Lab 11: Dokumentasi API Otomatis (OpenAPI/Swagger)
+
+Lab 11 memakai **repository Lab 09 yang sama**, sesuai [panduan praktikum](https://webservice.philipus.my.id/praktikum/lab-11). Folder `catalog-service` berperan sebagai product-service. Anotasi `@openapi` pada kode kedua service menghasilkan spesifikasi dengan `swagger-jsdoc`; gateway mengambil spesifikasi saat `/openapi.json` diminta, menambahkan prefix, menggabungkan komponen, lalu menampilkan Swagger UI. RabbitMQ dari Lab 10 tidak wajib untuk Lab 11.
+
+- [Laporan, hasil pengujian, penyesuaian, dan refleksi Lab 11](docs/lab11/README.md).
+- [OpenAPI gabungan untuk dikumpulkan](openapi.json) dan [koleksi Postman hasil konversi](docs/postman/lab11.postman_collection.json).
+- [Screenshot dan bukti aktual Lab 11](docs/evidence/lab11/README.md).
+- Branch pengumpulan: `lab11-openapi`; perubahan ini belum menyatakan deployment publik Lab 09 telah diperbarui.
+
+Jalankan dari root dengan Node.js >=22:
+
+```sh
+npm ci
+npm run setup
+npm start
+```
+
+Launcher memulai katalog `:3000`, pesanan `:3001`, lalu gateway `:8080`; tunggu ketiganya siap. Alternatif tiga terminal berurutan: `npm start --workspace=catalog-service`, `npm start --workspace=order-service`, lalu `npm start --workspace=@umkm/gateway`. Untuk alternatif ini, jalankan gateway melalui `node gateway/gateway.js` dari root agar memakai `gateway/.env`.
+
+| Service | OpenAPI | Swagger UI |
+| --- | --- | --- |
+| Product / catalog | `http://127.0.0.1:3000/openapi.json` | `http://127.0.0.1:3000/docs/` |
+| Order | `http://127.0.0.1:3001/openapi.json` | `http://127.0.0.1:3001/docs/` |
+| Gateway gabungan | `http://127.0.0.1:8080/openapi.json` | **`http://127.0.0.1:8080/docs/`** |
+
+Variabel utama: `PORT` (gateway, 8080), `CATALOG_PORT` (3000), `ORDER_PORT` (3001), `HOST`, `CATALOG_SERVICE_URL`, `ORDER_SERVICE_URL`, `API_KEY` atau `API_KEY_SHA256`, `TRUST_PROXY`. `PRODUCT_DOC_URL` dan `ORDER_DOC_URL` opsional untuk mengganti URL sumber spesifikasi. Default URL dokumentasi mengikuti origin service. Variabel RabbitMQ `AMQP_URL` dan `ORDER_EXCHANGE` hanya diperlukan bila menguji event Lab 10. Contoh tersedia di `gateway/.env.example`; key asli disimpan di `.env` yang diabaikan Git.
+
+Pada Swagger gateway, isi key lokal lewat **Authorize**, lalu jalankan POST `/order-service/orders`:
+
+```json
+{"customerName":"Praktikum Lab 11","items":[{"productId":"prod-001","quantity":2}]}
+```
+
+Uji stok habis memakai `quantity:100` (409), produk tidak ada memakai `prod-099` (404), dan matikan katalog untuk 503. `quantity:999` menghasilkan 400 karena batas input repo ini 1–100. Periksa stok dengan GET `/product-service/products/prod-001`. Dokumentasi tetap publik; pesanan dan reservasi tetap memerlukan key. Setiap service memakai state memori yang kembali ke seed setelah restart.
+
+Verifikasi ulang: `npm test`, kemudian hentikan stack lokal agar port 8080 kosong dan jalankan `npm run test:lab11`. Demo memakai backend berport dinamis dan gateway 8080, membuka Chromium, menekan Try it out, membuat screenshot, memvalidasi spesifikasi/respons, mengekspor OpenAPI dan koleksi, lalu menutup seluruh service demonya. Demo mengubah stok hanya pada instance terisolasi. Impor UI Postman dan Swagger Editor masih memerlukan verifikasi manual karena izin akses kedua UI ditolak pada sesi pengerjaan ini.
+
 
 ## Lab 10: komunikasi asinkron dengan RabbitMQ
 

@@ -1,0 +1,4759 @@
+{
+  "item": [
+    {
+      "id": "219a2a1f-61de-4e03-ba73-1468495bd2b6",
+      "name": "Kesehatan",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "0307d073-d1a4-4cc0-9759-435940cff1b0",
+          "name": "Kesehatan proses gateway",
+          "request": {
+            "name": "Kesehatan proses gateway",
+            "description": {},
+            "url": {
+              "path": [
+                "health"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "94f87a96-1b38-4966-a5b6-7931232bc268",
+              "name": "Gateway masih berjalan; tidak memeriksa backend.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "health"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"status\": \"ok\",\n  \"service\": \"gateway\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "992fa738-e834-4b61-add6-24262654a20f",
+              "name": "Batas 20 request per 10 detik per IP terlampaui. Tunggu Retry-After.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "health"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "disabled": true,
+                  "description": "Detik hingga request dapat diulangi.",
+                  "key": "Retry-After",
+                  "value": "63539406"
+                },
+                {
+                  "disabled": true,
+                  "key": "RateLimit-Limit",
+                  "value": "20",
+                  "description": ""
+                },
+                {
+                  "disabled": true,
+                  "key": "RateLimit-Remaining",
+                  "value": "0",
+                  "description": ""
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Terlalu banyak request. Maksimal 20 request per 10 detik per IP.\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "c1ee6d15-a81b-4889-9671-2a65fc1fa8fc",
+          "name": "Kesiapan kedua service",
+          "request": {
+            "name": "Kesiapan kedua service",
+            "description": {
+              "content": "Probe ini tidak memakai kuota API dan tidak membutuhkan API key.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "readyz"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "79959540-ccc1-47da-8489-e89e04a1ec8a",
+              "name": "Kedua backend sehat.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "readyz"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"status\": \"ok\",\n  \"service\": \"gateway\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "66d8a886-e47c-4d63-a022-2ff7d7400f72",
+              "name": "Minimal satu backend tidak sehat/tidak merespons health check dalam 1 detik.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "readyz"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Service Unavailable",
+              "code": 503,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"status\": \"unavailable\",\n  \"service\": \"gateway\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    },
+    {
+      "id": "0b015b63-fc03-4c5c-a380-b55f54d775d8",
+      "name": "Products",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "1c73b856-4b2a-483b-97e1-2f91023a18e5",
+          "name": "Kesehatan proses layanan produk",
+          "request": {
+            "name": "Kesehatan proses layanan produk",
+            "description": {},
+            "url": {
+              "path": [
+                "product-service",
+                "health"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "41c7ae98-9ebd-4e97-9873-1032e695900c",
+              "name": "Layanan produk masih berjalan.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "health"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"status\": \"ok\",\n  \"service\": \"catalog-service\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "caadc58f-5a33-457b-9646-5b0aa60d9961",
+              "name": "Batas 20 request per 10 detik per IP terlampaui. Tunggu Retry-After.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "health"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "disabled": true,
+                  "description": "Detik hingga request dapat diulangi.",
+                  "key": "Retry-After",
+                  "value": "63539406"
+                },
+                {
+                  "disabled": true,
+                  "key": "RateLimit-Limit",
+                  "value": "20",
+                  "description": ""
+                },
+                {
+                  "disabled": true,
+                  "key": "RateLimit-Remaining",
+                  "value": "0",
+                  "description": ""
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Terlalu banyak request. Maksimal 20 request per 10 detik per IP.\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "87b7ab15-2aed-4f54-a5c6-388ee1647217",
+              "name": "Kesalahan internal service.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "health"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Internal server error\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "e444eb4c-cf8f-4eed-a73e-965af9a103f6",
+              "name": "Gateway tidak dapat menghubungi service tujuan, atau data katalog tidak valid.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "health"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Bad Gateway",
+              "code": 502,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Service tujuan tidak tersedia\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "55e4b07c-f973-45c9-ab50-642c1a387cad",
+          "name": "Daftar dan cari produk",
+          "request": {
+            "name": "Daftar dan cari produk",
+            "description": {},
+            "url": {
+              "path": [
+                "product-service",
+                "products"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": true,
+                  "key": "category",
+                  "value": "kuliner",
+                  "description": "Filter kategori tanpa membedakan huruf besar/kecil; satu nilai saja."
+                },
+                {
+                  "disabled": true,
+                  "key": "search",
+                  "value": "kopi",
+                  "description": "Pencarian sebagian nama produk tanpa membedakan huruf besar/kecil; satu nilai saja."
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "b8d75a62-1154-4031-a1ce-83fd5687aa27",
+              "name": "Daftar produk yang cocok.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "products"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "category",
+                      "value": "kuliner"
+                    },
+                    {
+                      "key": "search",
+                      "value": "kopi"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"service\": \"catalog-service\",\n  \"data\": [\n    {\n      \"id\": \"prod-001\",\n      \"name\": \"Kopi Arabika Gayo\",\n      \"category\": \"kuliner\",\n      \"price\": 85000,\n      \"stock\": 40,\n      \"seller\": \"Koperasi Kopi Gayo\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "df424ace-9257-4547-b50c-f4b28069ddf6",
+              "name": "JSON, parameter, atau nilai input tidak valid.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "products"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "category",
+                      "value": "kuliner"
+                    },
+                    {
+                      "key": "search",
+                      "value": "kopi"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"qty must be a positive safe integer\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "cabfb734-eb4a-4a66-9344-5c31de9bb7c6",
+              "name": "Batas 20 request per 10 detik per IP terlampaui. Tunggu Retry-After.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "products"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "category",
+                      "value": "kuliner"
+                    },
+                    {
+                      "key": "search",
+                      "value": "kopi"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "disabled": true,
+                  "description": "Detik hingga request dapat diulangi.",
+                  "key": "Retry-After",
+                  "value": "63539406"
+                },
+                {
+                  "disabled": true,
+                  "key": "RateLimit-Limit",
+                  "value": "20",
+                  "description": ""
+                },
+                {
+                  "disabled": true,
+                  "key": "RateLimit-Remaining",
+                  "value": "0",
+                  "description": ""
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Terlalu banyak request. Maksimal 20 request per 10 detik per IP.\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "8f30fc6a-071f-48cf-8504-18d476d8d5a5",
+              "name": "Kesalahan internal service.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "products"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "category",
+                      "value": "kuliner"
+                    },
+                    {
+                      "key": "search",
+                      "value": "kopi"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Internal server error\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "d9e45750-26a4-47d5-bae2-1443a4977b3d",
+              "name": "Gateway tidak dapat menghubungi service tujuan, atau data katalog tidak valid.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "products"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "category",
+                      "value": "kuliner"
+                    },
+                    {
+                      "key": "search",
+                      "value": "kopi"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Bad Gateway",
+              "code": 502,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Service tujuan tidak tersedia\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "09e1f0de-c5db-4bb5-9ef4-9449bc5a3735",
+          "name": "Detail produk dan stok terbaru",
+          "request": {
+            "name": "Detail produk dan stok terbaru",
+            "description": {},
+            "url": {
+              "path": [
+                "product-service",
+                "products",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "prod-001",
+                  "key": "id",
+                  "description": "(Required) ID produk katalog; contoh prod-001."
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "ad82db74-fb95-47a6-993c-3fe6e6487c47",
+              "name": "Produk ditemukan.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "products",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "prod-001",
+                      "key": "id",
+                      "description": "(Required) ID produk katalog; contoh prod-001."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": {\n    \"id\": \"prod-001\",\n    \"name\": \"Kopi Arabika Gayo\",\n    \"category\": \"kuliner\",\n    \"price\": 85000,\n    \"stock\": 40,\n    \"seller\": \"Koperasi Kopi Gayo\"\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "aa5dacbb-56a8-4035-a686-86d6fbdc4698",
+              "name": "JSON, parameter, atau nilai input tidak valid.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "products",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "prod-001",
+                      "key": "id",
+                      "description": "(Required) ID produk katalog; contoh prod-001."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"qty must be a positive safe integer\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "402b3219-2e1e-4f71-a546-9b2285f72f92",
+              "name": "Produk atau pesanan tidak ditemukan.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "products",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "prod-001",
+                      "key": "id",
+                      "description": "(Required) ID produk katalog; contoh prod-001."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Product not found\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "b727a02d-ab8b-419f-bc93-a49bd196af52",
+              "name": "Batas 20 request per 10 detik per IP terlampaui. Tunggu Retry-After.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "products",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "prod-001",
+                      "key": "id",
+                      "description": "(Required) ID produk katalog; contoh prod-001."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "disabled": true,
+                  "description": "Detik hingga request dapat diulangi.",
+                  "key": "Retry-After",
+                  "value": "63539406"
+                },
+                {
+                  "disabled": true,
+                  "key": "RateLimit-Limit",
+                  "value": "20",
+                  "description": ""
+                },
+                {
+                  "disabled": true,
+                  "key": "RateLimit-Remaining",
+                  "value": "0",
+                  "description": ""
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Terlalu banyak request. Maksimal 20 request per 10 detik per IP.\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "c4b7f82c-e4d6-4c4c-bcf1-fab4c0868399",
+              "name": "Kesalahan internal service.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "products",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "prod-001",
+                      "key": "id",
+                      "description": "(Required) ID produk katalog; contoh prod-001."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Internal server error\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "3e0258b7-fa80-41db-939a-1193ea80213c",
+              "name": "Gateway tidak dapat menghubungi service tujuan, atau data katalog tidak valid.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "products",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "prod-001",
+                      "key": "id",
+                      "description": "(Required) ID produk katalog; contoh prod-001."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Bad Gateway",
+              "code": 502,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Service tujuan tidak tersedia\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "58918721-fe6d-4837-bbeb-99324660fef9",
+          "name": "Kurangi stok satu produk",
+          "request": {
+            "name": "Kurangi stok satu produk",
+            "description": {
+              "content": "Order Service memanggil endpoint ini melalui HTTP internal untuk pesanan satu produk unik. Melalui gateway, perubahan stok memerlukan API key. Operasi ini mengurangi stok dan tidak idempotent; jangan mengulang otomatis sesudah timeout.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "product-service",
+                "products",
+                ":id",
+                "reserve"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "prod-001",
+                  "key": "id",
+                  "description": "(Required) ID produk katalog; contoh prod-001."
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "X-API-Key"
+                },
+                {
+                  "key": "value",
+                  "value": "{{apiKey}}"
+                },
+                {
+                  "key": "in",
+                  "value": "header"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"qty\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "3948265d-c293-4766-b485-5e6d6b134e34",
+              "name": "Reservasi berhasil; produk berisi stok sesudah pengurangan.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "products",
+                    ":id",
+                    "reserve"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "prod-001",
+                      "key": "id",
+                      "description": "(Required) ID produk katalog; contoh prod-001."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"qty\": 2\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": {\n    \"id\": \"prod-001\",\n    \"name\": \"Kopi Arabika Gayo\",\n    \"category\": \"kuliner\",\n    \"price\": 85000,\n    \"stock\": 38,\n    \"seller\": \"Koperasi Kopi Gayo\"\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "f300e5b8-aced-4243-a13d-dfd670649e48",
+              "name": "JSON, parameter, atau nilai input tidak valid.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "products",
+                    ":id",
+                    "reserve"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "prod-001",
+                      "key": "id",
+                      "description": "(Required) ID produk katalog; contoh prod-001."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"qty\": 2\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"qty must be a positive safe integer\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "abd3a216-96ac-4ee4-903f-bee7142fca57",
+              "name": "X-API-Key tidak ada atau salah. Isi key lokal melalui Authorize.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "products",
+                    ":id",
+                    "reserve"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "prod-001",
+                      "key": "id",
+                      "description": "(Required) ID produk katalog; contoh prod-001."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"qty\": 2\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Unauthorized\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "67824456-01bc-4726-86d7-620cf1b8d2c4",
+              "name": "Produk atau pesanan tidak ditemukan.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "products",
+                    ":id",
+                    "reserve"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "prod-001",
+                      "key": "id",
+                      "description": "(Required) ID produk katalog; contoh prod-001."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"qty\": 2\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Product not found\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "4cb519d5-7ac0-45b9-a71e-040eba1899d3",
+              "name": "Stok tidak cukup; batch yang ditolak tidak mengubah stok.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "products",
+                    ":id",
+                    "reserve"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "prod-001",
+                      "key": "id",
+                      "description": "(Required) ID produk katalog; contoh prod-001."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"qty\": 2\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Conflict",
+              "code": 409,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Insufficient stock for prod-001; available: 0\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "5db0d4cc-5138-4d30-9160-c190aa6a7f35",
+              "name": "Body request melampaui 32 KB.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "products",
+                    ":id",
+                    "reserve"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "prod-001",
+                      "key": "id",
+                      "description": "(Required) ID produk katalog; contoh prod-001."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"qty\": 2\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Request Entity Too Large",
+              "code": 413,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Request body is too large\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "a53d4bc1-fe29-4cd3-9377-681bb2f57fdc",
+              "name": "Batas 20 request per 10 detik per IP terlampaui. Tunggu Retry-After.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "products",
+                    ":id",
+                    "reserve"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "prod-001",
+                      "key": "id",
+                      "description": "(Required) ID produk katalog; contoh prod-001."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"qty\": 2\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "disabled": true,
+                  "description": "Detik hingga request dapat diulangi.",
+                  "key": "Retry-After",
+                  "value": "63539406"
+                },
+                {
+                  "disabled": true,
+                  "key": "RateLimit-Limit",
+                  "value": "20",
+                  "description": ""
+                },
+                {
+                  "disabled": true,
+                  "key": "RateLimit-Remaining",
+                  "value": "0",
+                  "description": ""
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Terlalu banyak request. Maksimal 20 request per 10 detik per IP.\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "81c6396c-5f00-4d83-8523-cd8769943bb7",
+              "name": "Kesalahan internal service.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "products",
+                    ":id",
+                    "reserve"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "prod-001",
+                      "key": "id",
+                      "description": "(Required) ID produk katalog; contoh prod-001."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"qty\": 2\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Internal server error\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "1167e531-8f5a-4f0b-ab11-cd2f9f2d8a5c",
+              "name": "Gateway tidak dapat menghubungi service tujuan, atau data katalog tidak valid.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "products",
+                    ":id",
+                    "reserve"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "prod-001",
+                      "key": "id",
+                      "description": "(Required) ID produk katalog; contoh prod-001."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"qty\": 2\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Gateway",
+              "code": 502,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Service tujuan tidak tersedia\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "3fa9bee3-3fea-43ec-928c-a18d71577d3f",
+          "name": "Reservasi atomik beberapa produk",
+          "request": {
+            "name": "Reservasi atomik beberapa produk",
+            "description": {
+              "content": "Validasi seluruh batch sebelum mutasi, gabungkan jumlah produk duplikat, lalu kurangi semua stok dalam satu proses katalog. Atomic di katalog; belum merupakan transaksi terdistribusi dengan penyimpanan pesanan.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "product-service",
+                "reservations"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "X-API-Key"
+                },
+                {
+                  "key": "value",
+                  "value": "{{apiKey}}"
+                },
+                {
+                  "key": "in",
+                  "value": "header"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"productId\": \"prod-001\",\n      \"quantity\": 2\n    },\n    {\n      \"productId\": \"prod-002\",\n      \"quantity\": 1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "5d30e061-1fa1-44ad-a1b8-0d30d46cb159",
+              "name": "Satu produk per ID unik, berisi stok sesudah pengurangan.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "reservations"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"items\": [\n    {\n      \"productId\": \"prod-001\",\n      \"quantity\": 2\n    },\n    {\n      \"productId\": \"prod-002\",\n      \"quantity\": 1\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"id\": \"prod-001\",\n      \"name\": \"aute nostrud eiusmod sit\",\n      \"category\": \"qui eiusmod\",\n      \"price\": 3337623671531467,\n      \"stock\": 4408805776999615,\n      \"seller\": \"aute veniam cup\"\n    },\n    {\n      \"id\": \"prod-001\",\n      \"name\": \"dolor fugiat\",\n      \"category\": \"cupidatat nostrud\",\n      \"price\": 2757154587227571,\n      \"stock\": 7866969024791019,\n      \"seller\": \"irure volupta\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "6958fede-322c-4097-a3bd-870f6d2e574e",
+              "name": "JSON, parameter, atau nilai input tidak valid.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "reservations"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"items\": [\n    {\n      \"productId\": \"prod-001\",\n      \"quantity\": 2\n    },\n    {\n      \"productId\": \"prod-002\",\n      \"quantity\": 1\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"qty must be a positive safe integer\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "e65f82a7-c3ab-45e2-aa9f-a04c2561043c",
+              "name": "X-API-Key tidak ada atau salah. Isi key lokal melalui Authorize.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "reservations"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"items\": [\n    {\n      \"productId\": \"prod-001\",\n      \"quantity\": 2\n    },\n    {\n      \"productId\": \"prod-002\",\n      \"quantity\": 1\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Unauthorized\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "cbc9466b-e550-46cb-ad51-9851b2c58e9c",
+              "name": "Produk atau pesanan tidak ditemukan.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "reservations"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"items\": [\n    {\n      \"productId\": \"prod-001\",\n      \"quantity\": 2\n    },\n    {\n      \"productId\": \"prod-002\",\n      \"quantity\": 1\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Product not found\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "cb5d5293-6079-4a7a-867b-62ef3793721a",
+              "name": "Stok tidak cukup; batch yang ditolak tidak mengubah stok.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "reservations"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"items\": [\n    {\n      \"productId\": \"prod-001\",\n      \"quantity\": 2\n    },\n    {\n      \"productId\": \"prod-002\",\n      \"quantity\": 1\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Conflict",
+              "code": 409,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Insufficient stock for prod-001; available: 0\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "67b5da17-a038-41af-9525-d6c4f1d28bf4",
+              "name": "Body request melampaui 32 KB.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "reservations"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"items\": [\n    {\n      \"productId\": \"prod-001\",\n      \"quantity\": 2\n    },\n    {\n      \"productId\": \"prod-002\",\n      \"quantity\": 1\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Request Entity Too Large",
+              "code": 413,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Request body is too large\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "b4e0b927-b606-4f6e-b2ca-3d6ea61bb5df",
+              "name": "Batas 20 request per 10 detik per IP terlampaui. Tunggu Retry-After.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "reservations"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"items\": [\n    {\n      \"productId\": \"prod-001\",\n      \"quantity\": 2\n    },\n    {\n      \"productId\": \"prod-002\",\n      \"quantity\": 1\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "disabled": true,
+                  "description": "Detik hingga request dapat diulangi.",
+                  "key": "Retry-After",
+                  "value": "63539406"
+                },
+                {
+                  "disabled": true,
+                  "key": "RateLimit-Limit",
+                  "value": "20",
+                  "description": ""
+                },
+                {
+                  "disabled": true,
+                  "key": "RateLimit-Remaining",
+                  "value": "0",
+                  "description": ""
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Terlalu banyak request. Maksimal 20 request per 10 detik per IP.\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "27547e0b-6bae-4fca-9d50-7459b0d74eba",
+              "name": "Kesalahan internal service.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "reservations"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"items\": [\n    {\n      \"productId\": \"prod-001\",\n      \"quantity\": 2\n    },\n    {\n      \"productId\": \"prod-002\",\n      \"quantity\": 1\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Internal server error\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "bafa58ed-fdd4-4627-9fca-e8ae72cb3fa0",
+              "name": "Gateway tidak dapat menghubungi service tujuan, atau data katalog tidak valid.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "reservations"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"items\": [\n    {\n      \"productId\": \"prod-001\",\n      \"quantity\": 2\n    },\n    {\n      \"productId\": \"prod-002\",\n      \"quantity\": 1\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Gateway",
+              "code": 502,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Service tujuan tidak tersedia\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "bc44c690-2052-459c-ba80-184bc57f4334",
+          "name": "Query GraphQL melalui URL",
+          "request": {
+            "name": "Query GraphQL melalui URL",
+            "description": {
+              "content": "Schema publik read-only: products(category, search) dan product(id). Apollo Sandbox tersedia di /sandbox. Schema dan query membaca stok katalog yang sama dengan REST.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "product-service",
+                "graphql"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "query",
+                  "value": "query KatalogUMKM { products { id name category price stock seller } }",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": true,
+                  "key": "operationName",
+                  "value": "KatalogUMKM"
+                },
+                {
+                  "disabled": true,
+                  "key": "variables",
+                  "value": "{}",
+                  "description": "Object variabel GraphQL yang diserialisasi sebagai JSON."
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "7cc5e9f6-e142-44e5-9710-e9278135e982",
+              "name": "Hasil eksekusi query. Periksa errors untuk kesalahan GraphQL.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "graphql"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "query",
+                      "value": "query KatalogUMKM { products { id name category price stock seller } }"
+                    },
+                    {
+                      "key": "operationName",
+                      "value": "KatalogUMKM"
+                    },
+                    {
+                      "key": "variables",
+                      "value": "{}"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": {\n    \"products\": [\n      {\n        \"id\": \"prod-001\",\n        \"name\": \"Kopi Arabika Gayo\",\n        \"stock\": 40\n      }\n    ]\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "e8b95df7-6ff2-4c23-b3b1-f8eeaf8c478d",
+              "name": "JSON atau parameter tidak valid, query tidak valid, atau kesalahan validasi GraphQL.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "graphql"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "query",
+                      "value": "query KatalogUMKM { products { id name category price stock seller } }"
+                    },
+                    {
+                      "key": "operationName",
+                      "value": "KatalogUMKM"
+                    },
+                    {
+                      "key": "variables",
+                      "value": "{}"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"dolor minim\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "4cffda76-a80c-4137-bf5f-5dee374900f2",
+              "name": "Header Accept tidak didukung oleh GraphQL over HTTP.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "graphql"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "query",
+                      "value": "query KatalogUMKM { products { id name category price stock seller } }"
+                    },
+                    {
+                      "key": "operationName",
+                      "value": "KatalogUMKM"
+                    },
+                    {
+                      "key": "variables",
+                      "value": "{}"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Acceptable",
+              "code": 406,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "a1c596f1-517e-4221-803c-72638589b94f",
+              "name": "Body request melampaui 32 KB.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "graphql"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "query",
+                      "value": "query KatalogUMKM { products { id name category price stock seller } }"
+                    },
+                    {
+                      "key": "operationName",
+                      "value": "KatalogUMKM"
+                    },
+                    {
+                      "key": "variables",
+                      "value": "{}"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Request Entity Too Large",
+              "code": 413,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Request body is too large\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "de34d0ed-3daa-4b8c-b861-78dcc2894da8",
+              "name": "Batas 20 request per 10 detik per IP terlampaui. Tunggu Retry-After.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "graphql"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "query",
+                      "value": "query KatalogUMKM { products { id name category price stock seller } }"
+                    },
+                    {
+                      "key": "operationName",
+                      "value": "KatalogUMKM"
+                    },
+                    {
+                      "key": "variables",
+                      "value": "{}"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "disabled": true,
+                  "description": "Detik hingga request dapat diulangi.",
+                  "key": "Retry-After",
+                  "value": "63539406"
+                },
+                {
+                  "disabled": true,
+                  "key": "RateLimit-Limit",
+                  "value": "20",
+                  "description": ""
+                },
+                {
+                  "disabled": true,
+                  "key": "RateLimit-Remaining",
+                  "value": "0",
+                  "description": ""
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Terlalu banyak request. Maksimal 20 request per 10 detik per IP.\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "e9f56049-4fc5-473e-a395-ccaaf8fdcc6c",
+              "name": "Kesalahan internal service.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "graphql"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "query",
+                      "value": "query KatalogUMKM { products { id name category price stock seller } }"
+                    },
+                    {
+                      "key": "operationName",
+                      "value": "KatalogUMKM"
+                    },
+                    {
+                      "key": "variables",
+                      "value": "{}"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Internal server error\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "65095363-469f-4138-aa89-293618dd0451",
+              "name": "Gateway tidak dapat menghubungi service tujuan, atau data katalog tidak valid.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "graphql"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "query",
+                      "value": "query KatalogUMKM { products { id name category price stock seller } }"
+                    },
+                    {
+                      "key": "operationName",
+                      "value": "KatalogUMKM"
+                    },
+                    {
+                      "key": "variables",
+                      "value": "{}"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Bad Gateway",
+              "code": 502,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Service tujuan tidak tersedia\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "193e489c-cc92-4559-8231-cc6a5361d164",
+          "name": "Query GraphQL melalui JSON",
+          "request": {
+            "name": "Query GraphQL melalui JSON",
+            "description": {
+              "content": "Tidak memerlukan API key karena schema hanya menawarkan query katalog. Introspection tersedia untuk Apollo Sandbox. Tetap memakai kuota API gateway.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "product-service",
+                "graphql"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query KatalogUMKM { products { id name category price stock seller } }\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "f52e4a14-f143-4180-bd99-9f443c7bb332",
+              "name": "Hasil eksekusi query. Periksa errors untuk kesalahan GraphQL.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "graphql"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"query\": \"query KatalogUMKM { products { id name category price stock seller } }\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": {\n    \"products\": [\n      {\n        \"id\": \"prod-001\",\n        \"name\": \"Kopi Arabika Gayo\",\n        \"stock\": 40\n      }\n    ]\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "f72da036-9e45-4914-9ae3-b1e4c4c32597",
+              "name": "JSON atau parameter tidak valid, query tidak valid, atau kesalahan validasi GraphQL.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "graphql"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"query\": \"query KatalogUMKM { products { id name category price stock seller } }\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"dolor minim\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "66e9e2ae-9d81-40bf-a702-bdb3df131e10",
+              "name": "Header Accept tidak didukung oleh GraphQL over HTTP.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "graphql"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"query\": \"query KatalogUMKM { products { id name category price stock seller } }\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Not Acceptable",
+              "code": 406,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "58c83f67-175e-4023-bdc1-17c538a40d22",
+              "name": "Body request melampaui 32 KB.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "graphql"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"query\": \"query KatalogUMKM { products { id name category price stock seller } }\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Request Entity Too Large",
+              "code": 413,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Request body is too large\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "f396374a-be93-45f2-814f-f4a090c04e07",
+              "name": "Content-Type tidak didukung; gunakan application/json.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "graphql"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"query\": \"query KatalogUMKM { products { id name category price stock seller } }\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unsupported Media Type",
+              "code": 415,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "060307d3-af8e-4373-b5c4-c19b6564eab6",
+              "name": "Batas 20 request per 10 detik per IP terlampaui. Tunggu Retry-After.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "graphql"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"query\": \"query KatalogUMKM { products { id name category price stock seller } }\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "disabled": true,
+                  "description": "Detik hingga request dapat diulangi.",
+                  "key": "Retry-After",
+                  "value": "63539406"
+                },
+                {
+                  "disabled": true,
+                  "key": "RateLimit-Limit",
+                  "value": "20",
+                  "description": ""
+                },
+                {
+                  "disabled": true,
+                  "key": "RateLimit-Remaining",
+                  "value": "0",
+                  "description": ""
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Terlalu banyak request. Maksimal 20 request per 10 detik per IP.\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "7d00d629-9d6c-46bc-a40d-c591b58b32a4",
+              "name": "Kesalahan internal service.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "graphql"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"query\": \"query KatalogUMKM { products { id name category price stock seller } }\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Internal server error\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "bbd2029d-82b4-4265-a784-6e50851da016",
+              "name": "Gateway tidak dapat menghubungi service tujuan, atau data katalog tidak valid.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "product-service",
+                    "graphql"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"query\": \"query KatalogUMKM { products { id name category price stock seller } }\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Gateway",
+              "code": 502,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Service tujuan tidak tersedia\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    },
+    {
+      "id": "00b96a28-0384-428e-95f7-c5db99f26bae",
+      "name": "Orders",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "9560e772-b344-42f5-bcf1-6efd24ddb94b",
+          "name": "Kesehatan proses layanan pesanan",
+          "request": {
+            "name": "Kesehatan proses layanan pesanan",
+            "description": {},
+            "url": {
+              "path": [
+                "order-service",
+                "health"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "X-API-Key"
+                },
+                {
+                  "key": "value",
+                  "value": "{{apiKey}}"
+                },
+                {
+                  "key": "in",
+                  "value": "header"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "88772093-d097-403b-a4e7-2745b80184ba",
+              "name": "Layanan pesanan masih berjalan.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "order-service",
+                    "health"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"status\": \"ok\",\n  \"service\": \"order-service\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "fd54bb7f-5242-4d56-ab03-72c56013705b",
+              "name": "X-API-Key tidak ada atau salah. Isi key lokal melalui Authorize.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "order-service",
+                    "health"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Unauthorized\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "27017912-1e32-40ab-9fdf-d086000a646b",
+              "name": "Batas 20 request per 10 detik per IP terlampaui. Tunggu Retry-After.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "order-service",
+                    "health"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "disabled": true,
+                  "description": "Detik hingga request dapat diulangi.",
+                  "key": "Retry-After",
+                  "value": "63539406"
+                },
+                {
+                  "disabled": true,
+                  "key": "RateLimit-Limit",
+                  "value": "20",
+                  "description": ""
+                },
+                {
+                  "disabled": true,
+                  "key": "RateLimit-Remaining",
+                  "value": "0",
+                  "description": ""
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Terlalu banyak request. Maksimal 20 request per 10 detik per IP.\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "6600c943-d9b0-49bb-8b6a-54be75c35d0b",
+              "name": "Kesalahan internal service.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "order-service",
+                    "health"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Internal server error\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "3d385d0b-73e9-4620-9e6b-fd517dbc02b3",
+              "name": "Gateway tidak dapat menghubungi service tujuan, atau data katalog tidak valid.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "order-service",
+                    "health"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Bad Gateway",
+              "code": 502,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Service tujuan tidak tersedia\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "04ded196-b683-469b-ae6d-96895750bad5",
+          "name": "Riwayat pesanan",
+          "request": {
+            "name": "Riwayat pesanan",
+            "description": {},
+            "url": {
+              "path": [
+                "order-service",
+                "orders"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "X-API-Key"
+                },
+                {
+                  "key": "value",
+                  "value": "{{apiKey}}"
+                },
+                {
+                  "key": "in",
+                  "value": "header"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "cfcf2852-3e5e-44b5-aff6-c6cbd37d276a",
+              "name": "Riwayat lokal tetap dapat dibaca saat layanan produk mati.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "order-service",
+                    "orders"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"service\": \"order-service\",\n  \"data\": []\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "c5ba0b62-e368-4fbb-ac4b-fd7c0456c443",
+              "name": "X-API-Key tidak ada atau salah. Isi key lokal melalui Authorize.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "order-service",
+                    "orders"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Unauthorized\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "6b607996-0f59-4b81-b44a-349b5ec7b17f",
+              "name": "Batas 20 request per 10 detik per IP terlampaui. Tunggu Retry-After.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "order-service",
+                    "orders"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "disabled": true,
+                  "description": "Detik hingga request dapat diulangi.",
+                  "key": "Retry-After",
+                  "value": "63539406"
+                },
+                {
+                  "disabled": true,
+                  "key": "RateLimit-Limit",
+                  "value": "20",
+                  "description": ""
+                },
+                {
+                  "disabled": true,
+                  "key": "RateLimit-Remaining",
+                  "value": "0",
+                  "description": ""
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Terlalu banyak request. Maksimal 20 request per 10 detik per IP.\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "33dd8739-b8e4-4c1f-9ae9-22a03af34670",
+              "name": "Kesalahan internal service.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "order-service",
+                    "orders"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Internal server error\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "d4ddcccf-7cd0-4685-bd52-123029900342",
+              "name": "Gateway tidak dapat menghubungi service tujuan, atau data katalog tidak valid.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "order-service",
+                    "orders"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Bad Gateway",
+              "code": 502,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Service tujuan tidak tersedia\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "9a9212c7-299d-4255-ad19-a177f302ab36",
+          "name": "Buat pesanan dan reservasi stok",
+          "request": {
+            "name": "Buat pesanan dan reservasi stok",
+            "description": {
+              "content": "Order Service hanya memiliki data pesanan. Stok dimiliki Catalog Service dan diminta lewat HTTP dengan deadline 2 detik. Beberapa produk unik memakai reservasi batch. Belum ada kompensasi otomatis jika reservasi berhasil tetapi penyimpanan pesanan gagal.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "order-service",
+                "orders"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "X-API-Key"
+                },
+                {
+                  "key": "value",
+                  "value": "{{apiKey}}"
+                },
+                {
+                  "key": "in",
+                  "value": "header"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Bambang\",\n  \"items\": [\n    {\n      \"productId\": \"prod-001\",\n      \"quantity\": 2\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "3d8a5e62-1111-401a-be26-292afd7ffb46",
+              "name": "Pesanan disimpan dengan snapshot nama dan harga dari katalog.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "order-service",
+                    "orders"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"customerName\": \"Bambang\",\n  \"items\": [\n    {\n      \"productId\": \"prod-001\",\n      \"quantity\": 2\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "disabled": true,
+                  "description": "URL relatif detail pesanan melalui gateway.",
+                  "key": "Location",
+                  "value": "/order-service/orders/ord-00000000-0000-4000-8000-000000000001"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": {\n    \"id\": \"ord-00000000-0000-4000-8000-000000000001\",\n    \"customerName\": \"Bambang\",\n    \"items\": [\n      {\n        \"productId\": \"prod-001\",\n        \"name\": \"Kopi Arabika Gayo\",\n        \"quantity\": 2,\n        \"unitPrice\": 85000,\n        \"subtotal\": 170000\n      }\n    ],\n    \"total\": 170000,\n    \"status\": \"pending\",\n    \"createdAt\": \"2026-10-28T09:00:00.000Z\"\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "1196c113-6979-4947-965c-6e9df8cead8f",
+              "name": "JSON, parameter, atau nilai input tidak valid.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "order-service",
+                    "orders"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"customerName\": \"Bambang\",\n  \"items\": [\n    {\n      \"productId\": \"prod-001\",\n      \"quantity\": 2\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"qty must be a positive safe integer\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "87d40d6e-934a-4f74-957f-2297597e19f0",
+              "name": "X-API-Key tidak ada atau salah. Isi key lokal melalui Authorize.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "order-service",
+                    "orders"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"customerName\": \"Bambang\",\n  \"items\": [\n    {\n      \"productId\": \"prod-001\",\n      \"quantity\": 2\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Unauthorized\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "354a3b21-62af-4259-8f2f-ed083deabfab",
+              "name": "Produk atau pesanan tidak ditemukan.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "order-service",
+                    "orders"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"customerName\": \"Bambang\",\n  \"items\": [\n    {\n      \"productId\": \"prod-001\",\n      \"quantity\": 2\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Product not found\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "14a0aca6-2a97-49a9-9861-25d535156c3a",
+              "name": "Stok tidak cukup; batch yang ditolak tidak mengubah stok.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "order-service",
+                    "orders"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"customerName\": \"Bambang\",\n  \"items\": [\n    {\n      \"productId\": \"prod-001\",\n      \"quantity\": 2\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Conflict",
+              "code": 409,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Insufficient stock for prod-001; available: 0\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "aa17b623-773d-480f-9d4e-7620d38fe304",
+              "name": "Body request melampaui 32 KB.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "order-service",
+                    "orders"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"customerName\": \"Bambang\",\n  \"items\": [\n    {\n      \"productId\": \"prod-001\",\n      \"quantity\": 2\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Request Entity Too Large",
+              "code": 413,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Request body is too large\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "717d775c-6628-4cf4-9739-e7105eb672c0",
+              "name": "Batas 20 request per 10 detik per IP terlampaui. Tunggu Retry-After.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "order-service",
+                    "orders"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"customerName\": \"Bambang\",\n  \"items\": [\n    {\n      \"productId\": \"prod-001\",\n      \"quantity\": 2\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "disabled": true,
+                  "description": "Detik hingga request dapat diulangi.",
+                  "key": "Retry-After",
+                  "value": "63539406"
+                },
+                {
+                  "disabled": true,
+                  "key": "RateLimit-Limit",
+                  "value": "20",
+                  "description": ""
+                },
+                {
+                  "disabled": true,
+                  "key": "RateLimit-Remaining",
+                  "value": "0",
+                  "description": ""
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Terlalu banyak request. Maksimal 20 request per 10 detik per IP.\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "31217239-b718-41c2-a3f4-2b77031a5c16",
+              "name": "Kesalahan internal service.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "order-service",
+                    "orders"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"customerName\": \"Bambang\",\n  \"items\": [\n    {\n      \"productId\": \"prod-001\",\n      \"quantity\": 2\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Internal server error\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "46ffb6a3-80aa-400f-9e77-6743be1f3e1c",
+              "name": "Gateway tidak dapat menghubungi service tujuan, atau data katalog tidak valid.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "order-service",
+                    "orders"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"customerName\": \"Bambang\",\n  \"items\": [\n    {\n      \"productId\": \"prod-001\",\n      \"quantity\": 2\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Gateway",
+              "code": 502,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Service tujuan tidak tersedia\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "a40416e2-14e3-4b74-90bb-71ed8eab83e5",
+              "name": "Katalog tidak tersedia atau deadline HTTP 2 detik terlampaui; pesanan baru tidak disimpan.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "order-service",
+                    "orders"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"customerName\": \"Bambang\",\n  \"items\": [\n    {\n      \"productId\": \"prod-001\",\n      \"quantity\": 2\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Service Unavailable",
+              "code": 503,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Catalog service is unavailable or timed out\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "e4b96e1c-75d4-48d7-937f-905c1b57b59a",
+          "name": "Detail pesanan yang tersimpan",
+          "request": {
+            "name": "Detail pesanan yang tersimpan",
+            "description": {},
+            "url": {
+              "path": [
+                "order-service",
+                "orders",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "ord-00000000-0000-4000-8000-000000000001",
+                  "key": "id",
+                  "description": "(Required) ID pesanan dari respons pembuatan pesanan."
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "X-API-Key"
+                },
+                {
+                  "key": "value",
+                  "value": "{{apiKey}}"
+                },
+                {
+                  "key": "in",
+                  "value": "header"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "d7ff9a9c-b804-49ca-82ce-a7f7e20684bb",
+              "name": "Snapshot pesanan saat transaksi.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "order-service",
+                    "orders",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "ord-00000000-0000-4000-8000-000000000001",
+                      "key": "id",
+                      "description": "(Required) ID pesanan dari respons pembuatan pesanan."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": {\n    \"id\": \"ord-00000000-0000-4000-8000-000000000001\",\n    \"customerName\": \"Bambang\",\n    \"items\": [\n      {\n        \"productId\": \"prod-001\",\n        \"name\": \"Kopi Arabika Gayo\",\n        \"quantity\": 2,\n        \"unitPrice\": 85000,\n        \"subtotal\": 170000\n      }\n    ],\n    \"total\": 170000,\n    \"status\": \"pending\",\n    \"createdAt\": \"2026-10-28T09:00:00.000Z\"\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "726ed189-23ce-4eeb-8d58-0c1e1d8987a9",
+              "name": "JSON, parameter, atau nilai input tidak valid.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "order-service",
+                    "orders",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "ord-00000000-0000-4000-8000-000000000001",
+                      "key": "id",
+                      "description": "(Required) ID pesanan dari respons pembuatan pesanan."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"qty must be a positive safe integer\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "097d36a1-e734-4bda-9223-09a6ab554d6a",
+              "name": "X-API-Key tidak ada atau salah. Isi key lokal melalui Authorize.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "order-service",
+                    "orders",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "ord-00000000-0000-4000-8000-000000000001",
+                      "key": "id",
+                      "description": "(Required) ID pesanan dari respons pembuatan pesanan."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Unauthorized\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "0e8975e2-665c-4cd5-98eb-0f251fde27a6",
+              "name": "Produk atau pesanan tidak ditemukan.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "order-service",
+                    "orders",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "ord-00000000-0000-4000-8000-000000000001",
+                      "key": "id",
+                      "description": "(Required) ID pesanan dari respons pembuatan pesanan."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Product not found\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "e8fb2639-4443-484c-952a-07d05d7b51a4",
+              "name": "Batas 20 request per 10 detik per IP terlampaui. Tunggu Retry-After.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "order-service",
+                    "orders",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "ord-00000000-0000-4000-8000-000000000001",
+                      "key": "id",
+                      "description": "(Required) ID pesanan dari respons pembuatan pesanan."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "disabled": true,
+                  "description": "Detik hingga request dapat diulangi.",
+                  "key": "Retry-After",
+                  "value": "63539406"
+                },
+                {
+                  "disabled": true,
+                  "key": "RateLimit-Limit",
+                  "value": "20",
+                  "description": ""
+                },
+                {
+                  "disabled": true,
+                  "key": "RateLimit-Remaining",
+                  "value": "0",
+                  "description": ""
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Terlalu banyak request. Maksimal 20 request per 10 detik per IP.\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "22af20c7-1fd8-45c6-84ee-73f1a8485f7a",
+              "name": "Kesalahan internal service.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "order-service",
+                    "orders",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "ord-00000000-0000-4000-8000-000000000001",
+                      "key": "id",
+                      "description": "(Required) ID pesanan dari respons pembuatan pesanan."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Internal server error\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "f22624fd-8977-4174-aed8-6702ec07376e",
+              "name": "Gateway tidak dapat menghubungi service tujuan, atau data katalog tidak valid.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "order-service",
+                    "orders",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "ord-00000000-0000-4000-8000-000000000001",
+                      "key": "id",
+                      "description": "(Required) ID pesanan dari respons pembuatan pesanan."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "X-API-Key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Bad Gateway",
+              "code": 502,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"Service tujuan tidak tersedia\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "http://127.0.0.1:8080",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "d92c8c5e-7120-40c0-8128-359d086b0490",
+    "name": "Lab 11 - Toko API (via Gateway)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "Praktikum individu Bambang Herlambang (5803024019). Gateway menghubungkan Catalog Service (layanan produk) dan Order Service dengan kepemilikan data terpisah. Semua URL relatif ke origin gateway yang sedang dibuka. Prefix utama Lab 09 adalah /product-service dan /order-service; alias Lab 08 /catalog dan /orders memiliki kontrak yang sama (contoh /catalog/products dan /orders/orders). Kuota API bersama: 20 request per 10 detik per IP; respons 429 berisi Retry-After. /readyz, /docs/, /openapi.json, dan /sandbox tidak mengurangi kuota, tetapi panggilan API dari UI tetap dihitung. Data demo disimpan dalam memori dan kembali ke seed ketika masing-masing service restart. API key diisi sendiri melalui Authorize dan tidak disertakan pada dokumentasi.",
+      "type": "text/plain"
+    }
+  }
+}

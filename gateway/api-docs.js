@@ -2,14 +2,82 @@
 
 const express = require('express');
 const swaggerUi = require('swagger-ui-dist');
-const specification = require('./openapi.json');
+const baseSpecification = require('./spec-base.json');
+
+// Namespace every local component reference, including nested response references.
+function namespaceSpec(spec, namespace) {
+  function rewrite(value) {
+    if (Array.isArray(value)) return value.map(rewrite);
+    if (!value || typeof value !== 'object') return value;
+    return Object.fromEntries(Object.entries(value).map(([key, child]) => [key,
+      key === '$ref' && typeof child === 'string' && child.startsWith('#/components/')
+        ? child.replace(/^(#\/components\/[^/]+\/)/, `$1${namespace}_`) : rewrite(child)]));
+  }
+  const result = rewrite(spec);
+  for (const entries of Object.values(result.components || {})) {
+    for (const name of Object.keys(entries)) {
+      entries[`${namespace}_${name}`] = entries[name];
+      delete entries[name];
+    }
+  }
+  return result;
+}
+
+async function buildSpec({
+  catalogUrl = 'http://127.0.0.1:3000', orderUrl = 'http://127.0.0.1:3001',
+  productDocUrl = process.env.PRODUCT_DOC_URL || new URL('/openapi.json', catalogUrl).href,
+  orderDocUrl = process.env.ORDER_DOC_URL || new URL('/openapi.json', orderUrl).href,
+  fetchImpl = fetch,
+} = {}) {
+  const merged = structuredClone(baseSpecification);
+  merged.tags = [{ name: 'Kesehatan' }, { name: 'Products' }, { name: 'Orders' }];
+  const sources = [
+    { prefix: '/product-service', namespace: 'catalog', url: productDocUrl },
+    { prefix: '/order-service', namespace: 'order', url: orderDocUrl },
+  ];
+  const results = await Promise.all(sources.map(async (source) => {
+    try {
+      const response = await fetchImpl(source.url, { signal: AbortSignal.timeout(2000) });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const spec = await response.json();
+      if (spec.openapi !== '3.0.3' || !spec.paths) throw new Error('Invalid OpenAPI source');
+      return { source, spec: namespaceSpec(spec, source.namespace) };
+    } catch (error) {
+      return { source, error: error.message };
+    }
+  }));
+  merged['x-documentation-sources'] = results.map(({ source, error }) => ({
+    prefix: source.prefix, available: !error, ...(error ? { error } : {}),
+  }));
+  for (const { source, spec } of results) {
+    if (!spec) continue;
+    for (const [kind, entries] of Object.entries(spec.components || {})) {
+      Object.assign(merged.components[kind] ||= {}, entries);
+    }
+    for (const [route, item] of Object.entries(spec.paths)) {
+      for (const [method, op] of Object.entries(item)) {
+        if (!['get', 'post', 'put', 'patch', 'delete', 'head', 'options'].includes(method)) continue;
+        delete op.servers;
+        op.responses['429'] = { $ref: '#/components/responses/RateLimited' };
+        op.responses['502'] ||= { $ref: '#/components/responses/BadGateway' };
+        const protectedRoute = source.namespace === 'order'
+          || (method === 'post' && (route === '/reservations' || route.endsWith('/reserve')));
+        op.security = protectedRoute ? [{ ApiKeyAuth: [] }] : [];
+        if (protectedRoute) op.responses['401'] = { $ref: '#/components/responses/Unauthorized' };
+      }
+      delete item.servers;
+      merged.paths[source.prefix + route] = item;
+    }
+  }
+  return merged;
+}
 
 const page = `<!doctype html>
 <html lang="id">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Dokumentasi API | Lab 09 Microservices</title>
+  <title>Dokumentasi API | Lab 11 Microservices</title>
   <link rel="stylesheet" href="/docs/swagger-ui.css">
   <style>
     body { margin: 0; background: #fafafa; }
@@ -23,7 +91,7 @@ const page = `<!doctype html>
 </head>
 <body>
   <header class="docs-header">
-    <strong>Lab 09 / Dokumentasi API</strong>
+    <strong>Lab 11 / Dokumentasi API Otomatis</strong>
     <nav aria-label="Navigasi dokumentasi"><a href="/">Dashboard</a><a href="/sandbox">Apollo Sandbox</a><a href="/openapi.json">OpenAPI JSON</a></nav>
     <p>Pilih endpoint dan gunakan Try it out untuk menguji. Isi X-API-Key melalui Authorize untuk pesanan dan reservasi stok. Setiap panggilan API berbagi batas 20 request per 10 detik.</p>
   </header>
@@ -51,8 +119,10 @@ window.addEventListener('load', function () {
 
 // Mount before the API limiter: inspecting documentation does not spend API quota.
 // Requests made by Swagger's Try it out still reach the ordinary gateway routes.
-function mountApiDocs(app) {
-  app.get('/openapi.json', (_req, res) => res.json(specification));
+function mountApiDocs(app, options = {}) {
+  app.get('/openapi.json', async (_req, res, next) => {
+    try { res.set('Cache-Control', 'no-store').json(await buildSpec(options)); } catch (error) { next(error); }
+  });
   app.get('/docs', (req, res, next) => {
     if (req.path.endsWith('/')) return next();
     return res.redirect(302, '/docs/');
@@ -62,4 +132,4 @@ function mountApiDocs(app) {
   app.use('/docs', express.static(swaggerUi.getAbsoluteFSPath(), { index: false, redirect: false }));
 }
 
-module.exports = { mountApiDocs };
+module.exports = { mountApiDocs, buildSpec, namespaceSpec };

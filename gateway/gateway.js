@@ -28,7 +28,7 @@ function createGateway(config = {}) {
 
   // Frontend and documentation assets do not consume the API request quota.
   app.use(express.static(path.join(__dirname, 'public'), { index: false, dotfiles: 'deny' }));
-  mountApiDocs(app);
+  mountApiDocs(app, { catalogUrl, orderUrl });
   app.get('/sandbox', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'sandbox.html')));
   app.get('/laporan.pdf', (_req, res) => res.sendFile(path.resolve(__dirname, '../output/pdf/laporan-praktikum-sesi-09.pdf')));
   app.get('/laporan-latex.zip', (_req, res) => res.sendFile(path.resolve(__dirname, '../output/latex/laporan-praktikum-sesi-09-overleaf.zip')));

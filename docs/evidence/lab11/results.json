@@ -1,0 +1,113 @@
+{
+  "executedAt": "2026-11-11T08:13:20.386Z",
+  "base": "http://127.0.0.1:8080",
+  "passed": true,
+  "exchanges": [
+    {
+      "input": {
+        "customerName": "Praktikum Lab 11",
+        "items": [
+          {
+            "productId": "prod-001",
+            "quantity": 2
+          }
+        ]
+      },
+      "status": 201,
+      "body": {
+        "data": {
+          "id": "ord-a1e9edff-e3c4-4a35-95c5-737029b2fcd9",
+          "customerName": "Praktikum Lab 11",
+          "items": [
+            {
+              "productId": "prod-001",
+              "name": "Kopi Arabika Gayo",
+              "quantity": 2,
+              "unitPrice": 85000,
+              "subtotal": 170000
+            }
+          ],
+          "total": 170000,
+          "status": "pending",
+          "createdAt": "2026-11-11T08:13:18.487Z"
+        }
+      },
+      "source": "Swagger UI Try it out"
+    },
+    {
+      "input": {
+        "customerName": "Praktikum Lab 11",
+        "items": [
+          {
+            "productId": "prod-001",
+            "quantity": 100
+          }
+        ]
+      },
+      "status": 409,
+      "body": {
+        "error": "Insufficient stock for prod-001; available: 38"
+      },
+      "source": "Swagger UI Try it out"
+    },
+    {
+      "input": {
+        "customerName": "Praktikum Lab 11",
+        "items": [
+          {
+            "productId": "prod-099",
+            "quantity": 2
+          }
+        ]
+      },
+      "status": 404,
+      "body": {
+        "error": "Unknown product: prod-099"
+      },
+      "source": "Swagger UI Try it out"
+    },
+    {
+      "input": {
+        "customerName": "Praktikum Lab 11",
+        "items": [
+          {
+            "productId": "prod-001",
+            "quantity": 999
+          }
+        ]
+      },
+      "status": 400,
+      "body": {
+        "error": "items[0].quantity must be an integer from 1 to 100"
+      },
+      "source": "Swagger UI Try it out"
+    },
+    {
+      "input": {
+        "customerName": "Praktikum Lab 11",
+        "items": [
+          {
+            "productId": "prod-001",
+            "quantity": 2
+          }
+        ]
+      },
+      "status": 503,
+      "body": {
+        "error": "Catalog service is unavailable or timed out"
+      },
+      "source": "Swagger UI Try it out"
+    }
+  ],
+  "stockAfterOrder": 38,
+  "openapiValidation": "Swagger Parser: valid OpenAPI 3.0.3",
+  "responseSchemas": "AJV: all recorded order responses valid",
+  "postmanConversion": true,
+  "collectionRequest": {
+    "name": "Daftar dan cari produk",
+    "status": 200
+  },
+  "manualPostmanImport": "Not yet verified in Postman application",
+  "swaggerEditorImport": "Not yet verified at editor.swagger.io",
+  "drift": "Isolated annotation copy without category, then catalog restarted with corrected original annotations"
+}

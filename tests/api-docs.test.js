@@ -9,6 +9,12 @@ const vm = require('node:vm');
 const express = require('express');
 const { buildSchema, parse, validate } = require('graphql');
 const { mountApiDocs } = require('../gateway/api-docs');
+const { specification: catalogSpec } = require('../catalog-service/app');
+const { specification: orderSpec } = require('../order-service/app');
+
+const docOptions = { fetchImpl: async (url) => new Response(JSON.stringify(
+  String(url).includes(':3000') ? catalogSpec : orderSpec,
+), { headers: { 'content-type': 'application/json' } }) };
 
 async function serve(t, app) {
   const server = app.listen(0, '127.0.0.1');
@@ -22,7 +28,7 @@ async function serve(t, app) {
 
 async function documentation(t) {
   const app = express();
-  mountApiDocs(app);
+  mountApiDocs(app, docOptions);
   return serve(t, app);
 }
 
@@ -57,11 +63,11 @@ test('OpenAPI describes deployed-origin routes, authentication, and validation b
   for (const status of ['201', '400', '401', '404', '409', '413', '429', '502', '503']) {
     assert.ok(orderPost.responses[status], status);
   }
-  assert.equal(spec.components.schemas.OrderItemInput.properties.quantity.minimum, 1);
-  assert.equal(spec.components.schemas.OrderItemInput.properties.quantity.maximum, 100);
-  assert.equal(spec.components.schemas.OrderInput.properties.items.maxItems, 50);
-  assert.equal(spec.components.schemas.ReserveInput.properties.qty.minimum, 1);
-  assert.equal(spec.components.schemas.Product.properties.stock.minimum, 0);
+  assert.equal(spec.components.schemas.order_OrderItemInput.properties.quantity.minimum, 1);
+  assert.equal(spec.components.schemas.order_OrderItemInput.properties.quantity.maximum, 100);
+  assert.equal(spec.components.schemas.order_OrderInput.properties.items.maxItems, 50);
+  assert.equal(spec.components.schemas.catalog_ReserveInput.properties.qty.minimum, 1);
+  assert.equal(spec.components.schemas.catalog_Product.properties.stock.minimum, 0);
   assert.ok(!spec.paths['/readyz'].get.responses['429']);
 });
 
@@ -127,7 +133,7 @@ test('Swagger UI loads local assets and initializes this gateway specification',
 
 test('reading documentation does not reach a limiter mounted after it', async (t) => {
   const app = express();
-  mountApiDocs(app);
+  mountApiDocs(app, docOptions);
   let apiCalls = 0;
   app.use((_req, res) => {
     apiCalls += 1;

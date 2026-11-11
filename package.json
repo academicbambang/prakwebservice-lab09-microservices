@@ -2,7 +2,7 @@
   "name": "prakwebservice-lab09-microservices",
   "version": "0.1.0",
   "private": true,
-  "description": "Praktikum Web Service Lab 09–10: microservices katalog-pesanan dan event RabbitMQ",
+  "description": "Praktikum Web Service Lab 09–11: microservices, RabbitMQ, dan dokumentasi OpenAPI otomatis",
   "workspaces": [
     "gateway",
     "catalog-service",
@@ -26,10 +26,15 @@
     "test:lab09": "node scripts/demo-lab09.js",
     "test:lab10": "node scripts/demo-lab10.js",
     "test:lab10:evidence": "node scripts/demo-lab10.js --screenshots",
+    "test:lab11": "node scripts/demo-lab11.js",
     "verify:deployment": "node scripts/verify-deployment.js",
     "test:rate-limit": "node scripts/demo-rate-limit.js"
   },
   "devDependencies": {
+    "@apidevtools/swagger-parser": "^13.0.0",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
+    "openapi-to-postmanv2": "^4.18.0",
     "playwright": "^1.62.1"
   }
 }

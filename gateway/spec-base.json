@@ -1,0 +1,295 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Lab 11 - Toko API (via Gateway)",
+    "version": "1.1.0",
+    "description": "Praktikum individu Bambang Herlambang (5803024019). Gateway menghubungkan Catalog Service (layanan produk) dan Order Service dengan kepemilikan data terpisah. Semua URL relatif ke origin gateway yang sedang dibuka. Prefix utama Lab 09 adalah /product-service dan /order-service; alias Lab 08 /catalog dan /orders memiliki kontrak yang sama (contoh /catalog/products dan /orders/orders). Kuota API bersama: 20 request per 10 detik per IP; respons 429 berisi Retry-After. /readyz, /docs/, /openapi.json, dan /sandbox tidak mengurangi kuota, tetapi panggilan API dari UI tetap dihitung. Data demo disimpan dalam memori dan kembali ke seed ketika masing-masing service restart. API key diisi sendiri melalui Authorize dan tidak disertakan pada dokumentasi."
+  },
+  "servers": [
+    {
+      "url": "/",
+      "description": "Origin gateway saat ini, lokal atau deployment."
+    }
+  ],
+  "tags": [
+    {
+      "name": "Kesehatan",
+      "description": "Health proses dan kesiapan backend."
+    },
+    {
+      "name": "Produk",
+      "description": "Data produk, harga, dan stok milik Catalog Service."
+    },
+    {
+      "name": "Reservasi",
+      "description": "Pengurangan stok oleh pemilik data produk."
+    },
+    {
+      "name": "Pesanan",
+      "description": "Snapshot transaksi milik Order Service."
+    },
+    {
+      "name": "GraphQL",
+      "description": "Query katalog melalui REST gateway yang sama; UI tersedia di /sandbox."
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "operationId": "gatewayHealth",
+        "summary": "Kesehatan proses gateway",
+        "tags": [
+          "Kesehatan"
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Gateway masih berjalan; tidak memeriksa backend.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                },
+                "example": {
+                  "status": "ok",
+                  "service": "gateway"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/readyz": {
+      "get": {
+        "operationId": "gatewayReadiness",
+        "summary": "Kesiapan kedua service",
+        "tags": [
+          "Kesehatan"
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Kedua backend sehat.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                },
+                "example": {
+                  "status": "ok",
+                  "service": "gateway"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Minimal satu backend tidak sehat/tidak merespons health check dalam 1 detik.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                },
+                "example": {
+                  "status": "unavailable",
+                  "service": "gateway"
+                }
+              }
+            }
+          }
+        },
+        "description": "Probe ini tidak memakai kuota API dan tidak membutuhkan API key."
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key",
+        "description": "Isi key lokal dari gateway/.env. Nilainya tidak ditanam dalam halaman dan tidak diteruskan ke backend."
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        }
+      },
+      "Health": {
+        "type": "object",
+        "required": [
+          "status",
+          "service"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "unavailable"
+            ]
+          },
+          "service": {
+            "type": "string",
+            "enum": [
+              "gateway",
+              "catalog-service",
+              "order-service"
+            ]
+          }
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "JSON, parameter, atau nilai input tidak valid.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "error": "qty must be a positive safe integer"
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "X-API-Key tidak ada atau salah. Isi key lokal melalui Authorize.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "error": "Unauthorized"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Produk atau pesanan tidak ditemukan.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "error": "Product not found"
+            }
+          }
+        }
+      },
+      "Conflict": {
+        "description": "Stok tidak cukup; batch yang ditolak tidak mengubah stok.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "error": "Insufficient stock for prod-001; available: 0"
+            }
+          }
+        }
+      },
+      "PayloadTooLarge": {
+        "description": "Body request melampaui 32 KB.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "error": "Request body is too large"
+            }
+          }
+        }
+      },
+      "RateLimited": {
+        "description": "Batas 20 request per 10 detik per IP terlampaui. Tunggu Retry-After.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "error": "Terlalu banyak request. Maksimal 20 request per 10 detik per IP."
+            }
+          }
+        },
+        "headers": {
+          "Retry-After": {
+            "description": "Detik hingga request dapat diulangi.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "RateLimit-Limit": {
+            "schema": {
+              "type": "integer",
+              "example": 20
+            }
+          },
+          "RateLimit-Remaining": {
+            "schema": {
+              "type": "integer",
+              "example": 0
+            }
+          }
+        }
+      },
+      "BadGateway": {
+        "description": "Gateway tidak dapat menghubungi service tujuan, atau data katalog tidak valid.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "error": "Service tujuan tidak tersedia"
+            }
+          }
+        }
+      },
+      "ServiceUnavailable": {
+        "description": "Katalog tidak tersedia atau deadline HTTP 2 detik terlampaui; pesanan baru tidak disimpan.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "error": "Catalog service is unavailable or timed out"
+            }
+          }
+        }
+      },
+      "InternalError": {
+        "description": "Kesalahan internal service.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "error": "Internal server error"
+            }
+          }
+        }
+      }
+    }
+  }
+}
