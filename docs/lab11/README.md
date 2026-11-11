@@ -1,6 +1,6 @@
 # Lab 11 — Dokumentasi API Otomatis
 
-Versi siap dibaca/dicetak: [PDF laporan](../../output/pdf/laporan-praktikum-sesi-11.pdf). Sumber tersedia sebagai [main.tex](../latex-lab11/main.tex) dan [ZIP siap Overleaf](../../output/latex/laporan-praktikum-sesi-11-overleaf.zip), dengan [petunjuk kompilasi](../latex-lab11/README.md). PDF menyertakan sembilan screenshot manual pada lampiran landscape.
+Versi siap dibaca/dicetak: [PDF laporan terbaru, 16 halaman](<../../output/pdf/Laporan Praktikum Web Service Sesi 11.pdf>). PDF revisi pengguna menempatkan screenshot beserta penjelasan pada bagian pembahasan dan menambahkan screenshot akhir Swagger Editor. [main.tex](../latex-lab11/main.tex) dan [ZIP Overleaf](../../output/latex/laporan-praktikum-sesi-11-overleaf.zip), dengan [petunjuk kompilasi](../latex-lab11/README.md), masih merupakan sumber versi awal 14 halaman dengan lampiran landscape; keduanya belum disinkronkan dengan revisi PDF terbaru.
 
 Sumber tugas: [Lab 11 Web Service](https://webservice.philipus.my.id/praktikum/lab-11). Implementasi melanjutkan repository Lab 09, termasuk perubahan Lab 10 yang sudah ada. Lab 10 bukan prasyarat menjalankan dokumentasi.
 
