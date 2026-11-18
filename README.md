@@ -1,4 +1,4 @@
-[![CI Lab 12](https://github.com/academicbambang/prakwebservice-lab09-microservices/actions/workflows/ci.yml/badge.svg?branch=lab12-testing-monitoring)](https://github.com/academicbambang/prakwebservice-lab09-microservices/actions/workflows/ci.yml?query=branch%3Alab12-testing-monitoring)
+[![CI Lab 12](https://github.com/academicbambang/prakwebservice-lab09-microservices/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/academicbambang/prakwebservice-lab09-microservices/actions/workflows/ci.yml?query=branch%3Amain)
 
 # Lab 09: Microservices Marketplace UMKM
 

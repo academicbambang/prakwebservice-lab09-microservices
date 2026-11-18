@@ -43,7 +43,7 @@ not ok 11 - POST order over available stock returns 409
 # fail 6
 ```
 
-Implementasi dan badge CI berada di branch `lab12-testing-monitoring`. Panduan menyebut `main` untuk run hijau, sementara repo Lab 09 mengatur Render untuk deploy otomatis dari `main`.
+Hasil Lab 12 dan badge CI tersedia di `main`. Lihat [run CI pada main](https://github.com/academicbambang/prakwebservice-lab09-microservices/actions/workflows/ci.yml?query=branch%3Amain) untuk bukti pengumpulan. Branch `uji-gagal` menyimpan demonstrasi regresi.
 
 ## Refleksi
 
