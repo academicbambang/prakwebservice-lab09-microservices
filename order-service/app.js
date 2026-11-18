@@ -2,6 +2,7 @@
 
 const { randomUUID } = require('node:crypto');
 const express = require('express');
+const { mountObservability } = require('../observability');
 const { OrderError, validateOrderInput, priceOrder } = require('./order');
 
 function createOrderApp({
@@ -11,9 +12,10 @@ function createOrderApp({
   const app = express();
   const orders = new Map();
   app.disable('x-powered-by');
+  mountObservability(app, 'order-service');
   app.use(express.json({ limit: '32kb' }));
 
-  async function reserveCatalogProducts(items) {
+  async function reserveCatalogProducts(items, requestId) {
     const quantities = new Map();
     for (const { productId, quantity } of items) {
       quantities.set(productId, (quantities.get(productId) || 0) + quantity);
@@ -36,7 +38,7 @@ function createOrderApp({
     async function requestReservation() {
       const response = await fetchImpl(`${catalogUrl.replace(/\/+$/, '')}${route}`, {
         method: 'POST',
-        headers: { accept: 'application/json', 'content-type': 'application/json' },
+        headers: { accept: 'application/json', 'content-type': 'application/json', 'x-request-id': requestId },
         body: JSON.stringify(body),
         signal: controller.signal,
       });
@@ -97,8 +99,6 @@ function createOrderApp({
   }
 
   // API key diperiksa gateway. Jalankan backend di jaringan internal/loopback.
-  app.get('/health', (req, res) => res.json({ status: 'ok', service: 'order-service' }));
-
   app.get('/orders', (req, res) => {
     res.json({ service: 'order-service', data: [...orders.values()] });
   });
@@ -111,7 +111,7 @@ function createOrderApp({
 
   app.post('/orders', async (req, res) => {
     const input = validateOrderInput(req.body);
-    const productsById = await reserveCatalogProducts(input.items);
+    const productsById = await reserveCatalogProducts(input.items, req.id);
     // Respons reserve berisi stok sesudah dikurangi, jadi jangan memeriksa stok dua kali.
     const pricedOrder = priceOrder(input.items, productsById, { checkStock: false });
     const order = {

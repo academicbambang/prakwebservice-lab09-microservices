@@ -3,6 +3,7 @@
 const { readFileSync } = require('node:fs');
 const path = require('node:path');
 const express = require('express');
+const { mountObservability } = require('../observability');
 const { buildSchema } = require('graphql');
 const { createHandler } = require('graphql-http/lib/use/express');
 const { createProductStore, ReservationError } = require('./products');
@@ -13,13 +14,10 @@ function createCatalogApp() {
   const app = express();
   const { findProducts, findProduct, reserveProduct, reserveProducts } = createProductStore();
   app.disable('x-powered-by');
+  mountObservability(app, 'catalog-service');
   app.use(express.json({ limit: '32kb' }));
 
   // Backend ini diasumsikan berada di jaringan internal; API key diperiksa gateway.
-  app.get('/health', (req, res) => {
-    res.json({ status: 'ok', service: 'catalog-service' });
-  });
-
   app.get('/products', (req, res) => {
     const { category, search } = req.query;
     if ((category !== undefined && typeof category !== 'string')

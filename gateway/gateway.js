@@ -5,6 +5,7 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
 const { rateLimit, MemoryStore } = require('express-rate-limit');
 const { loadLocalEnv, readConfig } = require('./config');
 const { mountApiDocs } = require('./api-docs');
+const { mountObservability } = require('../observability');
 
 function createGateway(config = {}) {
   const {
@@ -22,16 +23,18 @@ function createGateway(config = {}) {
     apiKey ? createHash('sha256').update(apiKey).digest() : null;
   const app = express();
   app.disable('x-powered-by');
+  mountObservability(app, 'gateway', { mountHealth: false });
   // Direct localhost clients must not be able to spoof X-Forwarded-For.
   // Use TRUST_PROXY=1 only behind a platform with exactly one trusted hop.
   app.set('trust proxy', trustProxy);
 
   // Frontend and documentation assets do not consume the API request quota.
-  app.use(express.static(path.join(__dirname, 'public'), { index: false, dotfiles: 'deny' }));
+  const publicRoot = path.join(__dirname, 'public');
+  app.use(express.static(publicRoot, { index: false, dotfiles: 'deny' }));
   mountApiDocs(app);
-  app.get('/sandbox', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'sandbox.html')));
-  app.get('/laporan.pdf', (_req, res) => res.sendFile(path.resolve(__dirname, '../output/pdf/laporan-praktikum-sesi-09.pdf')));
-  app.get('/laporan-latex.zip', (_req, res) => res.sendFile(path.resolve(__dirname, '../output/latex/laporan-praktikum-sesi-09-overleaf.zip')));
+  app.get('/sandbox', (_req, res) => res.sendFile('sandbox.html', { root: publicRoot }));
+  app.get('/laporan.pdf', (_req, res) => res.sendFile('laporan-praktikum-sesi-09.pdf', { root: path.resolve(__dirname, '../output/pdf') }));
+  app.get('/laporan-latex.zip', (_req, res) => res.sendFile('laporan-praktikum-sesi-09-overleaf.zip', { root: path.resolve(__dirname, '../output/latex') }));
 
   // Apollo Studio runs on its own origin. Only the public read-only GraphQL API is shared.
   app.use(['/catalog/graphql', '/product-service/graphql'], (req, res, next) => {
@@ -77,7 +80,7 @@ function createGateway(config = {}) {
     message: { error: 'Terlalu banyak request. Maksimal 20 request per 10 detik per IP.' },
   });
   app.use(limiter);
-  app.get('/', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+  app.get('/', (_req, res) => res.sendFile('index.html', { root: publicRoot }));
   app.get('/health', (_req, res) => res.json({ status: 'ok', service: 'gateway' }));
 
   function proxy(prefix, target) {

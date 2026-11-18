@@ -1,3 +1,5 @@
+[![CI Lab 12](https://github.com/academicbambang/prakwebservice-lab09-microservices/actions/workflows/ci.yml/badge.svg?branch=lab12-testing-monitoring)](https://github.com/academicbambang/prakwebservice-lab09-microservices/actions/workflows/ci.yml?query=branch%3Alab12-testing-monitoring)
+
 # Lab 09: Microservices Marketplace UMKM
 
 **Bambang Herlambang — NRP 5803024019 — Praktikum individu**
@@ -7,6 +9,10 @@ Repository khusus Lab 09: [prakwebservice-lab09-microservices](https://github.co
 Frontend **Ruang UMKM** menyediakan katalog, keranjang, checkout, dan riwayat pesanan melalui gateway. Deployment sesi ini memakai layanan baru tersendiri; konfigurasi, status, dan URL aktual dicatat dalam [panduan Render](docs/deployment-render.md).
 
 **Deployment Lab 09 sudah live dan terverifikasi:** [buka aplikasi](https://prakwebservice-lab09-microservices.onrender.com), [Swagger UI](https://prakwebservice-lab09-microservices.onrender.com/docs/), atau [Apollo Sandbox](https://prakwebservice-lab09-microservices.onrender.com/sandbox). [Bukti deployment](docs/evidence/deployment/README.md) memuat status Render, hasil HTTP, pengujian browser, dan screenshot aplikasi publik. Layanan ini terpisah dari deployment Lab 08.
+
+## Lab 12 — Automated Testing & Monitoring API
+
+Bukti dan refleksi tersedia di [catatan Lab 12](docs/lab12/README.md). Repo ini memakai Catalog Service sebagai layanan produk. Tes black-box mengirim HTTP ke gateway melalui prefix `/product-service` dan `/order-service`, memakai field `customerName` dan `items`, serta menyertakan API key gateway untuk order.
 
 ## Implementasi
 
