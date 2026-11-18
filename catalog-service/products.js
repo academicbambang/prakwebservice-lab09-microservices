@@ -89,7 +89,7 @@ function createProductStore() {
       const product = findInState(productId);
       if (!product) throw new ReservationError(`Unknown product: ${productId}`, 404);
       if (quantity > product.stock) {
-        throw new ReservationError(`Insufficient stock for ${productId}; available: ${product.stock}`, 409);
+        throw new ReservationError(`Insufficient stock for ${productId}; available: ${product.stock}`, 400);
       }
       return { product, quantity };
     });
