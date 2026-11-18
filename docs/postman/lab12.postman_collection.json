@@ -1,0 +1,1858 @@
+{
+  "info": {
+    "name": "Lab 12 - Automated Testing and Monitoring API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Impor koleksi dan environment Local atau Render, lalu pilih environment aktif. API key lokal berasal dari gateway/.env setelah npm run setup. Isi apiKey di environment aktif untuk request Order Service.\n\n01 Observability memeriksa health, readiness, dan metrik. Di Render tanpa key, jalankan request publik satu per satu atau jalankan subfolder Publik melalui Runner.\n\n02 Tes API dijalankan berurutan pada stack lokal yang sehat dengan katalog seed. Sebagian request membuat pesanan dan mengurangi stok. Beri jeda minimal 10 detik antar-run pada gateway yang sama agar kuota pulih. Request Konflik stok dapat dipakai untuk demo regresi di uji-gagal setelah Catalog Service dijalankan ulang. Tes mengharapkan 409. Pada regresi yang disengaja, hasilnya 502.\n\n03 Demo gangguan dijalankan manual di environment Local. Jalankan node monitor.js, ambil baseline, hentikan hanya katalog, kirim order saat DOWN, hidupkan katalog lagi, lalu periksa metrik dan readiness.\n\nRepository https://github.com/academicbambang/prakwebservice-lab09-microservices\n\nContoh respons berasal dari pengujian pada stack lokal dengan data demo. ID, stok, waktu dan penghitung metrik dapat berubah pada eksekusi berikutnya."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8080"
+    },
+    {
+      "key": "productId",
+      "value": "prod-001"
+    },
+    {
+      "key": "unknownProductId",
+      "value": "prod-unknown"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 Observability",
+      "item": [
+        {
+          "name": "Publik",
+          "item": [
+            {
+              "name": "Health Gateway",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/health",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ]
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 200 dan service sehat\", () => {",
+                      "  pm.response.to.have.status(200);",
+                      "  pm.expect(pm.response.json().status).to.eql('ok');",
+                      "  pm.expect(pm.response.json().service).to.eql('gateway');",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "response": [
+                {
+                  "name": "200 OK",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": "{{baseUrl}}/health"
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"status\": \"ok\",\n  \"service\": \"gateway\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Readiness Gateway",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/readyz",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ]
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 200 dan service sehat\", () => {",
+                      "  pm.response.to.have.status(200);",
+                      "  pm.expect(pm.response.json().status).to.eql('ok');",
+                      "  pm.expect(pm.response.json().service).to.eql('gateway');",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "response": [
+                {
+                  "name": "200 OK",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": "{{baseUrl}}/readyz"
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "X-Request-Id",
+                      "value": "400d9e36-bd6e-482f-b75b-409e0378079b"
+                    },
+                    {
+                      "key": "Cache-Control",
+                      "value": "no-store"
+                    },
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"status\": \"ok\",\n  \"service\": \"gateway\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Health Catalog Service",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/product-service/health",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ]
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 200 dan service sehat\", () => {",
+                      "  pm.response.to.have.status(200);",
+                      "  pm.expect(pm.response.json().status).to.eql('ok');",
+                      "  pm.expect(pm.response.json().service).to.eql('catalog-service');",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "response": [
+                {
+                  "name": "200 OK",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": "{{baseUrl}}/product-service/health"
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "X-Request-Id",
+                      "value": "e526177c-c5b6-44f6-9f86-0782106b4d7d"
+                    },
+                    {
+                      "key": "content-type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"status\": \"ok\",\n  \"service\": \"catalog-service\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Metrik Gateway",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/metrics",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ]
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Format metrik gateway\", () => {",
+                      "  pm.response.to.have.status(200);",
+                      "  const metrics = pm.response.json();",
+                      "  pm.expect(metrics.service).to.eql('gateway');",
+                      "  pm.expect(Number.isFinite(Date.parse(metrics.startedAt))).to.be.true;",
+                      "  for (const field of ['requests', 'errors5xx', 'avgMs']) {",
+                      "    pm.expect(metrics[field], field).to.be.a('number').and.at.least(0);",
+                      "  }",
+                      "  pm.expect(metrics.errors5xx).to.be.at.most(metrics.requests);",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "response": [
+                {
+                  "name": "200 OK",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": "{{baseUrl}}/metrics"
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "X-Request-Id",
+                      "value": "030d6dc3-be03-40a7-acdf-de51ce866e1c"
+                    },
+                    {
+                      "key": "Cache-Control",
+                      "value": "no-store"
+                    },
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"service\": \"gateway\",\n  \"startedAt\": \"2026-11-18T10:55:57.070Z\",\n  \"requests\": 15,\n  \"errors5xx\": 0,\n  \"avgMs\": 11\n}"
+                }
+              ]
+            },
+            {
+              "name": "Metrik Catalog Service",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/product-service/metrics",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ]
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Format metrik catalog-service\", () => {",
+                      "  pm.response.to.have.status(200);",
+                      "  const metrics = pm.response.json();",
+                      "  pm.expect(metrics.service).to.eql('catalog-service');",
+                      "  pm.expect(Number.isFinite(Date.parse(metrics.startedAt))).to.be.true;",
+                      "  for (const field of ['requests', 'errors5xx', 'avgMs']) {",
+                      "    pm.expect(metrics[field], field).to.be.a('number').and.at.least(0);",
+                      "  }",
+                      "  pm.expect(metrics.errors5xx).to.be.at.most(metrics.requests);",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "response": [
+                {
+                  "name": "200 OK",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": "{{baseUrl}}/product-service/metrics"
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "x-request-id",
+                      "value": "e31d122e-b528-411a-99dc-685dd0f771c5"
+                    },
+                    {
+                      "key": "cache-control",
+                      "value": "no-store"
+                    },
+                    {
+                      "key": "content-type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"service\": \"catalog-service\",\n  \"startedAt\": \"2026-11-18T10:55:57.053Z\",\n  \"requests\": 8,\n  \"errors5xx\": 0,\n  \"avgMs\": 1\n}"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Order Service dengan API key",
+          "item": [
+            {
+              "name": "Health Order Service",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/order-service/health",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{apiKey}}"
+                  }
+                ]
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"HTTP 200 dan service sehat\", () => {",
+                      "  pm.response.to.have.status(200);",
+                      "  pm.expect(pm.response.json().status).to.eql('ok');",
+                      "  pm.expect(pm.response.json().service).to.eql('order-service');",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "response": [
+                {
+                  "name": "200 OK",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "X-API-Key",
+                        "value": "{{apiKey}}"
+                      }
+                    ],
+                    "url": "{{baseUrl}}/order-service/health"
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "X-Request-Id",
+                      "value": "2f3d4e29-5f23-44f3-95ce-344eecede901"
+                    },
+                    {
+                      "key": "content-type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"status\": \"ok\",\n  \"service\": \"order-service\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Metrik Order Service",
+              "request": {
+                "method": "GET",
+                "url": "{{baseUrl}}/order-service/metrics",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{apiKey}}"
+                  }
+                ]
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Format metrik order-service\", () => {",
+                      "  pm.response.to.have.status(200);",
+                      "  const metrics = pm.response.json();",
+                      "  pm.expect(metrics.service).to.eql('order-service');",
+                      "  pm.expect(Number.isFinite(Date.parse(metrics.startedAt))).to.be.true;",
+                      "  for (const field of ['requests', 'errors5xx', 'avgMs']) {",
+                      "    pm.expect(metrics[field], field).to.be.a('number').and.at.least(0);",
+                      "  }",
+                      "  pm.expect(metrics.errors5xx).to.be.at.most(metrics.requests);",
+                      "});"
+                    ]
+                  }
+                }
+              ],
+              "response": [
+                {
+                  "name": "200 OK",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "X-API-Key",
+                        "value": "{{apiKey}}"
+                      }
+                    ],
+                    "url": "{{baseUrl}}/order-service/metrics"
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "x-request-id",
+                      "value": "81a366b4-269c-479c-960d-906a775a743b"
+                    },
+                    {
+                      "key": "cache-control",
+                      "value": "no-store"
+                    },
+                    {
+                      "key": "content-type",
+                      "value": "application/json; charset=utf-8"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"service\": \"order-service\",\n  \"startedAt\": \"2026-11-18T10:55:57.066Z\",\n  \"requests\": 8,\n  \"errors5xx\": 0,\n  \"avgMs\": 11\n}"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 Tes API",
+      "item": [
+        {
+          "name": "Daftar produk",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/product-service/products",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 dan bentuk daftar produk\", () => {",
+                  "  pm.response.to.have.status(200);",
+                  "  const products = pm.response.json().data;",
+                  "  pm.expect(products).to.be.an('array').and.not.be.empty;",
+                  "  for (const product of products) {",
+                  "    pm.expect(product.id).to.be.a('string');",
+                  "    pm.expect(product.name).to.be.a('string');",
+                  "    pm.expect(product.price).to.be.a('number');",
+                  "    pm.expect(product.stock).to.be.a('number');",
+                  "  }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/product-service/products"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "x-request-id",
+                  "value": "d5c7dbd8-a973-42b3-8535-2ca770e0cbbb"
+                },
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"service\": \"catalog-service\",\n  \"data\": [\n    {\n      \"id\": \"prod-001\",\n      \"name\": \"Kopi Arabika Gayo\",\n      \"category\": \"kuliner\",\n      \"price\": 85000,\n      \"stock\": 40,\n      \"seller\": \"Koperasi Kopi Gayo\"\n    },\n    {\n      \"id\": \"prod-002\",\n      \"name\": \"Tas Anyaman Pandan\",\n      \"category\": \"kerajinan\",\n      \"price\": 120000,\n      \"stock\": 15,\n      \"seller\": \"Rumah Anyaman Nusantara\"\n    },\n    {\n      \"id\": \"prod-003\",\n      \"name\": \"Kaos Batik UMKM\",\n      \"category\": \"fashion\",\n      \"price\": 95000,\n      \"stock\": 30,\n      \"seller\": \"Batik Lokal Mandiri\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Detail produk dan stok awal",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/product-service/products/{{productId}}",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['stockBefore', 'priceBefore', 'orderId', 'requestId']) {",
+                  "  pm.collectionVariables.unset(key);",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 dan simpan stok serta harga awal\", () => {",
+                  "  pm.response.to.have.status(200);",
+                  "  const product = pm.response.json().data;",
+                  "  pm.expect(product.id).to.eql(pm.variables.get('productId'));",
+                  "  pm.expect(product.stock).to.be.at.least(1);",
+                  "  pm.collectionVariables.set('stockBefore', product.stock);",
+                  "  pm.collectionVariables.set('priceBefore', product.price);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/product-service/products/{{productId}}"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "x-request-id",
+                  "value": "98ee96d3-fd65-4fbb-bc5f-01daa139790a"
+                },
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"data\": {\n    \"id\": \"prod-001\",\n    \"name\": \"Kopi Arabika Gayo\",\n    \"category\": \"kuliner\",\n    \"price\": 85000,\n    \"stock\": 40,\n    \"seller\": \"Koperasi Kopi Gayo\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Produk tidak dikenal",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/product-service/products/{{unknownProductId}}",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 404 dan pesan error\", () => {",
+                  "  pm.response.to.have.status(404);",
+                  "  pm.expect(pm.response.json().error).to.be.a('string').and.not.be.empty;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "404 Not Found",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/product-service/products/{{unknownProductId}}"
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "x-request-id",
+                  "value": "154b84f4-634e-47b1-8df1-ad25949edd0b"
+                },
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"error\": \"Product not found\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Buat order dan simpan request ID",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/order-service/orders",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Demo Lab 12\",\n  \"items\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": 1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Cocokkan X-Request-Id di response header dengan ID pada log Order Service dan Catalog Service."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 dan isi pesanan sesuai harga awal\", () => {",
+                  "  pm.response.to.have.status(201);",
+                  "  const order = pm.response.json().data;",
+                  "  pm.expect(order.id).to.be.a('string').and.not.be.empty;",
+                  "  pm.expect(order.items).to.have.lengthOf(1);",
+                  "  pm.expect(order.items[0].productId).to.eql(pm.variables.get('productId'));",
+                  "  pm.expect(order.items[0].quantity).to.eql(1);",
+                  "  pm.expect(order.total).to.eql(Number(pm.collectionVariables.get('priceBefore')));",
+                  "  pm.collectionVariables.set('orderId', order.id);",
+                  "});",
+                  "pm.test(\"Gateway membuat X-Request-Id\", () => {",
+                  "  pm.response.to.have.status(201);",
+                  "  const id = pm.response.headers.get('X-Request-Id');",
+                  "  pm.expect(id).to.match(/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i);",
+                  "  pm.collectionVariables.set('requestId', id);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "201 Created",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{apiKey}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/order-service/orders",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"customerName\": \"Demo Lab 12\",\n  \"items\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": 1\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "x-request-id",
+                  "value": "70877b1a-9350-4cd1-85ce-7f63644fabc9"
+                },
+                {
+                  "key": "location",
+                  "value": "/order-service/orders/ord-689051f5-105d-402a-a555-41274bfb1737"
+                },
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"data\": {\n    \"id\": \"ord-689051f5-105d-402a-a555-41274bfb1737\",\n    \"customerName\": \"Demo Lab 12\",\n    \"items\": [\n      {\n        \"productId\": \"prod-001\",\n        \"name\": \"Kopi Arabika Gayo\",\n        \"quantity\": 1,\n        \"unitPrice\": 85000,\n        \"subtotal\": 85000\n      }\n    ],\n    \"total\": 85000,\n    \"status\": \"pending\",\n    \"createdAt\": \"2026-11-18T10:55:57.713Z\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Cek pengurangan stok",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/product-service/products/{{productId}}",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 dan stok turun satu unit\", () => {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(pm.collectionVariables.get('orderId'), 'Jalankan Buat order terlebih dulu').to.be.ok;",
+                  "  pm.expect(pm.response.json().data.stock).to.eql(Number(pm.collectionVariables.get('stockBefore')) - 1);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/product-service/products/{{productId}}"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "x-request-id",
+                  "value": "5ee84f4a-99c0-465c-9023-b68deb0692b5"
+                },
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"data\": {\n    \"id\": \"prod-001\",\n    \"name\": \"Kopi Arabika Gayo\",\n    \"category\": \"kuliner\",\n    \"price\": 85000,\n    \"stock\": 39,\n    \"seller\": \"Koperasi Kopi Gayo\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Konflik stok",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/order-service/orders",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Demo Lab 12\",\n  \"items\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": 100\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Kuantitas 100 valid untuk payload dan melampaui stok seed prod-001. Pada branch uji-gagal, tes mendeteksi 502 alih-alih 409."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 409 dan pesan error\", () => {",
+                  "  pm.response.to.have.status(409);",
+                  "  pm.expect(pm.response.json().error).to.match(/Insufficient stock/);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "409 Conflict",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{apiKey}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/order-service/orders",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"customerName\": \"Demo Lab 12\",\n  \"items\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": 100\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Conflict",
+              "code": 409,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "x-request-id",
+                  "value": "f8e7d66e-ed21-4901-9b84-e30114dd4e56"
+                },
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"error\": \"Insufficient stock for prod-001; available: 39\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Kuantitas nol",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/order-service/orders",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Demo Lab 12\",\n  \"items\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": 0\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400 dan pesan error\", () => {",
+                  "  pm.response.to.have.status(400);",
+                  "  pm.expect(pm.response.json().error).to.be.a('string').and.not.be.empty;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "400 Bad Request",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{apiKey}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/order-service/orders",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"customerName\": \"Demo Lab 12\",\n  \"items\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": 0\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "x-request-id",
+                  "value": "2884c3eb-f66a-4451-a1c7-31f7371b10ba"
+                },
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"error\": \"items[0].quantity must be an integer from 1 to 100\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Kuantitas berupa teks",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/order-service/orders",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Demo Lab 12\",\n  \"items\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": \"abc\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400 dan pesan error\", () => {",
+                  "  pm.response.to.have.status(400);",
+                  "  pm.expect(pm.response.json().error).to.be.a('string').and.not.be.empty;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "400 Bad Request",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{apiKey}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/order-service/orders",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"customerName\": \"Demo Lab 12\",\n  \"items\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": \"abc\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "x-request-id",
+                  "value": "04457c10-8a7f-47fd-8b3d-65406a26765f"
+                },
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"error\": \"items[0].quantity must be an integer from 1 to 100\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Order untuk produk tidak dikenal",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/order-service/orders",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Demo Lab 12\",\n  \"items\": [\n    {\n      \"productId\": \"{{unknownProductId}}\",\n      \"quantity\": 1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 404 dan pesan error\", () => {",
+                  "  pm.response.to.have.status(404);",
+                  "  pm.expect(pm.response.json().error).to.be.a('string').and.not.be.empty;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "404 Not Found",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{apiKey}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/order-service/orders",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"customerName\": \"Demo Lab 12\",\n  \"items\": [\n    {\n      \"productId\": \"{{unknownProductId}}\",\n      \"quantity\": 1\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "x-request-id",
+                  "value": "5f514ec7-b947-42ae-a52f-ce5e65471302"
+                },
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"error\": \"Unknown product: prod-unknown\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Daftar order memuat pesanan tadi",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/order-service/orders",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 dan ID baru ada di daftar\", () => {",
+                  "  pm.response.to.have.status(200);",
+                  "  const orderId = pm.collectionVariables.get('orderId');",
+                  "  pm.expect(orderId, 'Jalankan Buat order terlebih dulu').to.be.ok;",
+                  "  pm.expect(pm.response.json().data.some(order => order.id === orderId)).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{apiKey}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/order-service/orders"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "x-request-id",
+                  "value": "3563a199-7ba5-4b40-be4a-99f705d3a673"
+                },
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"service\": \"order-service\",\n  \"data\": [\n    {\n      \"id\": \"ord-689051f5-105d-402a-a555-41274bfb1737\",\n      \"customerName\": \"Demo Lab 12\",\n      \"items\": [\n        {\n          \"productId\": \"prod-001\",\n          \"name\": \"Kopi Arabika Gayo\",\n          \"quantity\": 1,\n          \"unitPrice\": 85000,\n          \"subtotal\": 85000\n        }\n      ],\n      \"total\": 85000,\n      \"status\": \"pending\",\n      \"createdAt\": \"2026-11-18T10:55:57.713Z\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Detail pesanan yang baru dibuat",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/order-service/orders/{{orderId}}",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"200 dan ID pesanan cocok\", () => {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(pm.response.json().data.id).to.eql(pm.collectionVariables.get('orderId'));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{apiKey}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/order-service/orders/{{orderId}}"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "x-request-id",
+                  "value": "47055d4d-3937-41f2-9104-77f0dc356143"
+                },
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"data\": {\n    \"id\": \"ord-689051f5-105d-402a-a555-41274bfb1737\",\n    \"customerName\": \"Demo Lab 12\",\n    \"items\": [\n      {\n        \"productId\": \"prod-001\",\n        \"name\": \"Kopi Arabika Gayo\",\n        \"quantity\": 1,\n        \"unitPrice\": 85000,\n        \"subtotal\": 85000\n      }\n    ],\n    \"total\": 85000,\n    \"status\": \"pending\",\n    \"createdAt\": \"2026-11-18T10:55:57.713Z\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Health katalog melalui gateway",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/product-service/health",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200 dan service sehat\", () => {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(pm.response.json().status).to.eql('ok');",
+                  "  pm.expect(pm.response.json().service).to.eql('catalog-service');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/product-service/health"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "X-Request-Id",
+                  "value": "742a52b0-0543-4a0c-b48f-e07821bcbfd8"
+                },
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": \"ok\",\n  \"service\": \"catalog-service\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Buat order dengan ID dari klien",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/order-service/orders",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "X-Request-Id",
+                "value": "{{clientRequestId}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Demo Lab 12\",\n  \"items\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": 1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('clientRequestId', `lab12-${pm.variables.replaceIn('{{$guid}}')}`);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"201 dan ID klien dipertahankan\", () => {",
+                  "  pm.response.to.have.status(201);",
+                  "  pm.expect(pm.response.headers.get('X-Request-Id')).to.eql(pm.variables.get('clientRequestId'));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "201 Created",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{apiKey}}"
+                  },
+                  {
+                    "key": "X-Request-Id",
+                    "value": "{{clientRequestId}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/order-service/orders",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"customerName\": \"Demo Lab 12\",\n  \"items\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": 1\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "x-request-id",
+                  "value": "lab12-e7cc261d-f374-4ca2-ab08-2587d25fc248"
+                },
+                {
+                  "key": "location",
+                  "value": "/order-service/orders/ord-0e20b377-58e0-4bd9-9a17-062453d3a309"
+                },
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"data\": {\n    \"id\": \"ord-0e20b377-58e0-4bd9-9a17-062453d3a309\",\n    \"customerName\": \"Demo Lab 12\",\n    \"items\": [\n      {\n        \"productId\": \"prod-001\",\n        \"name\": \"Kopi Arabika Gayo\",\n        \"quantity\": 1,\n        \"unitPrice\": 85000,\n        \"subtotal\": 85000\n      }\n    ],\n    \"total\": 85000,\n    \"status\": \"pending\",\n    \"createdAt\": \"2026-11-18T10:55:58.578Z\"\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 Demo gangguan manual",
+      "item": [
+        {
+          "name": "Ambil baseline metrik Order Service",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/order-service/metrics",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "description": "Jalankan saat semua service UP. Biarkan Order Service tetap hidup selama demo."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "for (const key of ['errorsBefore', 'metricsStartedAt', 'outageRequestId']) {",
+                  "  pm.environment.unset(key);",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Format metrik order-service\", () => {",
+                  "  pm.response.to.have.status(200);",
+                  "  const metrics = pm.response.json();",
+                  "  pm.expect(metrics.service).to.eql('order-service');",
+                  "  pm.expect(Number.isFinite(Date.parse(metrics.startedAt))).to.be.true;",
+                  "  for (const field of ['requests', 'errors5xx', 'avgMs']) {",
+                  "    pm.expect(metrics[field], field).to.be.a('number').and.at.least(0);",
+                  "  }",
+                  "  pm.expect(metrics.errors5xx).to.be.at.most(metrics.requests);",
+                  "});",
+                  "pm.test(\"Simpan baseline 5xx\", () => {",
+                  "  pm.response.to.have.status(200);",
+                  "  const metrics = pm.response.json();",
+                  "  pm.environment.set('errorsBefore', metrics.errors5xx);",
+                  "  pm.environment.set('metricsStartedAt', metrics.startedAt);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{apiKey}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/order-service/metrics"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "x-request-id",
+                  "value": "01c813d4-fdb0-4982-8500-41be1dfb68d7"
+                },
+                {
+                  "key": "cache-control",
+                  "value": "no-store"
+                },
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"service\": \"order-service\",\n  \"startedAt\": \"2026-11-18T10:55:57.066Z\",\n  \"requests\": 9,\n  \"errors5xx\": 0,\n  \"avgMs\": 10\n}"
+            }
+          ]
+        },
+        {
+          "name": "Order saat katalog berhenti",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/order-service/orders",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Demo Lab 12\",\n  \"items\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": 1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Hentikan Catalog Service dan tunggu ALERT di monitor sebelum klik Send."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 503 dan pesan error\", () => {",
+                  "  pm.response.to.have.status(503);",
+                  "  pm.expect(pm.response.json().error).to.match(/unavailable|timed out/i);",
+                  "});",
+                  "pm.test(\"Simpan request ID dari respons 503\", () => {",
+                  "  pm.response.to.have.status(503);",
+                  "  const id = pm.response.headers.get('X-Request-Id');",
+                  "  pm.expect(id).to.be.a('string').and.not.be.empty;",
+                  "  pm.environment.set('outageRequestId', id);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "503 Service Unavailable",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{apiKey}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/order-service/orders",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"customerName\": \"Demo Lab 12\",\n  \"items\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": 1\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Service Unavailable",
+              "code": 503,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "x-request-id",
+                  "value": "d1b29a0f-f65f-4528-9a93-854504e51d65"
+                },
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"error\": \"Catalog service is unavailable or timed out\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Cek metrik setelah katalog pulih",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/order-service/metrics",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "description": "Hidupkan kembali Catalog Service. Tunggu RECOVERED, lalu jalankan request ini."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Format metrik order-service\", () => {",
+                  "  pm.response.to.have.status(200);",
+                  "  const metrics = pm.response.json();",
+                  "  pm.expect(metrics.service).to.eql('order-service');",
+                  "  pm.expect(Number.isFinite(Date.parse(metrics.startedAt))).to.be.true;",
+                  "  for (const field of ['requests', 'errors5xx', 'avgMs']) {",
+                  "    pm.expect(metrics[field], field).to.be.a('number').and.at.least(0);",
+                  "  }",
+                  "  pm.expect(metrics.errors5xx).to.be.at.most(metrics.requests);",
+                  "});",
+                  "pm.test(\"Penghitung 5xx naik pada proses yang sama\", () => {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(pm.environment.get('outageRequestId'), 'Jalankan request 503 terlebih dulu').to.be.ok;",
+                  "  pm.expect(pm.response.json().startedAt).to.eql(pm.environment.get('metricsStartedAt'));",
+                  "  pm.expect(pm.response.json().errors5xx).to.be.at.least(Number(pm.environment.get('errorsBefore')) + 1);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "X-API-Key",
+                    "value": "{{apiKey}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/order-service/metrics"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "x-request-id",
+                  "value": "7cb6563a-6193-4674-a994-18140e894519"
+                },
+                {
+                  "key": "cache-control",
+                  "value": "no-store"
+                },
+                {
+                  "key": "content-type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"service\": \"order-service\",\n  \"startedAt\": \"2026-11-18T10:55:57.066Z\",\n  \"requests\": 11,\n  \"errors5xx\": 1,\n  \"avgMs\": 9\n}"
+            }
+          ]
+        },
+        {
+          "name": "Cek readiness setelah pemulihan",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/readyz",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200 dan service sehat\", () => {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(pm.response.json().status).to.eql('ok');",
+                  "  pm.expect(pm.response.json().service).to.eql('gateway');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/readyz"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "X-Request-Id",
+                  "value": "10a64379-202a-434f-aeaa-596deae6c9b9"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "no-store"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": \"ok\",\n  \"service\": \"gateway\"\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
