@@ -19,3 +19,7 @@ Tangkapan berikut menampilkan output asli dari eksekusi Docker Compose di WSL 2.
 ## Refleksi
 
 Order Service memakai `http://product-service:3000` karena `localhost` di dalam container merujuk pada container Order Service sendiri. DNS internal Docker menerjemahkan nama `product-service` ke alamat container produk di jaringan Compose. Stok dan pesanan disimpan dalam memori, sehingga menjalankan kembali stack setelah `down` mengembalikan data ke kondisi awal. Untuk sistem nyata, data bisnis perlu disimpan di database persisten seperti PostgreSQL terkelola, atau di database lokal dengan volume. Kredensial bawaan yang tersimpan di Git dapat diketahui pembaca repository, jadi pada produksi kredensial perlu dibuat khusus per layanan dan diberikan saat runtime melalui pengelola rahasia.
+
+## Penerapan ke proyek kelompok
+
+Lihat [bukti demo Docker Compose Marketplace UMKM Kelompok D](penerapan-proyek-kelompok.md) untuk hasil status container, frontend, dan alur pembayaran simulasi.
