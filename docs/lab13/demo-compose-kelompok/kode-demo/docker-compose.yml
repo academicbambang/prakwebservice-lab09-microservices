@@ -1,0 +1,97 @@
+name: zenta-freeze-demo
+
+services:
+  # These image targets package each worker. Gateway assembles them into one local Wrangler session.
+  auth-image:
+    build:
+      context: .
+      dockerfile: services/auth/Dockerfile
+    scale: 0
+  catalog-image:
+    build:
+      context: .
+      dockerfile: services/catalog/Dockerfile
+    scale: 0
+  order-image:
+    build:
+      context: .
+      dockerfile: services/order/Dockerfile
+    scale: 0
+  payment-image:
+    build:
+      context: .
+      dockerfile: services/payment/Dockerfile
+    scale: 0
+  database:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: zenta
+      POSTGRES_PASSWORD: local-demo-only
+      POSTGRES_DB: postgres
+    volumes:
+      - ./infra/compose/init-databases.sh:/docker-entrypoint-initdb.d/10-init.sh:ro
+      - ./services/order/migrations:/migrations/order:ro
+      - ./services/payment/migrations:/migrations/payment:ro
+      - database-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U zenta -d postgres"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  gateway:
+    build:
+      context: .
+      dockerfile: gateway/Dockerfile
+      additional_contexts:
+        auth: service:auth-image
+        catalog: service:catalog-image
+        order: service:order-image
+        payment: service:payment-image
+    init: true
+    depends_on:
+      database:
+        condition: service_healthy
+      xendit-mock:
+        condition: service_healthy
+    environment:
+      ORDER_DATABASE_URL: postgresql://zenta:local-demo-only@database:5432/zenta_order
+      PAYMENT_DATABASE_URL: postgresql://zenta:local-demo-only@database:5432/zenta_payment
+    ports:
+      - "127.0.0.1:3000:3000"
+    healthcheck:
+      test: ["CMD", "node", "infra/compose/health.mjs"]
+      interval: 5s
+      timeout: 4s
+      retries: 15
+      start_period: 10s
+  xendit-mock:
+    image: node:24-bookworm-slim
+    user: node
+    command: ["node", "/app/xendit-mock.mjs"]
+    volumes:
+      - ./infra/compose/xendit-mock.mjs:/app/xendit-mock.mjs:ro
+    ports:
+      - "127.0.0.1:3100:3100"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3100/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    init: true
+    depends_on:
+      gateway:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:5173:5173"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:5173/').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  database-data:

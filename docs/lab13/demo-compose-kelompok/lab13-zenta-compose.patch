@@ -1,0 +1,733 @@
+diff --git a/.dockerignore b/.dockerignore
+new file mode 100644
+index 0000000..11094c8
+--- /dev/null
++++ b/.dockerignore
+@@ -0,0 +1,19 @@
++.git
++**/node_modules
++**/.wrangler
++**/dist
++**/.local
++**/.env
++**/.env.*
++**/.dev.vars
++**/.dev.vars.*
++**/*.pem
++**/*.key
++**/*.crt
++certs
++secrets
++docs
++laporan
++output
++coverage
++**/*.log
+diff --git a/README.md b/README.md
+index 774e952..56c1f46 100644
+--- a/README.md
++++ b/README.md
+@@ -110,6 +110,8 @@ Workflow [Uptime](.github/workflows/uptime.yml) menjalankan `node scripts/check-
+ 
+ ## Menjalankan Sistem Lokal
+ 
++Untuk menjalankan salinan demo code freeze dalam satu perintah, ikuti [panduan Docker Compose lokal](infra/compose/README.md).
++
+ Frontend Pasar UMKM tersedia di folder [frontend](frontend/README.md). Untuk sesi 09 jalankan `npm run dev:session09`, lalu `npm run dev:frontend:gateway` di terminal kedua dan buka `http://127.0.0.1:5173/`. Login/GraphQL mode ini melalui gateway port 3000. Google memerlukan tambahan authorized redirect URI `http://127.0.0.1:3000/auth/callback`. Langkah di bawah mempertahankan mode akses langsung sesi 08.
+ 
+ Saat backend sesi 09 aktif, jalankan `npm run verify:gateway` di terminal lain untuk pemeriksaan API read-only. CI juga menyiapkan environment memory terisolasi dan menjalankan pemeriksaan gateway melalui service bindings; Google/Neon asli tidak digunakan oleh CI.
+diff --git a/docker-compose.yml b/docker-compose.yml
+new file mode 100644
+index 0000000..2d454e6
+--- /dev/null
++++ b/docker-compose.yml
+@@ -0,0 +1,97 @@
++name: zenta-freeze-demo
++
++services:
++  # These image targets package each worker. Gateway assembles them into one local Wrangler session.
++  auth-image:
++    build:
++      context: .
++      dockerfile: services/auth/Dockerfile
++    scale: 0
++  catalog-image:
++    build:
++      context: .
++      dockerfile: services/catalog/Dockerfile
++    scale: 0
++  order-image:
++    build:
++      context: .
++      dockerfile: services/order/Dockerfile
++    scale: 0
++  payment-image:
++    build:
++      context: .
++      dockerfile: services/payment/Dockerfile
++    scale: 0
++  database:
++    image: postgres:17-alpine
++    environment:
++      POSTGRES_USER: zenta
++      POSTGRES_PASSWORD: local-demo-only
++      POSTGRES_DB: postgres
++    volumes:
++      - ./infra/compose/init-databases.sh:/docker-entrypoint-initdb.d/10-init.sh:ro
++      - ./services/order/migrations:/migrations/order:ro
++      - ./services/payment/migrations:/migrations/payment:ro
++      - database-data:/var/lib/postgresql/data
++    healthcheck:
++      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U zenta -d postgres"]
++      interval: 2s
++      timeout: 3s
++      retries: 30
++  gateway:
++    build:
++      context: .
++      dockerfile: gateway/Dockerfile
++      additional_contexts:
++        auth: service:auth-image
++        catalog: service:catalog-image
++        order: service:order-image
++        payment: service:payment-image
++    init: true
++    depends_on:
++      database:
++        condition: service_healthy
++      xendit-mock:
++        condition: service_healthy
++    environment:
++      ORDER_DATABASE_URL: postgresql://zenta:local-demo-only@database:5432/zenta_order
++      PAYMENT_DATABASE_URL: postgresql://zenta:local-demo-only@database:5432/zenta_payment
++    ports:
++      - "127.0.0.1:3000:3000"
++    healthcheck:
++      test: ["CMD", "node", "infra/compose/health.mjs"]
++      interval: 5s
++      timeout: 4s
++      retries: 15
++      start_period: 10s
++  xendit-mock:
++    image: node:24-bookworm-slim
++    user: node
++    command: ["node", "/app/xendit-mock.mjs"]
++    volumes:
++      - ./infra/compose/xendit-mock.mjs:/app/xendit-mock.mjs:ro
++    ports:
++      - "127.0.0.1:3100:3100"
++    healthcheck:
++      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3100/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
++      interval: 5s
++      timeout: 3s
++      retries: 10
++  frontend:
++    build:
++      context: .
++      dockerfile: frontend/Dockerfile
++    init: true
++    depends_on:
++      gateway:
++        condition: service_healthy
++    ports:
++      - "127.0.0.1:5173:5173"
++    healthcheck:
++      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:5173/').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
++      interval: 5s
++      timeout: 3s
++      retries: 10
++
++volumes:
++  database-data:
+diff --git a/frontend/Dockerfile b/frontend/Dockerfile
+new file mode 100644
+index 0000000..01619e3
+--- /dev/null
++++ b/frontend/Dockerfile
+@@ -0,0 +1,12 @@
++FROM node:24-bookworm-slim
++WORKDIR /app
++COPY package.json package-lock.json ./
++RUN npm ci --no-audit --no-fund
++COPY frontend frontend
++COPY scripts/build-api-docs.mjs scripts/combine-openapi.mjs scripts/
++COPY services services
++COPY gateway gateway
++ENV VITE_AUTH_URL=http://127.0.0.1:3000 VITE_GATEWAY_URL=http://127.0.0.1:3000 VITE_CATALOG_URL=http://127.0.0.1:3000/graphql
++RUN npm run build:frontend && install -d -o node -g node /app/node_modules/.vite-temp
++USER node
++CMD ["npm", "run", "preview:frontend", "--", "--host", "0.0.0.0", "--port", "5173"]
+diff --git a/gateway/Dockerfile b/gateway/Dockerfile
+new file mode 100644
+index 0000000..d36c113
+--- /dev/null
++++ b/gateway/Dockerfile
+@@ -0,0 +1,19 @@
++FROM node:24-bookworm-slim
++WORKDIR /app
++COPY package.json package-lock.json ./
++RUN npm ci --no-audit --no-fund
++RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates \
++    && rm -rf /var/lib/apt/lists/* \
++    && install -d -o node -g node /app/node_modules/.mf \
++    && chown node:node /app
++COPY --chown=node:node packages packages
++COPY --chown=node:node gateway gateway
++COPY --chown=node:node scripts/setup.ts scripts/dev-token.ts scripts/
++COPY --chown=node:node infra/compose/ infra/compose/
++COPY --from=auth --chown=node:node /app/services/auth services/auth
++COPY --from=catalog --chown=node:node /app/services/catalog services/catalog
++COPY --from=order --chown=node:node /app/services/order services/order
++COPY --from=payment --chown=node:node /app/services/payment services/payment
++ENV WRANGLER_SEND_METRICS=false
++USER node
++CMD ["sh", "infra/compose/start-gateway.sh"]
+diff --git a/infra/compose/README.md b/infra/compose/README.md
+new file mode 100644
+index 0000000..54f412b
+--- /dev/null
++++ b/infra/compose/README.md
+@@ -0,0 +1,36 @@
++# Demo Compose lokal untuk ZENTA
++
++Salinan demo berangkat dari tag `v1.0-freeze` (`afa26f1`). Dockerfile Auth, Catalog, Order, dan Payment membangun image masing-masing. Image Gateway mengambil empat worker tersebut dan menjalankan kelimanya dalam satu sesi Wrangler lokal. Dengan demikian, service bindings, Durable Object gateway, dan antrean Order–Payment tetap bisa digunakan. Frontend Vite, PostgreSQL demo, dan simulator Xendit berjalan di container tersendiri.
++
++## Mulai
++
++Gunakan Docker Engine dengan BuildKit dan Docker Compose v2 dari root salinan demo.
++
++```sh
++docker compose up --build
++```
++
++Setelah container siap, buka terminal lain pada folder yang sama.
++
++```sh
++docker compose ps
++docker compose exec -T gateway node --import tsx infra/compose/demo.ts
++```
++
++| Alamat | Fungsi |
++| --- | --- |
++| `http://127.0.0.1:5173/` | Frontend dan katalog |
++| `http://127.0.0.1:5173/api-docs/` | Dokumentasi API lokal |
++| `http://127.0.0.1:3000/health` | API Gateway |
++| `http://127.0.0.1:3000/auth/health`, `/catalog/health`, `/orders/health`, `/payments/health` | Status empat worker melalui Gateway |
++| `http://127.0.0.1:3100/health` | Simulator invoice lokal |
++
++Skrip demo membuat identitas buyer lokal, membaca katalog, checkout melalui Gateway, menunggu event `order.created` menghasilkan invoice, mengirim callback simulasi, lalu memeriksa perubahan order menjadi `PAID` melalui event `payment.succeeded`.
++
++Auth dan katalog memakai konfigurasi development lokal. Order dan Payment memakai database PostgreSQL demo yang terpisah di container yang sama. Skrip memakai JWT demo dan simulator Xendit, sehingga login Google, Neon, dan API Xendit produksi berada di luar cakupan pengujian ini. Port aplikasi dipublikasikan ke loopback host.
++
++```sh
++docker compose down
++```
++
++Untuk memulai ulang dengan database demo yang kosong, gunakan `docker compose down -v`, lalu jalankan kembali Compose. PostgreSQL menjalankan migrasi Order dan Payment ketika volume demo baru diinisialisasi.
+diff --git a/infra/compose/configure.mjs b/infra/compose/configure.mjs
+new file mode 100644
+index 0000000..258a92c
+--- /dev/null
++++ b/infra/compose/configure.mjs
+@@ -0,0 +1,38 @@
++import { readFileSync, writeFileSync } from 'node:fs';
++import { randomBytes } from 'node:crypto';
++
++const state = JSON.parse(readFileSync('.local/development.json', 'utf8'));
++const common = {
++  JWT_ISSUER: 'http://127.0.0.1:3001',
++  JWT_AUDIENCE: 'umkm-api',
++  JWT_PUBLIC_JWK: JSON.stringify(state.publicJwk),
++};
++function writeVars(path, vars) {
++  writeFileSync(path, Object.entries(vars).map(([key, value]) => `${key}='${value}'`).join('\n') + '\n', { mode: 0o600 });
++}
++const authFile = 'services/auth/.dev.vars';
++const auth = readFileSync(authFile, 'utf8');
++writeFileSync(authFile, auth.replace("OAUTH_CALLBACK_URL='http://127.0.0.1:3001/auth/callback'", "OAUTH_CALLBACK_URL='http://127.0.0.1:3000/auth/callback'"));
++const callback = randomBytes(24).toString('hex');
++writeVars('services/order/.dev.vars', {
++  ...common,
++  ORDER_DATABASE_URL: process.env.ORDER_DATABASE_URL,
++  COMPOSE_LOCAL_DATABASE: '1',
++  ORDER_CLIENT_ID: 'order-service',
++  ORDER_CLIENT_SECRET: state.orderClientSecret,
++});
++writeVars('services/payment/.dev.vars', {
++  ...common,
++  APP_ENV: 'development',
++  PAYMENT_DATABASE_URL: process.env.PAYMENT_DATABASE_URL,
++  COMPOSE_LOCAL_DATABASE: '1',
++  XENDIT_SECRET_KEY: callback,
++  XENDIT_CALLBACK_TOKEN: callback,
++  COMPOSE_XENDIT_ORIGIN: 'http://xendit-mock:3100',
++});
++const gateway = JSON.parse(readFileSync('gateway/wrangler.jsonc', 'utf8'));
++gateway.services.push({ binding: 'ORDER', service: 'umkm-order' });
++gateway.main = '../infra/compose/gateway.ts';
++writeFileSync('gateway/wrangler.compose.jsonc', JSON.stringify(gateway, null, 2) + '\n', { mode: 0o600 });
++writeVars('gateway/.dev.vars', { COMPOSE_CONTROL_TOKEN: callback });
++writeFileSync('.local/compose-control-token', callback, { mode: 0o600 });
+diff --git a/infra/compose/demo.ts b/infra/compose/demo.ts
+new file mode 100644
+index 0000000..3da3523
+--- /dev/null
++++ b/infra/compose/demo.ts
+@@ -0,0 +1,73 @@
++import assert from 'node:assert/strict';
++import { readFile } from 'node:fs/promises';
++import { setTimeout as wait } from 'node:timers/promises';
++import { issueToken } from '../../packages/security/src/index.js';
++
++const gateway = 'http://127.0.0.1:3000';
++const state = JSON.parse(await readFile('.local/development.json', 'utf8'));
++const control = await readFile('.local/compose-control-token', 'utf8');
++const buyer = await issueToken({ sub: 'demo:buyer', role: 'buyer', scope: 'read:catalog' }, {
++  JWT_ISSUER: 'http://127.0.0.1:3001',
++  JWT_AUDIENCE: 'umkm-api',
++  JWT_PUBLIC_JWK: JSON.stringify(state.publicJwk),
++  JWT_PRIVATE_JWK: JSON.stringify(state.privateJwk),
++});
++
++async function request(path: string, init?: RequestInit, expectedNotFound = false) {
++  const response = await fetch(gateway + path, { signal: AbortSignal.timeout(8000), ...init });
++  const body = await response.json();
++  assert.ok(response.ok || (expectedNotFound && response.status === 404),
++    `${path}: HTTP ${response.status} ${JSON.stringify(body)}`);
++  return { status: response.status, body };
++}
++async function until<T>(probe: () => Promise<T | undefined>, message: string) {
++  for (let attempt = 0; attempt < 8; attempt++) {
++    const result = await probe();
++    if (result !== undefined) return result;
++    await wait(1500);
++  }
++  throw new Error(message);
++}
++
++const { body: catalog } = await request('/graphql', {
++  method: 'POST', headers: { 'Content-Type': 'application/json' },
++  body: JSON.stringify({ query: '{ products(first: 20) { nodes { id name available } } }' }),
++});
++const product = catalog.data.products.nodes.find((item: { available: number }) => item.available > 0);
++assert.ok(product);
++console.log('Catalog melalui Gateway: HTTP 200 · ' + product.name);
++
++const authorization = { Authorization: `Bearer ${buyer}` };
++const { status, body: order } = await request('/orders', {
++  method: 'POST',
++  headers: { ...authorization, 'Content-Type': 'application/json', 'Idempotency-Key': crypto.randomUUID() },
++  body: JSON.stringify({ items: [{ productId: product.id, quantity: 1 }] }),
++});
++assert.equal(status, 201);
++assert.equal(order.status, 'PENDING_PAYMENT');
++console.log('Order: HTTP 201 · PENDING_PAYMENT · ' + order.id);
++
++const operation = { method: 'POST', headers: { 'X-Compose-Control': control } };
++const payment = await until(async () => {
++  await request('/__compose/payment-jobs', operation);
++  const { body } = await request('/payments?orderId=' + order.id, { headers: authorization }, true);
++  return body.status === 'READY' ? body : undefined;
++}, 'Invoice lokal belum READY setelah Order mengirim order.created');
++console.log('Invoice: READY · ' + payment.paymentUrl);
++
++const paymentUrl = new URL(payment.paymentUrl);
++assert.equal(paymentUrl.origin, 'http://127.0.0.1:3100');
++const callback = await fetch('http://xendit-mock:3100' + paymentUrl.pathname, {
++  method: 'POST', signal: AbortSignal.timeout(10000),
++});
++const settled = await callback.json();
++assert.equal(callback.status, 200, JSON.stringify(settled));
++assert.equal(settled.paymentStatus, 'SUCCEEDED');
++console.log('Webhook simulator: HTTP 200 · SUCCEEDED');
++
++await request('/__compose/payment-relay', operation);
++await until(async () => {
++  const { body } = await request('/orders/' + order.id, { headers: authorization });
++  return body.status === 'PAID' ? body : undefined;
++}, 'Order belum PAID setelah Payment mengirim payment.succeeded');
++console.log('Order: PAID · event Order–Payment diverifikasi melalui Queue Wrangler lokal.');
+diff --git a/infra/compose/gateway.ts b/infra/compose/gateway.ts
+new file mode 100644
+index 0000000..688c8bb
+--- /dev/null
++++ b/infra/compose/gateway.ts
+@@ -0,0 +1,15 @@
++import gateway, { type GatewayEnv } from '../../gateway/src/index.js';
++export { GatewayRateLimiter } from '../../gateway/src/index.js';
++
++export default {
++  fetch(request: Request, env: GatewayEnv & { COMPOSE_CONTROL_TOKEN: string }, ctx: ExecutionContext) {
++    const path = new URL(request.url).pathname;
++    if (path === '/__compose/payment-jobs' || path === '/__compose/payment-relay') {
++      if (request.method !== 'POST' || request.headers.get('X-Compose-Control') !== env.COMPOSE_CONTROL_TOKEN)
++        return new Response(null, { status: 404 });
++      const paymentPath = path.endsWith('-jobs') ? '/dev/run-provider-worker' : '/dev/run-outbox-relay';
++      return env.PAYMENT!.fetch(new Request('https://payment.internal' + paymentPath, { method: 'POST' }));
++    }
++    return gateway.fetch(request, env, ctx);
++  },
++};
+diff --git a/infra/compose/health.mjs b/infra/compose/health.mjs
+new file mode 100644
+index 0000000..286b2db
+--- /dev/null
++++ b/infra/compose/health.mjs
+@@ -0,0 +1,7 @@
++const endpoints = ['/health', '/auth/health', '/catalog/health', '/orders/health', '/payments/health'];
++try {
++  const results = await Promise.all(endpoints.map(path => fetch('http://127.0.0.1:3000' + path, { signal: AbortSignal.timeout(2500) })));
++  if (results.some(result => !result.ok)) process.exitCode = 1;
++} catch {
++  process.exitCode = 1;
++}
+diff --git a/infra/compose/init-databases.sh b/infra/compose/init-databases.sh
+new file mode 100644
+index 0000000..ee793de
+--- /dev/null
++++ b/infra/compose/init-databases.sh
+@@ -0,0 +1,9 @@
++#!/bin/sh
++set -eu
++for service in order payment; do
++  name="zenta_$service"
++  createdb --username "$POSTGRES_USER" "$name"
++  for migration in /migrations/"$service"/*.sql; do
++    psql --username "$POSTGRES_USER" --dbname "$name" --set ON_ERROR_STOP=on --file "$migration"
++  done
++done
+diff --git a/infra/compose/start-gateway.sh b/infra/compose/start-gateway.sh
+new file mode 100644
+index 0000000..1e9f01d
+--- /dev/null
++++ b/infra/compose/start-gateway.sh
+@@ -0,0 +1,10 @@
++#!/bin/sh
++set -eu
++npm run setup
++node infra/compose/configure.mjs
++exec node_modules/.bin/wrangler dev --local --ip 0.0.0.0 --port 3000 --inspector-port 0 \
++  -c gateway/wrangler.compose.jsonc \
++  -c services/auth/wrangler.jsonc \
++  -c services/catalog/wrangler.jsonc \
++  -c services/order/wrangler.jsonc \
++  -c services/payment/wrangler.jsonc
+diff --git a/infra/compose/xendit-mock.mjs b/infra/compose/xendit-mock.mjs
+new file mode 100644
+index 0000000..ff92abf
+--- /dev/null
++++ b/infra/compose/xendit-mock.mjs
+@@ -0,0 +1,63 @@
++import { createServer } from 'node:http';
++
++const invoices = new Map();
++const json = (res, status, value) => {
++  res.writeHead(status, { 'Content-Type': 'application/json' });
++  res.end(JSON.stringify(value));
++};
++
++createServer(async (req, res) => {
++  const url = new URL(req.url, 'http://localhost');
++  try {
++    if (req.method === 'GET' && url.pathname === '/health') return json(res, 200, { status: 'ok' });
++    if (url.pathname === '/v2/invoices') {
++      if (req.method === 'GET') {
++        return json(res, 200, [...invoices.values()].map(entry => entry.invoice)
++          .filter(invoice => invoice.external_id === url.searchParams.get('external_id')));
++      }
++      if (req.method === 'POST') {
++        const secret = Buffer.from((req.headers.authorization ?? '').replace(/^Basic /, ''), 'base64').toString().slice(0, -1);
++        if (!/^[a-f0-9]{48}$/.test(secret)) return json(res, 401, { error: 'invalid demo key' });
++        const payload = await new Response(req).json();
++        const { external_id, amount } = payload;
++        if (!/^[a-f0-9-]{36}$/i.test(external_id) || !Number.isSafeInteger(amount) || amount <= 0)
++          return json(res, 400, { error: 'invalid invoice' });
++        const id = 'demo-' + external_id;
++        const invoice = { id, external_id, amount, currency: 'IDR', status: 'PENDING',
++          invoice_url: 'http://127.0.0.1:3100/demo/invoices/' + id };
++        if (!invoices.has(id)) invoices.set(id, { invoice, callbackToken: secret });
++        return json(res, 200, invoices.get(id).invoice);
++      }
++    }
++    const match = /^\/(v2\/invoices|demo\/invoices)\/(demo-[a-f0-9-]{36})(\/expire!)?$/.exec(url.pathname);
++    const entry = match && invoices.get(match[2]);
++    if (!entry) return json(res, 404, { error: 'not found' });
++    const { invoice, callbackToken } = entry;
++    if (match[1] === 'v2/invoices') {
++      if (req.method === 'GET') return json(res, 200, invoice);
++      if (req.method === 'POST' && match[3]) { invoice.status = 'EXPIRED'; return json(res, 200, invoice); }
++    }
++    if (match[1] === 'demo/invoices' && !match[3]) {
++      if (req.method === 'GET') {
++        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
++        return res.end(`<!doctype html><html lang="id"><meta charset="utf-8"><title>Invoice demo</title>
++          <main><h1>Invoice demo lokal</h1><p>Rp ${invoice.amount} · ${invoice.status}</p><form method="post">
++          <button>Simulasikan pembayaran</button></form></main></html>`);
++      }
++      if (req.method === 'POST') {
++        if (invoice.status === 'EXPIRED') return json(res, 409, { error: 'invoice expired' });
++        invoice.status = 'PAID';
++        invoice.paid_amount = invoice.amount;
++        invoice.paid_at = new Date().toISOString();
++        const response = await fetch('http://gateway:3000/webhooks/xendit', {
++          method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Callback-Token': callbackToken },
++          body: JSON.stringify(invoice), signal: AbortSignal.timeout(5000),
++        });
++        return json(res, response.status, await response.json());
++      }
++    }
++    return json(res, 405, { error: 'method not allowed' });
++  } catch {
++    return json(res, 500, { error: 'demo invoice failed' });
++  }
++}).listen(3100, '0.0.0.0');
+diff --git a/services/auth/Dockerfile b/services/auth/Dockerfile
+new file mode 100644
+index 0000000..d96e2d3
+--- /dev/null
++++ b/services/auth/Dockerfile
+@@ -0,0 +1,13 @@
++FROM node:24-bookworm-slim
++WORKDIR /app
++COPY package.json package-lock.json ./
++RUN npm ci --no-audit --no-fund
++RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates \
++    && rm -rf /var/lib/apt/lists/* \
++    && install -d -o node -g node /app/node_modules/.mf \
++    && chown node:node /app
++COPY --chown=node:node packages packages
++COPY --chown=node:node services/auth services/auth
++ENV WRANGLER_SEND_METRICS=false
++USER node
++CMD ["node_modules/.bin/wrangler", "dev", "-c", "services/auth/wrangler.jsonc", "--local", "--ip", "0.0.0.0", "--port", "3001"]
+diff --git a/services/catalog/Dockerfile b/services/catalog/Dockerfile
+new file mode 100644
+index 0000000..086f0de
+--- /dev/null
++++ b/services/catalog/Dockerfile
+@@ -0,0 +1,13 @@
++FROM node:24-bookworm-slim
++WORKDIR /app
++COPY package.json package-lock.json ./
++RUN npm ci --no-audit --no-fund
++RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates \
++    && rm -rf /var/lib/apt/lists/* \
++    && install -d -o node -g node /app/node_modules/.mf \
++    && chown node:node /app
++COPY --chown=node:node packages packages
++COPY --chown=node:node services/catalog services/catalog
++ENV WRANGLER_SEND_METRICS=false
++USER node
++CMD ["node_modules/.bin/wrangler", "dev", "-c", "services/catalog/wrangler.jsonc", "--local", "--ip", "0.0.0.0", "--port", "3002"]
+diff --git a/services/order/Dockerfile b/services/order/Dockerfile
+new file mode 100644
+index 0000000..1de8646
+--- /dev/null
++++ b/services/order/Dockerfile
+@@ -0,0 +1,13 @@
++FROM node:24-bookworm-slim
++WORKDIR /app
++COPY package.json package-lock.json ./
++RUN npm ci --no-audit --no-fund
++RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates \
++    && rm -rf /var/lib/apt/lists/* \
++    && install -d -o node -g node /app/node_modules/.mf \
++    && chown node:node /app
++COPY --chown=node:node packages packages
++COPY --chown=node:node services/order services/order
++ENV WRANGLER_SEND_METRICS=false
++USER node
++CMD ["node_modules/.bin/wrangler", "dev", "-c", "services/order/wrangler.jsonc", "--local", "--ip", "0.0.0.0", "--port", "3003"]
+diff --git a/services/order/src/database.ts b/services/order/src/database.ts
+index c2c7980..2c95090 100644
+--- a/services/order/src/database.ts
++++ b/services/order/src/database.ts
+@@ -1,12 +1,16 @@
+ import { Pool } from '@neondatabase/serverless';
++import { Pool as LocalPool } from 'pg';
+ 
+ export interface Query { query(sql: string, values?: any[]): Promise<{ rows: any[] }> }
+ export interface Database extends Query { transaction<T>(work: (tx: Query) => Promise<T>): Promise<T>; close(): Promise<void> }
+ 
+-export function postgresDatabase(connection: string): Database {
++export function postgresDatabase(connection: string, localCompose = false): Database {
+   const url = new URL(connection);
+-  if (url.searchParams.get('sslmode') !== 'verify-full') throw new Error('ORDER_TLS_REQUIRED');
+-  const pool = new Pool({ connectionString: connection, max: 1, connectionTimeoutMillis: 5000 });
++  if (!localCompose && url.searchParams.get('sslmode') !== 'verify-full') throw new Error('ORDER_TLS_REQUIRED');
++  if (localCompose && url.hostname !== 'database') throw new Error('ORDER_LOCAL_DATABASE_REQUIRED');
++  const settings = { connectionString: connection, max: 1, connectionTimeoutMillis: 5000 };
++  const pool: Query & { connect(): Promise<Query & { release(): void }>; end(): Promise<void> } =
++    localCompose ? new LocalPool(settings) : new Pool(settings);
+   return {
+     query: async (sql, values) => pool.query(sql, values), close: () => pool.end(),
+     async transaction(work) {
+diff --git a/services/order/src/index.ts b/services/order/src/index.ts
+index e107329..a8d80b7 100644
+--- a/services/order/src/index.ts
++++ b/services/order/src/index.ts
+@@ -11,6 +11,7 @@ import { consumerName, handlePaymentEvent, parsePaymentEvent, relayOutbox, runJo
+ export interface OrderEnv extends Partial<SecurityEnv>, CatalogBindings {
+   APP_ENV: 'development' | 'test' | 'production';
+   ORDER_DATABASE_URL?: string;
++  COMPOSE_LOCAL_DATABASE?: string;
+   ORDER_EVENTS?: EventQueue;
+ }
+ export interface OrderDependencies { database?: Database; catalog?: Catalog; queue?: EventQueue }
+@@ -20,7 +21,7 @@ async function withDatabase<T>(env: OrderEnv, injected: Database | undefined, wo
+   let db: Database;
+   try {
+     if (!injected && !env.ORDER_DATABASE_URL) throw new Error();
+-    db = injected || postgresDatabase(env.ORDER_DATABASE_URL!);
++    db = injected || postgresDatabase(env.ORDER_DATABASE_URL!, env.APP_ENV === 'development' && env.COMPOSE_LOCAL_DATABASE === '1');
+   } catch { throw new OrderError(503, 'SERVICE_UNAVAILABLE', 'Database Order belum tersedia'); }
+   try { return await work(createOrders(db)); }
+   finally { if (!injected) await db.close().catch(() => {}); }
+diff --git a/services/payment/Dockerfile b/services/payment/Dockerfile
+new file mode 100644
+index 0000000..90c0d8f
+--- /dev/null
++++ b/services/payment/Dockerfile
+@@ -0,0 +1,13 @@
++FROM node:24-bookworm-slim
++WORKDIR /app
++COPY package.json package-lock.json ./
++RUN npm ci --no-audit --no-fund
++RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates \
++    && rm -rf /var/lib/apt/lists/* \
++    && install -d -o node -g node /app/node_modules/.mf \
++    && chown node:node /app
++COPY --chown=node:node packages packages
++COPY --chown=node:node services/payment services/payment
++ENV WRANGLER_SEND_METRICS=false
++USER node
++CMD ["node_modules/.bin/wrangler", "dev", "-c", "services/payment/wrangler.jsonc", "--local", "--ip", "0.0.0.0", "--port", "3004"]
+diff --git a/services/payment/src/index.ts b/services/payment/src/index.ts
+index 347b161..f1cf05a 100644
+--- a/services/payment/src/index.ts
++++ b/services/payment/src/index.ts
+@@ -63,9 +63,12 @@ app.post('/dev/run-provider-worker', async c => {
+     );
+   }
+ 
+-  const client = createXenditClient(c.env);
+-  const result = await runProviderWorker(db, client);
+-  return c.json(result);
++  try {
++    const client = createXenditClient(c.env);
++    return c.json(await runProviderWorker(db, client));
++  } finally {
++    await db.close();
++  }
+ });
+ 
+ app.post('/dev/run-outbox-relay', async c => {
+@@ -96,6 +99,7 @@ app.post('/dev/run-outbox-relay', async c => {
+     );
+   }
+   if (!c.env.PAYMENT_QUEUE) {
++    await db.close();
+     return c.json(
+       {
+         error: {
+@@ -108,8 +112,12 @@ app.post('/dev/run-outbox-relay', async c => {
+     );
+   }
+ 
+-  const queue = createCloudflareQueueAdapter(c.env.PAYMENT_QUEUE);
+-  return c.json(await runOutboxRelay(db, queue));
++  try {
++    const queue = createCloudflareQueueAdapter(c.env.PAYMENT_QUEUE);
++    return c.json(await runOutboxRelay(db, queue));
++  } finally {
++    await db.close();
++  }
+ });
+ 
+ app.notFound(c =>
+diff --git a/services/payment/src/lib/db.ts b/services/payment/src/lib/db.ts
+index 17ed1be..387ff73 100644
+--- a/services/payment/src/lib/db.ts
++++ b/services/payment/src/lib/db.ts
+@@ -1,7 +1,10 @@
+ import { Pool } from '@neondatabase/serverless';
++import { Pool as LocalPool } from 'pg';
+ 
+ export interface Env {
+   PAYMENT_DATABASE_URL?: string;
++  COMPOSE_LOCAL_DATABASE?: string;
++  COMPOSE_XENDIT_ORIGIN?: string;
+   JWT_PUBLIC_JWK: string;
+   JWT_ISSUER: string;
+   JWT_AUDIENCE: string;
+@@ -31,14 +34,18 @@ export interface DatabasePool extends Queryable {
+ export function getPool(env: Env): DatabasePool | null {
+   if (!env.PAYMENT_DATABASE_URL) return null;
+   const url = new URL(env.PAYMENT_DATABASE_URL);
+-  if (url.searchParams.get('sslmode') !== 'verify-full') {
++  const localCompose = env.APP_ENV === 'development' && env.COMPOSE_LOCAL_DATABASE === '1';
++  if (!localCompose && url.searchParams.get('sslmode') !== 'verify-full') {
+     throw new Error('PAYMENT_DATABASE_URL wajib sslmode=verify-full');
+   }
+-  const pool = new Pool({
++  if (localCompose && url.hostname !== 'database') throw new Error('PAYMENT_LOCAL_DATABASE_REQUIRED');
++  const settings = {
+     connectionString: env.PAYMENT_DATABASE_URL,
+     max: 1,
+     connectionTimeoutMillis: 5000,
+-  });
++  };
++  const pool: Omit<DatabasePool, 'close'> & { end(): Promise<void> } =
++    localCompose ? new LocalPool(settings) : new Pool(settings);
+ 
+   return {
+     query: (sql, values) => pool.query(sql, values),
+diff --git a/services/payment/src/lib/xendit-client.ts b/services/payment/src/lib/xendit-client.ts
+index 6c8e1be..13f711c 100644
+--- a/services/payment/src/lib/xendit-client.ts
++++ b/services/payment/src/lib/xendit-client.ts
+@@ -353,10 +353,14 @@ export class MockXenditClient implements XenditClient {
+ export function createXenditClient(env: {
+   XENDIT_SECRET_KEY?: string;
+   APP_ENV?: string;
++  COMPOSE_XENDIT_ORIGIN?: string;
+ }): XenditClient {
+   if (env.APP_ENV === 'test') {
+     return new MockXenditClient();
+   }
+   if (!env.XENDIT_SECRET_KEY) throw new Error('XENDIT_NOT_CONFIGURED');
++  if (env.APP_ENV === 'development' && env.COMPOSE_XENDIT_ORIGIN === 'http://xendit-mock:3100') {
++    return new RealXenditClient(env.XENDIT_SECRET_KEY, { baseUrl: env.COMPOSE_XENDIT_ORIGIN });
++  }
+   return new RealXenditClient(env.XENDIT_SECRET_KEY);
+ }
+diff --git a/services/payment/src/routes/webhooks.ts b/services/payment/src/routes/webhooks.ts
+index 5087ed8..d3e8363 100644
+--- a/services/payment/src/routes/webhooks.ts
++++ b/services/payment/src/routes/webhooks.ts
+@@ -1,7 +1,7 @@
+ import type { Hono } from 'hono';
+ import { getPool, withTransaction, type Env, type Queryable } from '../lib/db.js';
+ import { buildPaymentEvent, writeOutboxEvent } from '../lib/outbox.js';
+-import { RealXenditClient, type XenditClient, verifyCallbackToken } from '../lib/xendit-client.js';
++import { createXenditClient, RealXenditClient, type XenditClient, verifyCallbackToken } from '../lib/xendit-client.js';
+ 
+ interface PaymentDatabase {
+   database: Queryable;
+@@ -109,7 +109,8 @@ export function registerWebhooksRoute(
+     // Treat the callback as a notification; the provider API is authoritative.
+     if (!c.env.XENDIT_SECRET_KEY && !options.xenditClient)
+       return fail(503, 'XENDIT_NOT_CONFIGURED', 'Xendit API key tidak terkonfigurasi');
+-    const provider = options.xenditClient ?? new RealXenditClient(c.env.XENDIT_SECRET_KEY!);
++    const provider = options.xenditClient ?? (c.env.APP_ENV === 'development' && c.env.COMPOSE_XENDIT_ORIGIN
++      ? createXenditClient(c.env) : new RealXenditClient(c.env.XENDIT_SECRET_KEY!));
+     const confirmed = await provider.getInvoiceStatus(invoiceId);
+     if (!confirmed.ok) return fail(503, 'STATUS_CHECK_FAILED', 'Status invoice belum dapat dikonfirmasi');
+     const invoice = confirmed.snapshot;
+@@ -240,4 +241,4 @@ export function registerWebhooksRoute(
+       await connection.close?.();
+     }
+   });
+-}
+\ No newline at end of file
++}
