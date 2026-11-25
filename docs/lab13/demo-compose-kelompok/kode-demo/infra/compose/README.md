@@ -29,6 +29,8 @@ Skrip demo membuat identitas buyer lokal, membaca katalog, checkout melalui Gate
 
 Auth dan katalog memakai konfigurasi development lokal. Order dan Payment memakai database PostgreSQL demo yang terpisah di container yang sama. Skrip memakai JWT demo dan simulator Xendit, sehingga login Google, Neon, dan API Xendit produksi berada di luar cakupan pengujian ini. Port aplikasi dipublikasikan ke loopback host.
 
+Compose memakai kata sandi contoh khusus demo lokal. Untuk menggantinya, set `POSTGRES_PASSWORD` di shell atau di file `.env` lokal sebelum membuat volume PostgreSQL. Jika volume sudah diinisialisasi, nilai baru berlaku pada volume baru.
+
 ```sh
 docker compose down
 ```

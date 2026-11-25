@@ -26,7 +26,7 @@ services:
     image: postgres:17-alpine
     environment:
       POSTGRES_USER: zenta
-      POSTGRES_PASSWORD: local-demo-only
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local-demo-only}
       POSTGRES_DB: postgres
     volumes:
       - ./infra/compose/init-databases.sh:/docker-entrypoint-initdb.d/10-init.sh:ro
@@ -54,8 +54,7 @@ services:
       xendit-mock:
         condition: service_healthy
     environment:
-      ORDER_DATABASE_URL: postgresql://zenta:local-demo-only@database:5432/zenta_order
-      PAYMENT_DATABASE_URL: postgresql://zenta:local-demo-only@database:5432/zenta_payment
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local-demo-only}
     ports:
       - "127.0.0.1:3000:3000"
     healthcheck:

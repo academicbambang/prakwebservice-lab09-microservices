@@ -37,4 +37,6 @@ docker compose exec -T gateway node --import tsx infra/compose/demo.ts
 
 Empat container berstatus `healthy`. Skenario demo membaca katalog, membuat order dengan HTTP `201`, memproses pembayaran melalui simulator, lalu memverifikasi bahwa status order berubah menjadi `PAID`. Skenario ini menggunakan PostgreSQL lokal dan identitas demo.
 
+Set `POSTGRES_PASSWORD` di shell atau file `.env` lokal untuk mengganti kata sandi contoh sebelum volume PostgreSQL dibuat. Nilai baru dipakai saat volume demo baru diinisialisasi.
+
 Matikan stack dengan `docker compose down`. Semua perintah perubahan kode pada petunjuk ini dijalankan di salinan lokal.

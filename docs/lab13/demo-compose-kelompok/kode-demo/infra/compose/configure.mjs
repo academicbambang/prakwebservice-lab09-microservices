@@ -2,6 +2,10 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { randomBytes } from 'node:crypto';
 
 const state = JSON.parse(readFileSync('.local/development.json', 'utf8'));
+const postgresPassword = process.env.POSTGRES_PASSWORD;
+if (!postgresPassword) throw new Error('POSTGRES_PASSWORD belum diatur.');
+const encodedPassword = encodeURIComponent(postgresPassword).replaceAll("'", '%27');
+const databaseOrigin = `postgresql://zenta:${encodedPassword}@database:5432`;
 const common = {
   JWT_ISSUER: 'http://127.0.0.1:3001',
   JWT_AUDIENCE: 'umkm-api',
@@ -16,7 +20,7 @@ writeFileSync(authFile, auth.replace("OAUTH_CALLBACK_URL='http://127.0.0.1:3001/
 const callback = randomBytes(24).toString('hex');
 writeVars('services/order/.dev.vars', {
   ...common,
-  ORDER_DATABASE_URL: process.env.ORDER_DATABASE_URL,
+  ORDER_DATABASE_URL: databaseOrigin + '/zenta_order',
   COMPOSE_LOCAL_DATABASE: '1',
   ORDER_CLIENT_ID: 'order-service',
   ORDER_CLIENT_SECRET: state.orderClientSecret,
@@ -24,7 +28,7 @@ writeVars('services/order/.dev.vars', {
 writeVars('services/payment/.dev.vars', {
   ...common,
   APP_ENV: 'development',
-  PAYMENT_DATABASE_URL: process.env.PAYMENT_DATABASE_URL,
+  PAYMENT_DATABASE_URL: databaseOrigin + '/zenta_payment',
   COMPOSE_LOCAL_DATABASE: '1',
   XENDIT_SECRET_KEY: callback,
   XENDIT_CALLBACK_TOKEN: callback,

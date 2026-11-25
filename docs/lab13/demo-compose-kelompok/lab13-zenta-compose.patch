@@ -38,10 +38,10 @@ index 774e952..56c1f46 100644
  Saat backend sesi 09 aktif, jalankan `npm run verify:gateway` di terminal lain untuk pemeriksaan API read-only. CI juga menyiapkan environment memory terisolasi dan menjalankan pemeriksaan gateway melalui service bindings; Google/Neon asli tidak digunakan oleh CI.
 diff --git a/docker-compose.yml b/docker-compose.yml
 new file mode 100644
-index 0000000..2d454e6
+index 0000000..5e50d3b
 --- /dev/null
 +++ b/docker-compose.yml
-@@ -0,0 +1,97 @@
+@@ -0,0 +1,96 @@
 +name: zenta-freeze-demo
 +
 +services:
@@ -70,7 +70,7 @@ index 0000000..2d454e6
 +    image: postgres:17-alpine
 +    environment:
 +      POSTGRES_USER: zenta
-+      POSTGRES_PASSWORD: local-demo-only
++      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local-demo-only}
 +      POSTGRES_DB: postgres
 +    volumes:
 +      - ./infra/compose/init-databases.sh:/docker-entrypoint-initdb.d/10-init.sh:ro
@@ -98,8 +98,7 @@ index 0000000..2d454e6
 +      xendit-mock:
 +        condition: service_healthy
 +    environment:
-+      ORDER_DATABASE_URL: postgresql://zenta:local-demo-only@database:5432/zenta_order
-+      PAYMENT_DATABASE_URL: postgresql://zenta:local-demo-only@database:5432/zenta_payment
++      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local-demo-only}
 +    ports:
 +      - "127.0.0.1:3000:3000"
 +    healthcheck:
@@ -184,10 +183,10 @@ index 0000000..d36c113
 +CMD ["sh", "infra/compose/start-gateway.sh"]
 diff --git a/infra/compose/README.md b/infra/compose/README.md
 new file mode 100644
-index 0000000..54f412b
+index 0000000..9b244a5
 --- /dev/null
 +++ b/infra/compose/README.md
-@@ -0,0 +1,36 @@
+@@ -0,0 +1,38 @@
 +# Demo Compose lokal untuk ZENTA
 +
 +Salinan demo berangkat dari tag `v1.0-freeze` (`afa26f1`). Dockerfile Auth, Catalog, Order, dan Payment membangun image masing-masing. Image Gateway mengambil empat worker tersebut dan menjalankan kelimanya dalam satu sesi Wrangler lokal. Dengan demikian, service bindings, Durable Object gateway, dan antrean Order–Payment tetap bisa digunakan. Frontend Vite, PostgreSQL demo, dan simulator Xendit berjalan di container tersendiri.
@@ -219,6 +218,8 @@ index 0000000..54f412b
 +
 +Auth dan katalog memakai konfigurasi development lokal. Order dan Payment memakai database PostgreSQL demo yang terpisah di container yang sama. Skrip memakai JWT demo dan simulator Xendit, sehingga login Google, Neon, dan API Xendit produksi berada di luar cakupan pengujian ini. Port aplikasi dipublikasikan ke loopback host.
 +
++Compose memakai kata sandi contoh khusus demo lokal. Untuk menggantinya, set `POSTGRES_PASSWORD` di shell atau di file `.env` lokal sebelum membuat volume PostgreSQL. Jika volume sudah diinisialisasi, nilai baru berlaku pada volume baru.
++
 +```sh
 +docker compose down
 +```
@@ -226,14 +227,18 @@ index 0000000..54f412b
 +Untuk memulai ulang dengan database demo yang kosong, gunakan `docker compose down -v`, lalu jalankan kembali Compose. PostgreSQL menjalankan migrasi Order dan Payment ketika volume demo baru diinisialisasi.
 diff --git a/infra/compose/configure.mjs b/infra/compose/configure.mjs
 new file mode 100644
-index 0000000..258a92c
+index 0000000..0c45959
 --- /dev/null
 +++ b/infra/compose/configure.mjs
-@@ -0,0 +1,38 @@
+@@ -0,0 +1,42 @@
 +import { readFileSync, writeFileSync } from 'node:fs';
 +import { randomBytes } from 'node:crypto';
 +
 +const state = JSON.parse(readFileSync('.local/development.json', 'utf8'));
++const postgresPassword = process.env.POSTGRES_PASSWORD;
++if (!postgresPassword) throw new Error('POSTGRES_PASSWORD belum diatur.');
++const encodedPassword = encodeURIComponent(postgresPassword).replaceAll("'", '%27');
++const databaseOrigin = `postgresql://zenta:${encodedPassword}@database:5432`;
 +const common = {
 +  JWT_ISSUER: 'http://127.0.0.1:3001',
 +  JWT_AUDIENCE: 'umkm-api',
@@ -248,7 +253,7 @@ index 0000000..258a92c
 +const callback = randomBytes(24).toString('hex');
 +writeVars('services/order/.dev.vars', {
 +  ...common,
-+  ORDER_DATABASE_URL: process.env.ORDER_DATABASE_URL,
++  ORDER_DATABASE_URL: databaseOrigin + '/zenta_order',
 +  COMPOSE_LOCAL_DATABASE: '1',
 +  ORDER_CLIENT_ID: 'order-service',
 +  ORDER_CLIENT_SECRET: state.orderClientSecret,
@@ -256,7 +261,7 @@ index 0000000..258a92c
 +writeVars('services/payment/.dev.vars', {
 +  ...common,
 +  APP_ENV: 'development',
-+  PAYMENT_DATABASE_URL: process.env.PAYMENT_DATABASE_URL,
++  PAYMENT_DATABASE_URL: databaseOrigin + '/zenta_payment',
 +  COMPOSE_LOCAL_DATABASE: '1',
 +  XENDIT_SECRET_KEY: callback,
 +  XENDIT_CALLBACK_TOKEN: callback,
