@@ -1,0 +1,27 @@
+
+> prakwebservice-lab09-microservices@0.1.0 test:lab13
+> node scripts/demo-lab13.js
+
+$ docker compose stop product-service
+ Container prakwebservice-lab13-product-service-1  Stopping
+ Container prakwebservice-lab13-product-service-1  Stopped
+POST /order-service/orders → HTTP 503
+X-Request-Id: 4f1afc11-7e9d-4ba5-bbda-cd1f04da5c92
+{"error":"Catalog service is unavailable or timed out"}
+$ docker compose ps --all product-service order-service gateway
+NAME                                     IMAGE                                  COMMAND                  SERVICE           CREATED              STATUS                              PORTS
+prakwebservice-lab13-gateway-1           prakwebservice-lab13-gateway           "docker-entrypoint.s…"   gateway           About a minute ago   Up 58 seconds (healthy)             127.0.0.1:8080->8080/tcp
+prakwebservice-lab13-order-service-1     prakwebservice-lab13-order-service     "docker-entrypoint.s…"   order-service     About a minute ago   Up About a minute (healthy)         3001/tcp
+prakwebservice-lab13-product-service-1   prakwebservice-lab13-product-service   "docker-entrypoint.s…"   product-service   About a minute ago   Exited (0) Less than a second ago
+$ docker compose start product-service
+ Container prakwebservice-lab13-product-service-1  Starting
+ Container prakwebservice-lab13-product-service-1  Started
+product-service: healthy
+POST /order-service/orders → HTTP 201
+X-Request-Id: 9656155e-363e-4de3-8683-0dc35ac2a84b
+{"orderId":"ord-226e8c80-0b0a-4e69-9bd3-96436a0a3206"}
+
+Log untuk X-Request-Id yang sama
+{"time":"2026-11-25T03:03:57.299Z","service":"catalog-service","id":"9656155e-363e-4de3-8683-0dc35ac2a84b","method":"POST","path":"/products/prod-001/reserve","status":200,"ms":8}
+{"time":"2026-11-25T03:03:57.301Z","service":"order-service","id":"9656155e-363e-4de3-8683-0dc35ac2a84b","method":"POST","path":"/orders","status":201,"ms":12}
+{"at":"2026-11-25T03:03:58.303Z","component":"consumer","queue":"notification-queue","consumer":"consumer-1","kind":"email","messageId":"order-ord-226e8c80-0b0a-4e69-9bd3-96436a0a3206","orderId":"ord-226e8c80-0b0a-4e69-9bd3-96436a0a3206","requestId":"9656155e-363e-4de3-8683-0dc35ac2a84b","redelivered":false,"message":"[notification-queue/consumer-1] email terkirim (simulasi): pesanan #ord-226e8c80-0b0a-4e69-9bd3-96436a0a3206 Kopi Arabika Gayo x1"}

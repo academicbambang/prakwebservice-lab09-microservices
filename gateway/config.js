@@ -11,7 +11,7 @@ function readConfig(env = process.env) {
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('PORT harus 1-65535');
   const trustProxy = Number(env.TRUST_PROXY || 0);
   if (!Number.isInteger(trustProxy) || trustProxy < 0) throw new Error('TRUST_PROXY harus bilangan bulat >= 0');
-  for (const name of ['CATALOG_SERVICE_URL', 'ORDER_SERVICE_URL']) {
+  for (const name of ['PRODUCT_SERVICE_URL', 'CATALOG_SERVICE_URL', 'ORDER_SERVICE_URL']) {
     if (!env[name]) continue;
     const url = new URL(env[name]);
     if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password ||
@@ -22,7 +22,7 @@ function readConfig(env = process.env) {
   return {
     port,
     host: env.HOST || '127.0.0.1',
-    catalogUrl: env.CATALOG_SERVICE_URL || 'http://127.0.0.1:3000',
+    catalogUrl: env.PRODUCT_SERVICE_URL || env.CATALOG_SERVICE_URL || 'http://127.0.0.1:3000',
     orderUrl: env.ORDER_SERVICE_URL || 'http://127.0.0.1:3001',
     apiKey: env.API_KEY || '',
     apiKeyHash: env.API_KEY_SHA256 || '',

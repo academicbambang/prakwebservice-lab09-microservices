@@ -8,7 +8,7 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
         with:
@@ -18,25 +18,23 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - name: Start services and wait for readiness
+      - name: Build and start Compose stack
         run: |
-          echo "API_KEY=lab12-test-only-${GITHUB_RUN_ID}" >> "$GITHUB_ENV"
-          API_KEY="lab12-test-only-${GITHUB_RUN_ID}" node gateway/gateway.js > gateway.log 2>&1 &
-          node catalog-service/server.js > catalog.log 2>&1 &
-          node order-service/server.js > order.log 2>&1 &
-          curl --fail --silent --show-error --retry 15 --retry-delay 1 --retry-connrefused \
-            --max-time 2 http://127.0.0.1:8080/readyz
+          npm run setup:compose
+          docker compose up -d --build --wait --wait-timeout 120
+          docker compose ps
       - name: Run tests
         env:
           BASE_URL: http://127.0.0.1:8080
-        run: npm test
-      - name: Show service logs
-        if: always()
         run: |
-          for service in gateway catalog order; do
-            if [ -f "$service.log" ]; then
-              echo "::group::$service"
-              cat "$service.log"
-              echo "::endgroup::"
-            fi
-          done
+          set -a
+          source .env
+          set +a
+          npm test
+          npm run test:lab13
+      - name: Show Compose logs
+        if: always() && hashFiles('.env') != ''
+        run: docker compose logs --no-color
+      - name: Stop Compose stack
+        if: always() && hashFiles('.env') != ''
+        run: docker compose down -v

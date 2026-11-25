@@ -1,0 +1,86 @@
+name: prakwebservice-lab13
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:?Jalankan npm run setup:compose}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:?Jalankan npm run setup:compose}
+    ports:
+      - "127.0.0.1:15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "check_port_connectivity"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 15s
+
+  product-service:
+    build:
+      context: ./catalog-service
+      additional_contexts:
+        shared: .
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  notification-service:
+    build: ./notification-service
+    restart: unless-stopped
+    environment:
+      AMQP_URL: amqp://${RABBITMQ_USER:?Jalankan npm run setup:compose}:${RABBITMQ_PASSWORD:?Jalankan npm run setup:compose}@rabbitmq:5672
+      NOTIFICATION_READY_FILE: /tmp/notification-ready
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "test", "-f", "/tmp/notification-ready"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  order-service:
+    build:
+      context: ./order-service
+      additional_contexts:
+        shared: .
+    restart: unless-stopped
+    environment:
+      PRODUCT_SERVICE_URL: http://product-service:3000
+      AMQP_URL: amqp://${RABBITMQ_USER:?Jalankan npm run setup:compose}:${RABBITMQ_PASSWORD:?Jalankan npm run setup:compose}@rabbitmq:5672
+    depends_on:
+      product-service:
+        condition: service_healthy
+      notification-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3001/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  gateway:
+    build:
+      context: ./gateway
+      additional_contexts:
+        shared: .
+    restart: unless-stopped
+    environment:
+      PRODUCT_SERVICE_URL: http://product-service:3000
+      ORDER_SERVICE_URL: http://order-service:3001
+      API_KEY: ${API_KEY:?Jalankan npm run setup:compose}
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      product-service:
+        condition: service_healthy
+      order-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 5

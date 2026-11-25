@@ -1,4 +1,4 @@
-[![CI Lab 12](https://github.com/academicbambang/prakwebservice-lab09-microservices/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/academicbambang/prakwebservice-lab09-microservices/actions/workflows/ci.yml?query=branch%3Amain)
+[![CI Docker Compose](https://github.com/academicbambang/prakwebservice-lab09-microservices/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/academicbambang/prakwebservice-lab09-microservices/actions/workflows/ci.yml?query=branch%3Amain)
 
 # Lab 09: Microservices Marketplace UMKM
 
@@ -34,6 +34,45 @@ npm start
 ```
 
 Gateway berjalan pada `http://127.0.0.1:8080`, katalog pada `:3000`, dan pesanan pada `:3001`. `setup` membuat API key lokal dalam `gateway/.env`; gunakan nilainya sebagai `X-API-Key` untuk jalur pesanan dan reservasi stok. Nilai key tidak disertakan dalam repository atau bukti pengujian.
+
+## Menjalankan dengan Docker Compose
+
+Untuk Lab 13, siapkan Node.js 22, Docker dengan BuildKit, dan Docker Compose v2. Dari root repository, buat konfigurasi lokal dan jalankan kelima container:
+
+```sh
+npm run setup:compose
+docker compose up --build
+```
+
+`setup:compose` membuat `.env` berisi API key dan kredensial RabbitMQ acak untuk demo lokal. Compose hanya membuka gateway dan dashboard RabbitMQ di loopback host.
+
+| Alamat | Fungsi |
+| --- | --- |
+| `http://127.0.0.1:8080` | Gateway dan aplikasi Ruang UMKM |
+| `http://127.0.0.1:8080/docs/` | Swagger UI |
+| `http://127.0.0.1:15672` | Dashboard RabbitMQ. Gunakan `RABBITMQ_USER` dan `RABBITMQ_PASSWORD` dari `.env` |
+
+Di terminal lain, periksa `docker compose ps` dan tunggu semua service berstatus `healthy`. Jalankan `npm ci` sekali untuk memasang dependensi pengujian di host, lalu muat `API_KEY` dari `.env` dan set `BASE_URL` ke gateway agar suite Lab 12 menguji stack Compose:
+
+```bash
+set -a
+source .env
+set +a
+export BASE_URL=http://127.0.0.1:8080
+npm test
+npm run test:lab13
+```
+
+Untuk PowerShell:
+
+```powershell
+$env:API_KEY = ((Select-String '^API_KEY=' .env).Line -split '=', 2)[1]
+$env:BASE_URL = 'http://127.0.0.1:8080'
+npm test
+npm run test:lab13
+```
+
+`test:lab13` menghentikan dan menyalakan kembali layanan produk untuk memeriksa HTTP `503`, lalu `201`, serta mencocokkan log reservasi, pesanan, dan notifikasi. Jalankan `docker compose down` untuk menghentikan stack. Tambahkan `-v` untuk menghapus volume RabbitMQ pada stack lokal. Bukti dan refleksi tersedia di [catatan Lab 13](docs/lab13/README.md).
 
 ## Memakai aplikasi
 

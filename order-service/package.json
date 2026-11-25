@@ -11,6 +11,7 @@
     "node": ">=22"
   },
   "dependencies": {
+    "amqplib": "^0.10.9",
     "express": "^5.3.0"
   }
 }

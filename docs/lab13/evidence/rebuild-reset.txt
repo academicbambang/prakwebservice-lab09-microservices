@@ -1,0 +1,10 @@
+Respons sebelum edit: {"error":"Order not found"} [HTTP 404]
+$ docker compose up -d --wait order-service
+Respons sesudah up tanpa --build: {"error":"Order not found"} [HTTP 404]
+$ docker compose up -d --build --wait order-service
+Respons sesudah build: {"error":"Order not found - Lab 13 rebuild"} [HTTP 404]
+Kode asli dipulihkan dan image dibangun ulang.
+Sebelum down: stok prod-001=39, jumlah pesanan=1
+$ docker compose down
+$ docker compose up -d --wait
+Sesudah up: stok prod-001=40, jumlah pesanan=0

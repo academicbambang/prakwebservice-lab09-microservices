@@ -1,0 +1,6 @@
+NAME                                          IMAGE                                       COMMAND                  SERVICE                CREATED          STATUS                    PORTS
+prakwebservice-lab13-gateway-1                prakwebservice-lab13-gateway                "docker-entrypoint.s…"   gateway                52 seconds ago   Up 28 seconds (healthy)   127.0.0.1:8080->8080/tcp
+prakwebservice-lab13-notification-service-1   prakwebservice-lab13-notification-service   "docker-entrypoint.s…"   notification-service   52 seconds ago   Up 40 seconds (healthy)
+prakwebservice-lab13-order-service-1          prakwebservice-lab13-order-service          "docker-entrypoint.s…"   order-service          52 seconds ago   Up 34 seconds (healthy)   3001/tcp
+prakwebservice-lab13-product-service-1        prakwebservice-lab13-product-service        "docker-entrypoint.s…"   product-service        53 seconds ago   Up 52 seconds (healthy)   3000/tcp
+prakwebservice-lab13-rabbitmq-1               rabbitmq:3-management                       "docker-entrypoint.s…"   rabbitmq               53 seconds ago   Up 52 seconds (healthy)   4369/tcp, 5671-5672/tcp, 15671/tcp, 15691-15692/tcp, 25672/tcp, 127.0.0.1:15672->15672/tcp

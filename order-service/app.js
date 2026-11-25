@@ -6,8 +6,9 @@ const { mountObservability } = require('../observability');
 const { OrderError, validateOrderInput, priceOrder } = require('./order');
 
 function createOrderApp({
-  catalogUrl = process.env.CATALOG_SERVICE_URL || 'http://127.0.0.1:3000',
+  catalogUrl = process.env.PRODUCT_SERVICE_URL || process.env.CATALOG_SERVICE_URL || 'http://127.0.0.1:3000',
   fetchImpl = fetch,
+  publishOrderCreated,
 } = {}) {
   const app = express();
   const orders = new Map();
@@ -124,6 +125,7 @@ function createOrderApp({
 
     // Reservasi dan penyimpanan order belum memakai transaksi lintas service/kompensasi.
     orders.set(order.id, order);
+    publishOrderCreated?.(order, req.id);
     return res.status(201).location(`/orders/${order.id}`).json({ data: order });
   });
 

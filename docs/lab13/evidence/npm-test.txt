@@ -1,0 +1,355 @@
+
+> prakwebservice-lab09-microservices@0.1.0 test
+> node --test tests/*.test.js
+
+✔ OpenAPI describes deployed-origin routes, authentication, and validation boundaries (131.993791ms)
+✔ all documented schema references resolve and operation IDs are unique (18.681008ms)
+✔ Swagger UI loads local assets and initializes this gateway specification (81.466166ms)
+✔ reading documentation does not reach a limiter mounted after it (59.046373ms)
+✔ Apollo embed targets the current gateway and preloads a valid catalog query (29.867546ms)
+✔ Apollo page offers a readable fallback when the CDN cannot load (4.176387ms)
+✔ GET products returns a nonempty catalog with typed fields (102.165856ms)
+✔ GET product detail returns the requested product (11.722513ms)
+✔ GET unknown product returns 404 (9.765649ms)
+✔ POST order returns 201 and decreases stock by the requested quantity (138.009735ms)
+✔ POST order over available stock returns 409 (15.771088ms)
+✔ POST order with invalid quantities returns 400 (18.306499ms)
+✔ POST order for an unknown product returns 404 (19.137314ms)
+✔ GET orders includes a newly created order (23.084155ms)
+✔ GET product health through the gateway reports ok (8.428861ms)
+✔ POST order generates and preserves X-Request-Id (28.849659ms)
+{"time":"2026-11-25T03:03:45.418Z","service":"gateway","id":"7f82f5bd-0918-49f6-a4c5-9f6cd6a8146f","method":"GET","path":"/readyz","status":200,"ms":38}
+✔ gateway readiness succeeds only when both upstream health checks succeed (153.110005ms)
+{"time":"2026-11-25T03:03:45.455Z","service":"gateway","id":"4394859e-186c-46bb-ac7b-307f9ed55643","method":"GET","path":"/readyz","status":503,"ms":14}
+{"time":"2026-11-25T03:03:45.467Z","service":"gateway","id":"43b272eb-ef81-466c-a5b8-c5b664156cca","method":"GET","path":"/readyz","status":503,"ms":7}
+✔ gateway readiness returns 503 when either upstream reports an error (38.634466ms)
+{"time":"2026-11-25T03:03:46.481Z","service":"gateway","id":"013f8734-68cc-4425-94a8-9ad1d74af5a3","method":"GET","path":"/readyz","status":503,"ms":1003}
+✔ gateway readiness stops waiting for an unresponsive upstream (1013.477749ms)
+{"time":"2026-11-25T03:03:46.495Z","service":"gateway","id":"99966f2a-316d-4c1f-8fe1-ba16c77ee9c6","method":"GET","path":"/readyz","status":200,"ms":5}
+{"time":"2026-11-25T03:03:46.499Z","service":"gateway","id":"378a593d-0f30-4417-b6b6-7d0d3059930d","method":"GET","path":"/readyz","status":200,"ms":3}
+{"time":"2026-11-25T03:03:46.503Z","service":"gateway","id":"f3caa67f-59d3-41ae-8755-be67f6480110","method":"GET","path":"/readyz","status":200,"ms":3}
+{"time":"2026-11-25T03:03:46.507Z","service":"gateway","id":"2659370b-035a-423a-953d-53335094da13","method":"GET","path":"/readyz","status":200,"ms":3}
+{"time":"2026-11-25T03:03:46.512Z","service":"gateway","id":"d769b755-3105-400e-859f-36859eef0bc2","method":"GET","path":"/readyz","status":200,"ms":3}
+{"time":"2026-11-25T03:03:46.515Z","service":"gateway","id":"0570689a-374e-4e7a-9414-60772be225db","method":"GET","path":"/readyz","status":200,"ms":3}
+{"time":"2026-11-25T03:03:46.519Z","service":"gateway","id":"abe81f77-d827-4bbd-ab92-50188ddcbeb4","method":"GET","path":"/readyz","status":200,"ms":3}
+{"time":"2026-11-25T03:03:46.524Z","service":"gateway","id":"911a7e03-2730-4e2d-a071-389efd372e50","method":"GET","path":"/readyz","status":200,"ms":4}
+{"time":"2026-11-25T03:03:46.533Z","service":"gateway","id":"24cff109-68a5-4cfa-ac6f-afa57117692d","method":"GET","path":"/readyz","status":200,"ms":4}
+{"time":"2026-11-25T03:03:46.540Z","service":"gateway","id":"cde06168-378d-4753-a28a-b597ec703a26","method":"GET","path":"/readyz","status":200,"ms":6}
+{"time":"2026-11-25T03:03:46.544Z","service":"gateway","id":"dd61e6ee-8387-4fef-a0be-ec00a0df8fc6","method":"GET","path":"/readyz","status":200,"ms":3}
+{"time":"2026-11-25T03:03:46.548Z","service":"gateway","id":"1afaa503-a051-4bfc-82ea-3fed1e8aa677","method":"GET","path":"/readyz","status":200,"ms":3}
+{"time":"2026-11-25T03:03:46.552Z","service":"gateway","id":"ea4a3015-86d3-48b6-93b2-9383ee1ac0ea","method":"GET","path":"/readyz","status":200,"ms":3}
+{"time":"2026-11-25T03:03:46.557Z","service":"gateway","id":"2ae8ab6d-640b-4d54-add6-42b4cfd0d6f2","method":"GET","path":"/readyz","status":200,"ms":4}
+{"time":"2026-11-25T03:03:46.561Z","service":"gateway","id":"fef1dad3-4d18-4766-aa8b-02a205d0a991","method":"GET","path":"/readyz","status":200,"ms":3}
+{"time":"2026-11-25T03:03:46.565Z","service":"gateway","id":"d3937b4e-f7c1-4420-bb6b-8ae25fb3eb8e","method":"GET","path":"/readyz","status":200,"ms":4}
+{"time":"2026-11-25T03:03:46.571Z","service":"gateway","id":"4ef85ecb-fb1d-4204-8dcc-1ac0fee0d5fc","method":"GET","path":"/readyz","status":200,"ms":4}
+{"time":"2026-11-25T03:03:46.575Z","service":"gateway","id":"1fecfe94-54fd-4a4c-b3df-01fd699baae8","method":"GET","path":"/readyz","status":200,"ms":4}
+{"time":"2026-11-25T03:03:46.580Z","service":"gateway","id":"06cfe564-12e1-4f3a-bc38-f0adb6ea5dc5","method":"GET","path":"/readyz","status":200,"ms":4}
+{"time":"2026-11-25T03:03:46.585Z","service":"gateway","id":"6f7a40c7-0db8-429d-ba87-b36f5a3c6585","method":"GET","path":"/readyz","status":200,"ms":4}
+{"time":"2026-11-25T03:03:46.591Z","service":"gateway","id":"26a6c3dd-eaee-440d-98a3-24dd880d6bf8","method":"GET","path":"/readyz","status":200,"ms":4}
+(node:3128) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+{"time":"2026-11-25T03:03:46.604Z","service":"gateway","id":"8f56d925-692f-4d1c-b0f9-3dd55b6510e0","method":"GET","path":"/catalog/products","status":200,"ms":12}
+{"time":"2026-11-25T03:03:46.610Z","service":"gateway","id":"9c0f7d8e-a2c0-49fc-9a0c-804dd6b579d3","method":"GET","path":"/catalog/products","status":200,"ms":4}
+{"time":"2026-11-25T03:03:46.615Z","service":"gateway","id":"24fdad25-aaa5-4cd0-baeb-6bc6f3068aa2","method":"GET","path":"/catalog/products","status":200,"ms":3}
+{"time":"2026-11-25T03:03:46.621Z","service":"gateway","id":"5d6b5a36-468f-44f4-9b81-c460d2d93195","method":"GET","path":"/catalog/products","status":200,"ms":4}
+{"time":"2026-11-25T03:03:46.626Z","service":"gateway","id":"2bbfa462-3bd9-49c8-b455-c4b1aa78699d","method":"GET","path":"/catalog/products","status":200,"ms":3}
+{"time":"2026-11-25T03:03:46.631Z","service":"gateway","id":"f838ad11-982d-4785-9585-42c86512f2f6","method":"GET","path":"/catalog/products","status":200,"ms":3}
+{"time":"2026-11-25T03:03:46.636Z","service":"gateway","id":"d9f3f4b7-b7e7-45a4-a5f3-f76341b42ae8","method":"GET","path":"/catalog/products","status":200,"ms":3}
+{"time":"2026-11-25T03:03:46.641Z","service":"gateway","id":"790c7d09-fc66-433f-b61b-7c9fbb5d507f","method":"GET","path":"/catalog/products","status":200,"ms":3}
+{"time":"2026-11-25T03:03:46.646Z","service":"gateway","id":"ece7e04c-77cf-4f45-8104-eb3bc9722461","method":"GET","path":"/catalog/products","status":200,"ms":3}
+{"time":"2026-11-25T03:03:46.651Z","service":"gateway","id":"de1ce648-c025-4c11-8c0b-aaaf4e3dbd34","method":"GET","path":"/catalog/products","status":200,"ms":3}
+{"time":"2026-11-25T03:03:46.656Z","service":"gateway","id":"1f92a8e7-6c45-4912-8515-93cc8d6d1ffa","method":"GET","path":"/catalog/products","status":200,"ms":3}
+{"time":"2026-11-25T03:03:46.660Z","service":"gateway","id":"53ce44a4-683f-4ef0-91fa-fd8891c18a60","method":"GET","path":"/catalog/products","status":200,"ms":3}
+{"time":"2026-11-25T03:03:46.664Z","service":"gateway","id":"4ff533cb-0e51-4856-a4b6-ebc39d308fbc","method":"GET","path":"/catalog/products","status":200,"ms":3}
+{"time":"2026-11-25T03:03:46.668Z","service":"gateway","id":"420662e6-4c8f-4439-85b2-7e8fae59f6d8","method":"GET","path":"/catalog/products","status":200,"ms":3}
+{"time":"2026-11-25T03:03:46.673Z","service":"gateway","id":"a45f9ec3-8072-447a-a3be-2d8d19720ff7","method":"GET","path":"/catalog/products","status":200,"ms":3}
+{"time":"2026-11-25T03:03:46.677Z","service":"gateway","id":"5d6ef6be-1cb1-4393-9def-c77d56921e3c","method":"GET","path":"/catalog/products","status":200,"ms":3}
+{"time":"2026-11-25T03:03:46.681Z","service":"gateway","id":"6b536cf6-dd31-44af-abf3-6f5d47abcab2","method":"GET","path":"/catalog/products","status":200,"ms":3}
+{"time":"2026-11-25T03:03:46.685Z","service":"gateway","id":"50b2acdc-874c-459e-8442-1e7f1e9b3519","method":"GET","path":"/catalog/products","status":200,"ms":3}
+{"time":"2026-11-25T03:03:46.690Z","service":"gateway","id":"57ae3d6a-67b2-4476-93d7-2f0bf41402dc","method":"GET","path":"/catalog/products","status":200,"ms":3}
+{"time":"2026-11-25T03:03:46.694Z","service":"gateway","id":"6b06e713-0c64-4455-8651-c883ad8ca8d8","method":"GET","path":"/catalog/products","status":200,"ms":3}
+{"time":"2026-11-25T03:03:46.698Z","service":"gateway","id":"08d3de34-b496-48d5-82f2-9490a97a87e7","method":"GET","path":"/catalog/products","status":429,"ms":2}
+{"time":"2026-11-25T03:03:46.703Z","service":"gateway","id":"4a89d088-27c5-462c-8dd0-b2c44a7a2598","method":"GET","path":"/readyz","status":200,"ms":3}
+✔ readiness probes neither use nor depend on the API rate-limit quota (221.492105ms)
+✔ stack exposes only the gateway host and connects backends through their configured loopback ports (0.605529ms)
+(node:3134) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+{"time":"2026-11-25T03:03:46.208Z","service":"catalog-service","id":"d3b54594-7f6d-486b-915b-63bdc7011d1e","method":"GET","path":"/products","status":200,"ms":3}
+{"time":"2026-11-25T03:03:46.210Z","service":"gateway","id":"d3b54594-7f6d-486b-915b-63bdc7011d1e","method":"GET","path":"/catalog/products","status":200,"ms":17}
+{"time":"2026-11-25T03:03:46.412Z","service":"catalog-service","id":"e6555e68-28f7-4a4e-8e15-25a9c0c378a1","method":"POST","path":"/graphql","status":200,"ms":181}
+{"time":"2026-11-25T03:03:46.413Z","service":"gateway","id":"e6555e68-28f7-4a4e-8e15-25a9c0c378a1","method":"POST","path":"/catalog/graphql","status":200,"ms":185}
+{"time":"2026-11-25T03:03:46.420Z","service":"gateway","id":"6df5cae4-b2a6-4ec3-bffb-4d5f3f41c0fe","method":"GET","path":"/orders/orders","status":401,"ms":3}
+{"time":"2026-11-25T03:03:46.433Z","service":"catalog-service","id":"0f8c3f5f-6b18-44a3-95f8-b243528b0061","method":"POST","path":"/products/prod-001/reserve","status":200,"ms":1}
+{"time":"2026-11-25T03:03:46.438Z","service":"order-service","id":"0f8c3f5f-6b18-44a3-95f8-b243528b0061","method":"POST","path":"/orders","status":201,"ms":10}
+{"time":"2026-11-25T03:03:46.442Z","service":"gateway","id":"0f8c3f5f-6b18-44a3-95f8-b243528b0061","method":"POST","path":"/orders/orders","status":201,"ms":16}
+{"time":"2026-11-25T03:03:46.449Z","service":"catalog-service","id":"57377ddd-cce6-4018-8241-7a6b63462825","method":"GET","path":"/products/prod-001","status":200,"ms":1}
+{"time":"2026-11-25T03:03:46.449Z","service":"gateway","id":"57377ddd-cce6-4018-8241-7a6b63462825","method":"GET","path":"/catalog/products/prod-001","status":200,"ms":4}
+{"time":"2026-11-25T03:03:46.455Z","service":"order-service","id":"1f1985ff-0ac1-4b48-9737-6930be4750b8","method":"GET","path":"/orders/ord-b6b27cdb-9b68-4cea-a26e-9290f3a91000","status":200,"ms":1}
+{"time":"2026-11-25T03:03:46.456Z","service":"gateway","id":"1f1985ff-0ac1-4b48-9737-6930be4750b8","method":"GET","path":"/orders/orders/ord-b6b27cdb-9b68-4cea-a26e-9290f3a91000","status":200,"ms":4}
+{"time":"2026-11-25T03:03:46.462Z","service":"order-service","id":"719e5f21-ff80-4edd-b147-bf10242da3e7","method":"GET","path":"/orders","status":200,"ms":0}
+{"time":"2026-11-25T03:03:46.463Z","service":"gateway","id":"719e5f21-ff80-4edd-b147-bf10242da3e7","method":"GET","path":"/orders/orders","status":200,"ms":4}
+{"time":"2026-11-25T03:03:46.466Z","service":"order-service","id":"94a0313e-05ea-4ce3-8f1a-389752e690e4","method":"GET","path":"/orders","status":200,"ms":0}
+✔ real catalog, order, and gateway complete the product-to-order flow (364.338979ms)
+(node:3135) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+{"time":"2026-11-25T03:03:45.461Z","service":"gateway","id":"d6cff4c5-9f9c-45e5-943a-23a998891a19","method":"GET","path":"/catalog/products","status":200,"ms":19}
+✔ routing katalog menghapus prefix dan mempertahankan query string (154.025026ms)
+{"time":"2026-11-25T03:03:45.674Z","service":"gateway","id":"9d7f405d-283c-4328-b9aa-70e938945e0c","method":"POST","path":"/orders/orders","status":201,"ms":181}
+✔ POST JSON diteruskan utuh ke service pesanan dan key tidak diteruskan (195.665919ms)
+{"time":"2026-11-25T03:03:45.692Z","service":"gateway","id":"e441df83-5b3c-4eeb-afd4-609f144dbbfc","method":"GET","path":"/product-service/products","status":200,"ms":7}
+{"time":"2026-11-25T03:03:45.701Z","service":"gateway","id":"5e1ccb49-5c68-4d2b-8c06-94f6088bb1c2","method":"POST","path":"/order-service/orders","status":201,"ms":4}
+{"time":"2026-11-25T03:03:45.709Z","service":"gateway","id":"806a288a-66eb-4d33-86d3-d2a7c00041a0","method":"GET","path":"/order-service/orders","status":401,"ms":3}
+✔ alias Lab 09 meneruskan produk dan pesanan dengan prefix yang benar (32.451161ms)
+{"time":"2026-11-25T03:03:45.719Z","service":"gateway","id":"b04e75f9-f050-4009-8648-bb2d07d1568e","method":"POST","path":"/catalog/products/prod-001/reserve","status":401,"ms":1}
+{"time":"2026-11-25T03:03:45.727Z","service":"gateway","id":"8b36a6c9-17b8-4bb9-83a1-f1da7bce3f58","method":"POST","path":"/catalog/products/prod-001/reserve","status":201,"ms":4}
+{"time":"2026-11-25T03:03:45.731Z","service":"gateway","id":"50ef12f9-bc59-46f6-8bfc-eee2a0088143","method":"POST","path":"/catalog/reservations","status":401,"ms":1}
+{"time":"2026-11-25T03:03:45.739Z","service":"gateway","id":"788cf0a9-0533-46f7-9383-71a51d5d1433","method":"POST","path":"/catalog/reservations","status":201,"ms":4}
+{"time":"2026-11-25T03:03:45.747Z","service":"gateway","id":"6845cb04-040e-4e66-ae07-23063ab7e975","method":"POST","path":"/product-service/products/prod-001/reserve","status":401,"ms":1}
+{"time":"2026-11-25T03:03:45.755Z","service":"gateway","id":"8b6aafef-af0e-4448-a15c-3b6ac7b371b9","method":"POST","path":"/product-service/products/prod-001/reserve","status":201,"ms":3}
+{"time":"2026-11-25T03:03:45.758Z","service":"gateway","id":"2d800d6b-ba2e-4350-93e2-9e627355fef2","method":"POST","path":"/product-service/reservations","status":401,"ms":1}
+{"time":"2026-11-25T03:03:45.765Z","service":"gateway","id":"8441ae12-2c97-4e4b-b0cc-26b9f7537a0b","method":"POST","path":"/product-service/reservations","status":201,"ms":3}
+✔ reservasi stok melalui kedua prefix produk memerlukan API key (56.372121ms)
+{"time":"2026-11-25T03:03:45.782Z","service":"gateway","id":"62840a45-bd79-44d0-823f-46bcbf4e3963","method":"GET","path":"/orders/orders","status":401,"ms":3}
+✔ API key tidak ada ditolak (16.59878ms)
+{"time":"2026-11-25T03:03:45.792Z","service":"gateway","id":"ea214d48-31c9-4061-a1d0-e6d2675350f7","method":"GET","path":"/orders/orders","status":401,"ms":3}
+✔ API key kosong ditolak (8.473323ms)
+{"time":"2026-11-25T03:03:45.801Z","service":"gateway","id":"cdabdca5-90e0-4488-abb0-d6d245701271","method":"GET","path":"/orders/orders","status":401,"ms":4}
+✔ API key salah ditolak (9.799812ms)
+{"time":"2026-11-25T03:03:45.810Z","service":"gateway","id":"16e87f22-a3ce-4f93-89b9-52b1387bb9a3","method":"GET","path":"/orders/orders","status":401,"ms":2}
+✔ konfigurasi tanpa key menolak akses pesanan (8.751823ms)
+{"time":"2026-11-25T03:03:45.820Z","service":"gateway","id":"d58aedba-8c97-4026-8a9d-0c240014d9ab","method":"GET","path":"/orders/orders","status":200,"ms":5}
+✔ hash API key yang valid menerima key asal (10.130207ms)
+{"time":"2026-11-25T03:03:45.828Z","service":"gateway","id":"30a88a12-4ce3-45fc-82da-b166ecdcb400","method":"GET","path":"/missing","status":404,"ms":3}
+✔ route /missing tidak cocok dengan prefix service (7.313224ms)
+{"time":"2026-11-25T03:03:45.835Z","service":"gateway","id":"86a44f31-0042-4b4d-83aa-731ea9839da9","method":"GET","path":"/catalogue/products","status":404,"ms":3}
+✔ route /catalogue/products tidak cocok dengan prefix service (6.801864ms)
+{"time":"2026-11-25T03:03:45.843Z","service":"gateway","id":"46ec362c-aa52-4a45-9b35-264ef5ad1e5e","method":"GET","path":"/orders-other/orders","status":404,"ms":3}
+✔ route /orders-other/orders tidak cocok dengan prefix service (8.161074ms)
+{"time":"2026-11-25T03:03:45.853Z","service":"gateway","id":"09d09768-a839-4f83-b133-6272838a2c5b","method":"GET","path":"/product-service-other/products","status":404,"ms":2}
+✔ route /product-service-other/products tidak cocok dengan prefix service (9.552771ms)
+{"time":"2026-11-25T03:03:45.862Z","service":"gateway","id":"672216de-99c3-4b9d-abf0-a0dafa5455cb","method":"GET","path":"/order-service-other/orders","status":404,"ms":3}
+✔ route /order-service-other/orders tidak cocok dengan prefix service (10.012627ms)
+{"time":"2026-11-25T03:03:45.876Z","service":"gateway","id":"1a6bc85d-6930-4ea1-a3d9-63ea55ae2406","method":"GET","path":"/catalog/products","status":200,"ms":6}
+{"time":"2026-11-25T03:03:45.884Z","service":"gateway","id":"630dbb5e-7783-4e78-bb8f-0f2c106f84d1","method":"GET","path":"/catalog/products","status":200,"ms":5}
+{"time":"2026-11-25T03:03:45.894Z","service":"gateway","id":"2a555cf9-f728-4166-8f64-a2c986275248","method":"GET","path":"/catalog/products","status":200,"ms":7}
+{"time":"2026-11-25T03:03:45.901Z","service":"gateway","id":"795d3f22-fb6f-45a4-9ab7-ba437371f8ce","method":"GET","path":"/catalog/products","status":200,"ms":4}
+{"time":"2026-11-25T03:03:45.908Z","service":"gateway","id":"6b88738b-5530-4164-9499-7f5f9b9b7ac5","method":"GET","path":"/catalog/products","status":200,"ms":5}
+{"time":"2026-11-25T03:03:45.915Z","service":"gateway","id":"29dcb80d-e92c-499b-8a5b-5e5c2a38f616","method":"GET","path":"/catalog/products","status":200,"ms":4}
+{"time":"2026-11-25T03:03:45.923Z","service":"gateway","id":"ac345a99-b0a3-43a4-a8b0-4252af6c54f7","method":"GET","path":"/catalog/products","status":200,"ms":5}
+{"time":"2026-11-25T03:03:45.930Z","service":"gateway","id":"7f6e1e0b-96ac-4a2a-8318-0d2598ecc09f","method":"GET","path":"/catalog/products","status":200,"ms":4}
+{"time":"2026-11-25T03:03:45.936Z","service":"gateway","id":"9f6ac4dd-d400-4f44-b3df-47efe90abd90","method":"GET","path":"/catalog/products","status":200,"ms":4}
+{"time":"2026-11-25T03:03:45.943Z","service":"gateway","id":"fac8ec21-b668-4464-8ba9-e340ba47472c","method":"GET","path":"/catalog/products","status":200,"ms":4}
+{"time":"2026-11-25T03:03:45.950Z","service":"gateway","id":"38493452-6436-49a7-afd5-55b23e318fea","method":"GET","path":"/catalog/products","status":200,"ms":4}
+{"time":"2026-11-25T03:03:45.957Z","service":"gateway","id":"ed39b6fe-4a8c-4f8a-8673-6739cb21ebba","method":"GET","path":"/catalog/products","status":200,"ms":4}
+{"time":"2026-11-25T03:03:45.964Z","service":"gateway","id":"402b6dce-342d-4811-97ed-1d9e4af9d903","method":"GET","path":"/catalog/products","status":200,"ms":4}
+{"time":"2026-11-25T03:03:45.970Z","service":"gateway","id":"1e4c25b7-265a-48a8-bb2a-9001ce1312cd","method":"GET","path":"/catalog/products","status":200,"ms":4}
+{"time":"2026-11-25T03:03:45.976Z","service":"gateway","id":"c61a7664-3c4c-4815-880a-5fb64baae2e5","method":"GET","path":"/catalog/products","status":200,"ms":4}
+{"time":"2026-11-25T03:03:45.982Z","service":"gateway","id":"6cd8a93f-7d43-430e-b4c5-d992888a9a77","method":"GET","path":"/catalog/products","status":200,"ms":4}
+{"time":"2026-11-25T03:03:45.989Z","service":"gateway","id":"17bad5da-c328-4cb9-8202-2b3dc1e2443f","method":"GET","path":"/catalog/products","status":200,"ms":4}
+{"time":"2026-11-25T03:03:45.995Z","service":"gateway","id":"94c51380-90a7-44bc-ab28-b9837a177902","method":"GET","path":"/catalog/products","status":200,"ms":3}
+{"time":"2026-11-25T03:03:46.001Z","service":"gateway","id":"0b97a2ed-9c67-4feb-9501-3fdbff56ddd1","method":"GET","path":"/catalog/products","status":200,"ms":4}
+{"time":"2026-11-25T03:03:46.006Z","service":"gateway","id":"315dbd97-ec47-48e8-b267-275214a40c28","method":"GET","path":"/catalog/products","status":200,"ms":4}
+{"time":"2026-11-25T03:03:46.010Z","service":"gateway","id":"416fd7ba-e03e-4700-9107-9da8cf5da769","method":"GET","path":"/catalog/products","status":429,"ms":2}
+{"time":"2026-11-25T03:03:46.014Z","service":"gateway","id":"881ee308-0254-4352-ba79-0a8a4152742f","method":"GET","path":"/catalog/products","status":429,"ms":2}
+{"time":"2026-11-25T03:03:46.019Z","service":"gateway","id":"2c9158d5-1daf-42c2-9bc6-a6a0d815b5ae","method":"GET","path":"/catalog/products","status":429,"ms":2}
+{"time":"2026-11-25T03:03:46.023Z","service":"gateway","id":"cbcfd3f3-9bcd-46e8-969d-7b2d2fceb1ff","method":"GET","path":"/catalog/products","status":429,"ms":2}
+{"time":"2026-11-25T03:03:46.028Z","service":"gateway","id":"127d7022-c928-40db-8a44-68e841a48d56","method":"GET","path":"/catalog/products","status":429,"ms":2}
+{"time":"2026-11-25T03:03:46.031Z","service":"gateway","id":"60de8555-5da4-4fb3-a958-cc1e7b027c24","method":"GET","path":"/catalog/products","status":429,"ms":2}
+{"time":"2026-11-25T03:03:46.036Z","service":"gateway","id":"40ba11eb-95fe-4651-8b40-fd2afd921664","method":"GET","path":"/catalog/products","status":429,"ms":2}
+{"time":"2026-11-25T03:03:46.040Z","service":"gateway","id":"81bc9d8a-8b17-4552-8fb8-db25b8f4f74c","method":"GET","path":"/catalog/products","status":429,"ms":2}
+{"time":"2026-11-25T03:03:46.045Z","service":"gateway","id":"380619fa-a60e-48b0-987d-d6d663e7f2bc","method":"GET","path":"/catalog/products","status":429,"ms":2}
+{"time":"2026-11-25T03:03:46.049Z","service":"gateway","id":"10add0c1-1f4a-4434-8807-0eb00af0b8ea","method":"GET","path":"/catalog/products","status":429,"ms":2}
+✔ batas default tepat 20 request; request ke-21 hingga ke-30 mendapat 429 (185.945388ms)
+✔ kuota dipulihkan setelah window berakhir (2169.489335ms)
+{"time":"2026-11-25T03:03:48.226Z","service":"gateway","id":"5210c72f-8f8c-4e0b-a790-e42052d788f5","method":"GET","path":"/catalog/products","status":502,"ms":4}
+✔ upstream mati menghasilkan 502 JSON tanpa menggantung (7.75928ms)
+✔ konfigurasi menolak hash, port dan URL upstream tidak valid (0.754751ms)
+{"time":"2026-11-25T03:03:45.822Z","service":"catalog-service","id":"f67cce50-0cbc-46a6-b74f-d9edf9be1d2b","method":"POST","path":"/products/prod-001/reserve","status":400,"ms":173}
+{"time":"2026-11-25T03:03:45.839Z","service":"catalog-service","id":"d2941d9a-2571-4bbf-bf2f-22e9a8b871f9","method":"POST","path":"/products/prod-001/reserve","status":400,"ms":2}
+{"time":"2026-11-25T03:03:45.847Z","service":"catalog-service","id":"8fb3f7aa-b824-4eaa-9892-97fd7ee2492e","method":"POST","path":"/products/prod-001/reserve","status":400,"ms":1}
+{"time":"2026-11-25T03:03:45.852Z","service":"catalog-service","id":"de82b92f-0a81-45ca-8ca4-b159d940ef81","method":"POST","path":"/products/prod-001/reserve","status":400,"ms":1}
+{"time":"2026-11-25T03:03:45.856Z","service":"catalog-service","id":"b4106e1b-936a-4f5f-ad44-9d15399b3e10","method":"POST","path":"/products/prod-001/reserve","status":400,"ms":1}
+{"time":"2026-11-25T03:03:45.861Z","service":"catalog-service","id":"4990b11c-7f2a-4279-a88c-8c871a955edd","method":"POST","path":"/products/prod-001/reserve","status":400,"ms":1}
+{"time":"2026-11-25T03:03:45.866Z","service":"catalog-service","id":"cafe3a2d-91f2-4fe1-870e-e6d10852bd41","method":"POST","path":"/products/prod-001/reserve","status":400,"ms":1}
+{"time":"2026-11-25T03:03:45.870Z","service":"catalog-service","id":"fc7f7a4f-dde3-4739-b275-fccd3624385c","method":"POST","path":"/products/prod-001/reserve","status":400,"ms":1}
+{"time":"2026-11-25T03:03:45.875Z","service":"catalog-service","id":"7cce7822-cc92-409c-a254-dc8f42a88a30","method":"POST","path":"/products/unknown/reserve","status":404,"ms":2}
+{"time":"2026-11-25T03:03:45.878Z","service":"catalog-service","id":"4e69fced-3083-47ef-84c8-6d11557ee284","method":"GET","path":"/products/prod-001","status":200,"ms":1}
+✔ reserve validates quantity without changing stock and reports unknown products (347.11819ms)
+{"time":"2026-11-25T03:03:45.902Z","service":"catalog-service","id":"0866c164-d0f9-485c-90d8-a31e7e933a05","method":"POST","path":"/products/prod-001/reserve","status":200,"ms":1}
+{"time":"2026-11-25T03:03:45.907Z","service":"catalog-service","id":"3d9fe758-1cc9-4a11-9d0f-1d88172d3059","method":"POST","path":"/products/prod-001/reserve","status":409,"ms":1}
+{"time":"2026-11-25T03:03:45.910Z","service":"catalog-service","id":"8adf79a3-8648-4073-ad8f-af5cfcfe3eaa","method":"GET","path":"/products/prod-001","status":200,"ms":1}
+✔ reserve accepts the final available unit and rejects overselling with 409 (24.243272ms)
+{"time":"2026-11-25T03:03:45.922Z","service":"catalog-service","id":"292e8d96-1abb-402e-9b49-552c9d1f3822","method":"POST","path":"/products/prod-001/reserve","status":200,"ms":2}
+{"time":"2026-11-25T03:03:45.925Z","service":"catalog-service","id":"133f105d-b2af-4d49-934f-77cf16db8dd7","method":"GET","path":"/products/prod-001","status":200,"ms":0}
+{"time":"2026-11-25T03:03:45.928Z","service":"catalog-service","id":"3d3aefe5-be97-4339-a0d0-b7fdb66d5f7d","method":"GET","path":"/products/prod-001","status":200,"ms":1}
+{"time":"2026-11-25T03:03:45.946Z","service":"catalog-service","id":"9c3ce4ce-0b00-4217-9cb2-057bf12823fc","method":"POST","path":"/graphql","status":200,"ms":16}
+✔ each catalog app owns independent stock and GraphQL sees REST reservations (38.038253ms)
+{"time":"2026-11-25T03:03:45.955Z","service":"catalog-service","id":"c1fa774b-db89-4900-bdc2-2976344d6202","method":"POST","path":"/reservations","status":200,"ms":1}
+{"time":"2026-11-25T03:03:45.958Z","service":"catalog-service","id":"8f27a768-e660-4c11-a3ef-ed83d77a76db","method":"GET","path":"/products/prod-001","status":200,"ms":0}
+{"time":"2026-11-25T03:03:45.959Z","service":"catalog-service","id":"6e507a9e-2319-404f-becc-2b625d8daec6","method":"GET","path":"/products/prod-002","status":200,"ms":0}
+✔ batch reservation counts duplicate product IDs and deducts each product once (10.898405ms)
+{"time":"2026-11-25T03:03:45.967Z","service":"catalog-service","id":"59254be2-6af7-4caa-8ebd-2d6f2d6d4716","method":"POST","path":"/reservations","status":409,"ms":1}
+{"time":"2026-11-25T03:03:45.968Z","service":"catalog-service","id":"b3de6afc-52c1-46d8-8ef7-2bf7eafcf2b9","method":"GET","path":"/products/prod-001","status":200,"ms":0}
+{"time":"2026-11-25T03:03:45.969Z","service":"catalog-service","id":"5287794c-b1a0-4e90-8400-172f4a4950a0","method":"GET","path":"/products/prod-002","status":200,"ms":0}
+{"time":"2026-11-25T03:03:45.972Z","service":"catalog-service","id":"bfc2f234-a8a0-4156-8912-22cdb0f1e656","method":"POST","path":"/reservations","status":404,"ms":1}
+{"time":"2026-11-25T03:03:45.973Z","service":"catalog-service","id":"e6651679-6faa-4e2a-9391-07a168d265e8","method":"GET","path":"/products/prod-001","status":200,"ms":0}
+{"time":"2026-11-25T03:03:45.975Z","service":"catalog-service","id":"f580f18d-f644-4893-ba76-6d6b43af1401","method":"GET","path":"/products/prod-002","status":200,"ms":0}
+{"time":"2026-11-25T03:03:45.977Z","service":"catalog-service","id":"a8720322-adec-4173-88f2-5a45a4cc69a8","method":"POST","path":"/reservations","status":400,"ms":0}
+{"time":"2026-11-25T03:03:45.978Z","service":"catalog-service","id":"5598221e-096d-4b08-b31e-f215601cb9a2","method":"GET","path":"/products/prod-001","status":200,"ms":0}
+{"time":"2026-11-25T03:03:45.980Z","service":"catalog-service","id":"796cbb9d-a6f0-4e3b-8f08-9ca686e272d8","method":"GET","path":"/products/prod-002","status":200,"ms":0}
+{"time":"2026-11-25T03:03:45.983Z","service":"catalog-service","id":"aa443601-ba8e-40dd-99d9-2bb6813ac8c7","method":"POST","path":"/reservations","status":409,"ms":1}
+{"time":"2026-11-25T03:03:45.984Z","service":"catalog-service","id":"3549f3e7-d1e0-44fd-88d9-c61caa1dab32","method":"GET","path":"/products/prod-001","status":200,"ms":0}
+✔ rejected batch reservations never deduct stock from other products (24.556226ms)
+{"time":"2026-11-25T03:03:45.995Z","service":"catalog-service","id":"b7eafdc7-8b27-45df-830f-6b09d9c5ceff","method":"POST","path":"/products/prod-001/reserve","status":200,"ms":1}
+{"time":"2026-11-25T03:03:45.997Z","service":"order-service","id":"b7eafdc7-8b27-45df-830f-6b09d9c5ceff","method":"POST","path":"/orders","status":201,"ms":5}
+{"time":"2026-11-25T03:03:45.999Z","service":"catalog-service","id":"97c836bf-a47c-4eee-a6b0-0f38614ef5d8","method":"GET","path":"/products/prod-001","status":200,"ms":0}
+{"time":"2026-11-25T03:03:46.002Z","service":"catalog-service","id":"19da6c39-4b1f-4b80-8f5c-97c54da78bc9","method":"POST","path":"/products/prod-001/reserve","status":409,"ms":0}
+{"time":"2026-11-25T03:03:46.003Z","service":"order-service","id":"19da6c39-4b1f-4b80-8f5c-97c54da78bc9","method":"POST","path":"/orders","status":409,"ms":3}
+{"time":"2026-11-25T03:03:46.005Z","service":"order-service","id":"9a9c5a61-ac95-4e45-b6ce-43e607c5bfc0","method":"GET","path":"/orders","status":200,"ms":0}
+✔ real order service can reserve all remaining stock and then returns 409 (20.703326ms)
+{"time":"2026-11-25T03:03:46.015Z","service":"catalog-service","id":"e946ef17-d451-4e26-9564-854d97b2a0f7","method":"POST","path":"/products/prod-001/reserve","status":200,"ms":0}
+{"time":"2026-11-25T03:03:46.016Z","service":"order-service","id":"e946ef17-d451-4e26-9564-854d97b2a0f7","method":"POST","path":"/orders","status":201,"ms":4}
+{"time":"2026-11-25T03:03:46.016Z","service":"catalog-service","id":"e39a275b-9c7e-4db9-a2ff-fb4c7a7ed2f9","method":"POST","path":"/products/prod-001/reserve","status":409,"ms":0}
+{"time":"2026-11-25T03:03:46.017Z","service":"order-service","id":"e39a275b-9c7e-4db9-a2ff-fb4c7a7ed2f9","method":"POST","path":"/orders","status":409,"ms":5}
+{"time":"2026-11-25T03:03:46.019Z","service":"catalog-service","id":"41f6609b-e6d3-457c-bb10-f760d99b4ba8","method":"GET","path":"/products/prod-001","status":200,"ms":0}
+{"time":"2026-11-25T03:03:46.021Z","service":"order-service","id":"957528c4-e90b-417b-b450-1c3e3dfd41ca","method":"GET","path":"/orders","status":200,"ms":0}
+✔ concurrent orders cannot oversell the same catalog stock (16.09805ms)
+{"time":"2026-11-25T03:03:46.030Z","service":"catalog-service","id":"4d1929e3-eea1-470c-b4ad-faaf808d9730","method":"POST","path":"/reservations","status":200,"ms":0}
+{"time":"2026-11-25T03:03:46.031Z","service":"order-service","id":"4d1929e3-eea1-470c-b4ad-faaf808d9730","method":"POST","path":"/orders","status":201,"ms":3}
+{"time":"2026-11-25T03:03:46.033Z","service":"catalog-service","id":"f04071ed-031c-49c2-a289-3b508a3ff7d8","method":"GET","path":"/products/prod-001","status":200,"ms":1}
+{"time":"2026-11-25T03:03:46.035Z","service":"catalog-service","id":"caed201c-b1f0-4297-8622-b43a9e6199bc","method":"GET","path":"/products/prod-002","status":200,"ms":0}
+✔ orders with repeated and multiple products reserve aggregate quantities and authoritative prices (13.547942ms)
+{"time":"2026-11-25T03:03:46.045Z","service":"catalog-service","id":"de6bf177-4011-4753-99b3-6fb8153d711a","method":"POST","path":"/reservations","status":409,"ms":0}
+{"time":"2026-11-25T03:03:46.046Z","service":"order-service","id":"de6bf177-4011-4753-99b3-6fb8153d711a","method":"POST","path":"/orders","status":409,"ms":3}
+{"time":"2026-11-25T03:03:46.047Z","service":"catalog-service","id":"29f23c5d-3e14-4f76-8bd7-2e07620b0fa0","method":"GET","path":"/products/prod-001","status":200,"ms":0}
+{"time":"2026-11-25T03:03:46.048Z","service":"catalog-service","id":"d648f3da-a81f-47c6-8574-df483f30d0f1","method":"GET","path":"/products/prod-002","status":200,"ms":0}
+{"time":"2026-11-25T03:03:46.056Z","service":"catalog-service","id":"1aa71d00-8a3e-4d55-91d3-69ae19bc73a8","method":"POST","path":"/reservations","status":404,"ms":0}
+{"time":"2026-11-25T03:03:46.058Z","service":"order-service","id":"1aa71d00-8a3e-4d55-91d3-69ae19bc73a8","method":"POST","path":"/orders","status":404,"ms":9}
+{"time":"2026-11-25T03:03:46.059Z","service":"catalog-service","id":"4b8553c5-50d1-451c-a502-a93e6f394c5b","method":"GET","path":"/products/prod-001","status":200,"ms":0}
+{"time":"2026-11-25T03:03:46.060Z","service":"catalog-service","id":"11390ea8-4b86-4f82-8bff-4e66dc758461","method":"GET","path":"/products/prod-002","status":200,"ms":0}
+{"time":"2026-11-25T03:03:46.061Z","service":"order-service","id":"00ac8953-86f4-4759-89c5-17dd0ad999e5","method":"GET","path":"/orders","status":200,"ms":0}
+✔ invalid multi-product orders leave both catalog stock and order history intact (26.284503ms)
+{"time":"2026-11-25T03:03:46.067Z","service":"catalog-service","id":"f31b0570-0009-4bbf-af98-00ec2209f47f","method":"POST","path":"/products/prod-001/reserve","status":200,"ms":0}
+{"time":"2026-11-25T03:03:46.068Z","service":"order-service","id":"f31b0570-0009-4bbf-af98-00ec2209f47f","method":"POST","path":"/orders","status":201,"ms":3}
+{"time":"2026-11-25T03:03:46.070Z","service":"catalog-service","id":"6b035539-9b7d-495a-9c7d-4e0bbeb3112b","method":"GET","path":"/products/prod-001","status":200,"ms":0}
+✔ duplicate-only order reserves the summed quantity through the single-product endpoint (8.326827ms)
+(node:3136) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+{"time":"2026-11-25T03:03:46.089Z","service":"catalog-service","id":"9dd4230f-405d-4997-8853-5ee77f613e3d","method":"POST","path":"/products/prod-001/reserve","status":200,"ms":1}
+{"time":"2026-11-25T03:03:46.091Z","service":"order-service","id":"9dd4230f-405d-4997-8853-5ee77f613e3d","method":"POST","path":"/orders","status":201,"ms":4}
+{"time":"2026-11-25T03:03:46.094Z","service":"gateway","id":"9dd4230f-405d-4997-8853-5ee77f613e3d","method":"POST","path":"/order-service/orders","status":201,"ms":15}
+{"time":"2026-11-25T03:03:46.104Z","service":"order-service","id":"d3697d07-753a-4951-b3c6-bedbb84156e9","method":"POST","path":"/orders","status":503,"ms":3}
+{"time":"2026-11-25T03:03:46.104Z","service":"gateway","id":"d3697d07-753a-4951-b3c6-bedbb84156e9","method":"POST","path":"/order-service/orders","status":503,"ms":6}
+{"time":"2026-11-25T03:03:46.111Z","service":"order-service","id":"a98cd6f0-5a18-48ef-8b1a-80bd50e439b7","method":"GET","path":"/orders","status":200,"ms":0}
+{"time":"2026-11-25T03:03:46.112Z","service":"gateway","id":"a98cd6f0-5a18-48ef-8b1a-80bd50e439b7","method":"GET","path":"/order-service/orders","status":200,"ms":5}
+{"time":"2026-11-25T03:03:46.114Z","service":"catalog-service","id":"067b1897-9d1d-41e0-b70c-6d14f3c99a28","method":"GET","path":"/products/prod-001","status":200,"ms":0}
+{"time":"2026-11-25T03:03:46.118Z","service":"catalog-service","id":"0943c475-2ef9-4257-8dac-f95671e68a15","method":"POST","path":"/products/prod-001/reserve","status":200,"ms":0}
+{"time":"2026-11-25T03:03:46.119Z","service":"order-service","id":"0943c475-2ef9-4257-8dac-f95671e68a15","method":"POST","path":"/orders","status":201,"ms":2}
+{"time":"2026-11-25T03:03:46.120Z","service":"gateway","id":"0943c475-2ef9-4257-8dac-f95671e68a15","method":"POST","path":"/order-service/orders","status":201,"ms":4}
+{"time":"2026-11-25T03:03:46.122Z","service":"catalog-service","id":"8e010991-fbae-43fe-864d-878c7b5a14b3","method":"GET","path":"/products/prod-001","status":200,"ms":0}
+{"time":"2026-11-25T03:03:46.126Z","service":"order-service","id":"f77f6f54-0e57-4c6e-817e-7bfdf5f8bed1","method":"GET","path":"/orders","status":200,"ms":0}
+{"time":"2026-11-25T03:03:46.127Z","service":"gateway","id":"f77f6f54-0e57-4c6e-817e-7bfdf5f8bed1","method":"GET","path":"/order-service/orders","status":200,"ms":3}
+✔ through gateway: catalog failure gives POST 503, keeps GET 200, and restart restores POST 201 (57.285117ms)
+{"time":"2026-11-25T03:03:48.134Z","service":"order-service","id":"ca44d886-580a-4e8a-9370-e3070cc91c0e","method":"POST","path":"/orders","status":503,"ms":2003}
+{"time":"2026-11-25T03:03:48.137Z","service":"order-service","id":"dce460e5-812d-4067-938e-6fde96c477d0","method":"GET","path":"/orders","status":200,"ms":0}
+▶ the 2-second catalog timeout includes waiting for response headers and body
+  ✔ response headers never arrive (2009.048832ms)
+{"time":"2026-11-25T03:03:50.142Z","service":"order-service","id":"a26bf31a-8c13-4bde-9460-8b943847c834","method":"POST","path":"/orders","status":503,"ms":2002}
+{"time":"2026-11-25T03:03:50.144Z","service":"order-service","id":"73f30465-199a-4c61-ae3e-d14b59a9204a","method":"GET","path":"/orders","status":200,"ms":0}
+  ✔ response body stalls after headers (2007.764587ms)
+✔ the 2-second catalog timeout includes waiting for response headers and body (4017.407227ms)
+{"time":"2026-11-25T03:03:47.287Z","service":"gateway","id":"5427e97e-765f-48e1-9344-b377424ebb97","method":"GET","path":"/app.js","status":200,"ms":14}
+{"time":"2026-11-25T03:03:47.306Z","service":"gateway","id":"ec2af925-223f-40b3-8cd1-76461777ae76","method":"GET","path":"/styles.css","status":200,"ms":5}
+{"time":"2026-11-25T03:03:47.318Z","service":"gateway","id":"4b92f60e-f724-492d-9846-6a1acf01a874","method":"GET","path":"/sandbox","status":200,"ms":9}
+{"time":"2026-11-25T03:03:47.324Z","service":"gateway","id":"044b29d0-39bd-459e-9b0e-103327dc7278","method":"GET","path":"/docs/","status":200,"ms":4}
+{"time":"2026-11-25T03:03:47.337Z","service":"gateway","id":"c4bd2171-44ee-4409-b3b2-4ad5c62ba807","method":"GET","path":"/docs/swagger-ui.css","status":200,"ms":11}
+{"time":"2026-11-25T03:03:47.360Z","service":"gateway","id":"28123b98-f106-4944-bbf1-2b5dcbf36e28","method":"GET","path":"/docs/swagger-ui-bundle.js","status":200,"ms":22}
+{"time":"2026-11-25T03:03:47.366Z","service":"gateway","id":"8c85afe7-740a-41a3-8317-6e53a3dfbd4c","method":"GET","path":"/openapi.json","status":200,"ms":2}
+{"time":"2026-11-25T03:03:47.370Z","service":"gateway","id":"a673a861-ef4f-4330-9721-4b410ae6ddea","method":"GET","path":"/openapi.json","status":200,"ms":2}
+{"time":"2026-11-25T03:03:47.374Z","service":"gateway","id":"8aba275c-9cb5-4baf-bfb0-052fb11b78a6","method":"GET","path":"/openapi.json","status":200,"ms":2}
+{"time":"2026-11-25T03:03:47.378Z","service":"gateway","id":"997ef505-b7ce-4536-bd87-5c5e6be79733","method":"GET","path":"/openapi.json","status":200,"ms":2}
+{"time":"2026-11-25T03:03:47.382Z","service":"gateway","id":"eeaddc0f-d056-48e2-b3cd-b90401cd3ca8","method":"GET","path":"/openapi.json","status":200,"ms":2}
+{"time":"2026-11-25T03:03:47.385Z","service":"gateway","id":"f4056b9a-a9f9-49dc-a49e-2612aefaf241","method":"GET","path":"/openapi.json","status":200,"ms":2}
+{"time":"2026-11-25T03:03:47.388Z","service":"gateway","id":"28175573-d075-4402-8d54-59b3ea3d1f7e","method":"GET","path":"/openapi.json","status":200,"ms":2}
+{"time":"2026-11-25T03:03:47.391Z","service":"gateway","id":"d988e68d-6241-4221-abce-b0e5ab851776","method":"GET","path":"/openapi.json","status":200,"ms":2}
+{"time":"2026-11-25T03:03:47.393Z","service":"gateway","id":"d5a05b10-daf9-4050-966d-c2006f571622","method":"GET","path":"/openapi.json","status":200,"ms":1}
+{"time":"2026-11-25T03:03:47.403Z","service":"gateway","id":"6bd3b88a-4a8e-4460-90a5-686782f21985","method":"GET","path":"/openapi.json","status":200,"ms":2}
+{"time":"2026-11-25T03:03:47.406Z","service":"gateway","id":"c2afe4a1-a1c5-4d00-94f8-42c77ecb97fa","method":"GET","path":"/openapi.json","status":200,"ms":2}
+{"time":"2026-11-25T03:03:47.411Z","service":"gateway","id":"711bbd41-a015-44c9-92c0-19659d534f9e","method":"GET","path":"/openapi.json","status":200,"ms":3}
+{"time":"2026-11-25T03:03:47.414Z","service":"gateway","id":"47e4ac6c-30ae-419d-93a8-4258d1d1a6d1","method":"GET","path":"/openapi.json","status":200,"ms":2}
+{"time":"2026-11-25T03:03:47.417Z","service":"gateway","id":"345e778a-d554-4086-903b-4d0173cb4974","method":"GET","path":"/openapi.json","status":200,"ms":2}
+{"time":"2026-11-25T03:03:47.420Z","service":"gateway","id":"46d088a3-032e-4e31-9558-68c1f8be610a","method":"GET","path":"/openapi.json","status":200,"ms":2}
+{"time":"2026-11-25T03:03:47.422Z","service":"gateway","id":"1b8ec033-f651-41f7-a4a8-2db140545061","method":"GET","path":"/openapi.json","status":200,"ms":2}
+{"time":"2026-11-25T03:03:47.424Z","service":"gateway","id":"0ff8413b-89af-4f17-be28-f9a9d968e334","method":"GET","path":"/openapi.json","status":200,"ms":1}
+{"time":"2026-11-25T03:03:47.427Z","service":"gateway","id":"b72f2b48-2633-4f55-864b-d465a8a9fd09","method":"GET","path":"/openapi.json","status":200,"ms":2}
+{"time":"2026-11-25T03:03:47.429Z","service":"gateway","id":"5924e9b0-ad6d-4b8d-98d4-2f94cf185b49","method":"GET","path":"/openapi.json","status":200,"ms":2}
+{"time":"2026-11-25T03:03:47.432Z","service":"gateway","id":"7c766f3e-5042-48f7-8cac-ef438499b5b4","method":"GET","path":"/openapi.json","status":200,"ms":2}
+{"time":"2026-11-25T03:03:47.434Z","service":"gateway","id":"57149469-f1be-4311-8b48-00ec935b72fd","method":"GET","path":"/openapi.json","status":200,"ms":2}
+✔ documentation and frontend assets load without spending the API quota (302.320735ms)
+{"time":"2026-11-25T03:03:47.493Z","service":"gateway","id":"3a4ee09c-7bb7-4109-bb9c-9909d9dddeda","method":"OPTIONS","path":"/product-service/graphql","status":204,"ms":1}
+(node:3137) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+{"time":"2026-11-25T03:03:47.684Z","service":"catalog-service","id":"66ef2a9c-118c-4750-8bcf-aa02f3154042","method":"POST","path":"/graphql","status":200,"ms":181}
+{"time":"2026-11-25T03:03:47.685Z","service":"gateway","id":"66ef2a9c-118c-4750-8bcf-aa02f3154042","method":"POST","path":"/product-service/graphql","status":200,"ms":189}
+✔ Apollo Studio can query the public catalog through the gateway (202.494142ms)
+{"time":"2026-11-25T03:03:47.691Z","service":"gateway","id":"19c56bbf-09a0-480e-a607-e93ffbf75645","method":"OPTIONS","path":"/product-service/graphql","status":403,"ms":1}
+{"time":"2026-11-25T03:03:47.692Z","service":"gateway","id":"bbec69a7-4307-40dc-bdea-473ebe0e6724","method":"OPTIONS","path":"/product-service/graphql","status":403,"ms":0}
+{"time":"2026-11-25T03:03:47.695Z","service":"gateway","id":"807b4a0e-5c74-4ad7-85e3-7b8bcc63b448","method":"GET","path":"/order-service/orders","status":401,"ms":2}
+{"time":"2026-11-25T03:03:47.698Z","service":"gateway","id":"b25b7a35-383f-4410-88db-87229d9bd244","method":"GET","path":"/.env","status":404,"ms":1}
+✔ CORS support does not grant unrelated origins access to the order API (11.514224ms)
+✔ BVA: quantity accepts the inclusive limits 1 and 100 (3.735882ms)
+✔ BVA/EP: quantity rejects outside limits, fractions, and invalid types (0.897939ms)
+✔ BVA: customerName requires 1 to 100 characters after trimming (0.324616ms)
+✔ BVA: items accepts 1 and 50 entries and rejects 0 or 51 (0.395641ms)
+✔ EP: invalid bodies and product identifiers are rejected (0.425006ms)
+✔ prices and totals come from catalog values; client price fields are ignored (2.207457ms)
+✔ stock checks count repeated products together (0.54569ms)
+✔ malformed upstream prices are rejected instead of being used in totals (0.355444ms)
+{"time":"2026-11-25T03:03:45.732Z","service":"catalog-service","id":"86c1bdc2-6b85-40b0-872f-09961cceee9d","method":"GET","path":"/products","status":200,"ms":2}
+{"time":"2026-11-25T03:03:45.737Z","service":"catalog-service","id":"85a7a98c-79d3-4056-ab72-a4fc093f115d","method":"GET","path":"/products","status":200,"ms":1}
+{"time":"2026-11-25T03:03:45.740Z","service":"catalog-service","id":"1251c5b0-0fe5-403d-a2df-c5b2c7323ac5","method":"GET","path":"/products","status":200,"ms":1}
+{"time":"2026-11-25T03:03:45.743Z","service":"catalog-service","id":"efdf75f9-31d7-4ac4-9f8b-14f796d4b8f2","method":"GET","path":"/products/prod-002","status":200,"ms":1}
+{"time":"2026-11-25T03:03:45.746Z","service":"catalog-service","id":"5f6ea5a4-e3cc-44c0-90da-637086bda6ea","method":"GET","path":"/products/unknown","status":404,"ms":1}
+{"time":"2026-11-25T03:03:45.748Z","service":"catalog-service","id":"962a442c-d1ea-4b29-8351-cd233fbee447","method":"GET","path":"/missing","status":404,"ms":1}
+{"time":"2026-11-25T03:03:45.751Z","service":"catalog-service","id":"480424d5-78af-4f47-87a9-94d341cfb929","method":"GET","path":"/products","status":400,"ms":1}
+✔ catalog REST exposes products, case-insensitive filters, and JSON errors (156.238404ms)
+{"time":"2026-11-25T03:03:46.009Z","service":"catalog-service","id":"7bcc1511-d78e-4f4c-b67d-bb2ac9eadfd2","method":"POST","path":"/graphql","status":200,"ms":234}
+✔ GraphQL POST selects requested fields and supports variables (256.780417ms)
+{"time":"2026-11-25T03:03:46.017Z","service":"catalog-service","id":"eb426e18-87f1-407e-addf-213144df6e56","method":"GET","path":"/graphql","status":200,"ms":2}
+✔ GraphQL GET returns one product and null for an unknown ID (7.898536ms)
+{"time":"2026-11-25T03:03:46.027Z","service":"catalog-service","id":"191f3fc1-f8db-4638-8174-5982c7dcc37a","method":"POST","path":"/graphql","status":200,"ms":3}
+✔ GraphQL reports invalid field selection using standard GraphQL errors (9.116312ms)
+{"time":"2026-11-25T03:03:46.036Z","service":"order-service","id":"979bdb21-9506-4dbd-add2-b0b02a6dd9dd","method":"POST","path":"/orders","status":201,"ms":3}
+{"time":"2026-11-25T03:03:46.038Z","service":"order-service","id":"9061372f-c1eb-4ca3-96e0-6b03b199b72a","method":"GET","path":"/orders/ord-f9cbfdf4-f418-472e-b04a-66073ba702e0","status":200,"ms":1}
+{"time":"2026-11-25T03:03:46.039Z","service":"order-service","id":"d29f52d7-e157-4edb-ab9a-f016376aa3b0","method":"GET","path":"/orders","status":200,"ms":0}
+✔ order REST creates an authoritative total, Location, detail, and list (12.351732ms)
+{"time":"2026-11-25T03:03:46.045Z","service":"order-service","id":"ead88c32-32d2-4e42-808e-af12484d9e2f","method":"POST","path":"/orders","status":201,"ms":1}
+{"time":"2026-11-25T03:03:46.048Z","service":"order-service","id":"bdb0de5d-b501-4c6e-9e53-51aa81937d22","method":"GET","path":"/orders","status":200,"ms":1}
+✔ each order app has independent in-memory state (8.395868ms)
+{"time":"2026-11-25T03:03:46.054Z","service":"order-service","id":"82326f21-2988-4103-81da-c86822227445","method":"POST","path":"/orders","status":400,"ms":1}
+{"time":"2026-11-25T03:03:46.058Z","service":"order-service","id":"9c48d8b7-61dd-4991-9c75-a00d47f352d6","method":"POST","path":"/orders","status":404,"ms":1}
+{"time":"2026-11-25T03:03:46.060Z","service":"order-service","id":"c0f1ddf3-9ba9-4685-bfaa-c2c2fe5097d5","method":"POST","path":"/orders","status":409,"ms":1}
+{"time":"2026-11-25T03:03:46.062Z","service":"order-service","id":"b05274fd-17a7-444d-8b4f-f66d0fbb3c5f","method":"GET","path":"/orders","status":200,"ms":0}
+✔ invalid orders, unknown products, and insufficient stock return 400/404/409 and create no orders (14.769129ms)
+{"time":"2026-11-25T03:03:46.069Z","service":"order-service","id":"1957972c-8577-4717-ac74-5b5c3d0a9988","method":"POST","path":"/orders","status":503,"ms":1}
+{"time":"2026-11-25T03:03:46.071Z","service":"order-service","id":"335ab267-299a-4add-9492-ce1ba831553f","method":"GET","path":"/orders","status":200,"ms":1}
+✔ upstream network failure returns 503 and keeps the order list empty (7.829152ms)
+{"time":"2026-11-25T03:03:46.077Z","service":"order-service","id":"530bda81-3e38-45fb-97dc-7648cbe6b76e","method":"POST","path":"/orders","status":503,"ms":1}
+{"time":"2026-11-25T03:03:46.081Z","service":"order-service","id":"eabdb6de-9540-483a-9224-0a7687a3f735","method":"POST","path":"/orders","status":502,"ms":1}
+✔ upstream HTTP failure returns 503 while invalid product data returns 502 (10.218075ms)
+{"time":"2026-11-25T03:03:46.088Z","service":"order-service","id":"f569428f-2647-42a4-90da-926f8d0092ed","method":"POST","path":"/orders","status":201,"ms":1}
+✔ order service calls the configured catalog URL with an abort signal (7.429954ms)
+{"time":"2026-11-25T03:03:46.092Z","service":"order-service","id":"fcd1a10d-3425-482b-835f-c7a5d78b155e","method":"GET","path":"/orders/unknown","status":404,"ms":0}
+{"time":"2026-11-25T03:03:46.094Z","service":"order-service","id":"c3c7b6a2-a6e1-4303-a293-23e261451a69","method":"GET","path":"/missing","status":404,"ms":0}
+✔ unknown order and unknown routes return JSON 404 (4.701931ms)
+{"time":"2026-11-25T03:03:46.098Z","service":"catalog-service","id":"e4f71780-4b3e-4de2-860b-c4c619232ff4","method":"POST","path":"/graphql","status":400,"ms":1}
+{"time":"2026-11-25T03:03:46.101Z","service":"order-service","id":"cf8fe986-b677-442e-a5f6-16b7da69f60b","method":"POST","path":"/orders","status":400,"ms":1}
+✔ both services reject malformed JSON with a JSON 400 response (7.420017ms)
+ℹ tests 77
+ℹ suites 0
+ℹ pass 77
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7769.442962

@@ -13,6 +13,7 @@ function buildProcessConfigs(env = process.env) {
     CATALOG_PORT: catalogPort,
     ORDER_PORT: orderPort,
     CATALOG_SERVICE_URL: `http://127.0.0.1:${catalogPort}`,
+    PRODUCT_SERVICE_URL: `http://127.0.0.1:${catalogPort}`,
     ORDER_SERVICE_URL: `http://127.0.0.1:${orderPort}`,
   };
   return [
