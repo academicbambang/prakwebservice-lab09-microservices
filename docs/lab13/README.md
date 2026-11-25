@@ -6,6 +6,8 @@ Stack Compose menjalankan gateway, katalog, pesanan, RabbitMQ, dan consumer noti
 
 ## Bukti pengumpulan
 
+[Laporan PDF Lab 13](../../output/pdf/Laporan%20Praktikum%20Web%20Service%20Lab%2013%20-%20Bambang%20Herlambang.pdf) memuat screenshot manual, refleksi, dan tautan pengumpulan.
+
 Tangkapan berikut menampilkan output asli dari eksekusi Docker Compose di WSL 2. Gambar dirender dari log terminal, dengan cuplikan tes HTTP dan ringkasan pada tangkapan `npm test`.
 
 | Pemeriksaan | Hasil | Bukti |

@@ -16,4 +16,8 @@ Demo ini memakai salinan lokal dari rilis code freeze proyek Marketplace UMKM Ke
 
    ![Keluaran demo checkout dan pembayaran sampai pesanan PAID](evidence-kelompok/03-checkout-pembayaran.png)
 
-Tangkapan frontend diambil dari browser lokal. Tangkapan status dan checkout dirender dari keluaran perintah yang dijalankan pada stack Compose yang sama. Pengujian memakai data demo, identitas uji, dan simulator pembayaran. Paket kode tersedia sebagai lampiran privat untuk pengajar.
+Tangkapan frontend diambil dari browser lokal. Tangkapan status dan checkout dirender dari keluaran perintah yang dijalankan pada stack Compose yang sama. Pengujian memakai data demo, identitas uji, dan simulator pembayaran.
+
+## Kode demo
+
+[Docker Compose, Dockerfile, patch, dan petunjuk demo](https://github.com/academicbambang/prakwebservice-lab09-microservices/tree/lab13-bukti-demo-kelompok/docs/lab13/demo-compose-kelompok) tersedia di branch `lab13-bukti-demo-kelompok`. Patch diterapkan pada salinan lokal tag `v1.0-freeze` dari repo proyek Kelompok D.
